@@ -8,6 +8,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <unistd.h>
+
 #include "config.h"
 
 class MiLightUPDsender : public QObject
@@ -15,7 +17,7 @@ class MiLightUPDsender : public QObject
     Q_OBJECT;
 
 public:
-    MiLightUPDsender(QObject *parent = 0);
+    MiLightUPDsender(QObject *parent = 0, QString ip = QString(MILIGHT_IP_DEFAULT), int port = MILIGHT_PORT_DEFAULT);
 
 public slots:
     void setColor(unsigned char zone, const QColor &c);

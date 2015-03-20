@@ -16,9 +16,10 @@ class AudioThread : public QThread
     Q_OBJECT
 public:
     AudioThread(QWidget *parent = 0);
-    int samples;
+    ~AudioThread();
 
 public slots:
+    void setStop() { stop = true; }
 
 signals:
     void bufferFilled(MyBuffer, int n);
@@ -27,7 +28,10 @@ private:
     void run();
 
     MyBuffer buffer;
+    char *command;
+    FILE *stream;
     int n;
+    bool stop;
 };
 
 class audioController : public QWidget

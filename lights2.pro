@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,6 +28,7 @@ HEADERS  += lightcontroller.h \
     audiocontroller.h \
     specialbuttons.h \
     qcustomplot.h \
-    config.h
+    config.h \
+    discover.h
 
 FORMS    += lightcontroller.ui

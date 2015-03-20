@@ -1,19 +1,21 @@
 #include "milightupdsender.h"
 
-#define PORT 8899
-#define IP "192.168.1.16"
-
-MiLightUPDsender::MiLightUPDsender(QObject *parent) :
+MiLightUPDsender::MiLightUPDsender(QObject *parent, QString ip, int port) :
     QObject(parent)
 {
+    QByteArray ba = ip.toLocal8Bit();
+    char *c_ip = ba.data();
+
+    qDebug() << port << ip << endl;
+
     udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
     if(udpSocket < 0) error("Couldn't open socket\n");
 
     memset(&destSockAddr, 0, sizeof(destSockAddr));
 
     destSockAddr.sin_family = AF_INET;
-    destSockAddr.sin_port = htons(PORT);
-    destSockAddr.sin_addr.s_addr = inet_addr(IP);
+    destSockAddr.sin_port = htons(port);
+    destSockAddr.sin_addr.s_addr = inet_addr(c_ip);
 
     currentzone = -1;
 
@@ -30,7 +32,7 @@ void MiLightUPDsender::udpsend(unsigned char code, unsigned char param)
     if(bs <= 0) error("Error sending data!\n");
     bs = sendto(udpSocket, command, 3, 0, (const struct sockaddr*)&destSockAddr, sizeof(destSockAddr));
     if(bs <= 0) error("Error sending data!\n");
-    //usleep(100000);
+    usleep(10000);
 
 }
 

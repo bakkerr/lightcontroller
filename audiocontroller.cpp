@@ -116,9 +116,6 @@ void audioController::setThreshold(int value)
 void audioController::setSamples(int value)
 {
     samples = value;
-    if(audiothread){
-        audiothread->samples = value;
-    }
 }
 
 void audioController::startAudioThread()
@@ -129,16 +126,19 @@ void audioController::startAudioThread()
 
 void audioController::stopAudiothread()
 {
-    audiothread->terminate();
+    audiothread->setStop();
+    //audiothread->terminate();
+
+    audiothread->wait();
+    audiothread->quit();
 
     plot->graph(0)->clearData();
     plot->graph(1)->clearData();
     plot->graph(2)->clearData();
     plot->replot();
 
-    audiothread->wait();
-    audiothread->quit();
     delete audiothread;
+
     audiothread = NULL;
 }
 
@@ -192,7 +192,7 @@ void audioController::doReplot(MyBuffer buffer, int n)
 
     /* See if the last detected "beat" is at least more than #samples ago */
     if(lastBeat >= samples + AUDIO_GRAPH_UPDATE_SAMPLES){
-        qDebug() << "Ready for another beat" << endl;
+        //qDebug() << "Ready for another beat" << endl;
 
         /* Check for values above threshold, keep last position */
         for(int i = samples - 1; i >= 0; i--){
@@ -203,13 +203,13 @@ void audioController::doReplot(MyBuffer buffer, int n)
         }
 
         if(max > threshold){
-            qDebug() << "Beat Detected!" << endl;
+            //qDebug() << "Beat Detected!" << endl;
             emit beatDetected();
         }
     }
-    else{
+    /*else{
         qDebug() << "Skipping detection..." << endl;
-    }
+    }*/
 
     plot->graph(0)->setData(x, y);
     plot->graph(1)->setData(x, z);
@@ -225,8 +225,26 @@ void audioController::doReplot(MyBuffer buffer, int n)
 AudioThread::AudioThread(QWidget *parent)
 {
     n = 0;
-    command = QString(AUDIO_RECORD_COMMAND_DEFAULT);
+    stop = false;
+    command = AUDIO_RECORD_COMMAND_DEFAULT;
+    qDebug() << command << endl;
+    /*
+     * For Linux, we can call the command with popen and
+     * get a file descriptor to read the command's output
+     */
+    stream = popen(command, "r");
+
     connect(this, SIGNAL(bufferFilled(MyBuffer, int)), parent, SLOT(doReplot(MyBuffer, int)));
+
+}
+
+/*
+ * AudioThread destructor
+ */
+AudioThread::~AudioThread()
+{
+    /* Close stream. */
+    pclose(stream);
 }
 
 /*
@@ -234,12 +252,6 @@ AudioThread::AudioThread(QWidget *parent)
  */
 void AudioThread::run()
 {
-    /*
-     * For Linux, we can call the command with popen and
-     * get a file descriptor to read the command's output
-     */
-    FILE *stream = popen(command, "r");
-
     /* Keep running until we need to stop. */
     while(!stop){
 
@@ -255,10 +267,9 @@ void AudioThread::run()
         }
 
         /* Pass values to the controller (makes a copy of the vector if required) */
-        emit bufferFilled(buffer, n);
+        if(!stop){
+            emit bufferFilled(buffer, n);
+        }
         n++;
     }
-
-    /* Close stream. */
-    pclose(stream);
 }
