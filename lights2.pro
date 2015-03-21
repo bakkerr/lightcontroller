@@ -30,8 +30,8 @@ HEADERS  += lightcontroller.h \
     audiocontroller.h \
     specialbuttons.h \
     qcustomplot.h \
-    config.h \
     discover.h \
-    mainwindow.h
+    mainwindow.h \
+    default_values.h
 
 FORMS    += lightcontroller.ui

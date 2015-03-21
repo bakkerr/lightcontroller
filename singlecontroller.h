@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QtGui>
 
-#include "config.h"
+#include "default_values.h"
 #include "colorwheel.h"
 
 class SingleController : public QWidget

@@ -10,7 +10,7 @@
 
 #include <unistd.h>
 
-#include "config.h"
+#include "default_values.h"
 
 class MiLightUPDsender : public QObject
 {

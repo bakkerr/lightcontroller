@@ -8,7 +8,7 @@
 #include <QGroupBox>
 #include <QDebug>
 
-#include "config.h"
+#include "default_values.h"
 #include "singlecontroller.h"
 #include "audiocontroller.h"
 #include "specialbuttons.h"

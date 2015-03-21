@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QtGui>
 
-#include "config.h"
+#include "default_values.h"
 #include "qcustomplot.h"
 
 enum effects { EFFECT_NO, EFFECT_RANDOM_ALL, EFFECT_RANDOM_SAME };

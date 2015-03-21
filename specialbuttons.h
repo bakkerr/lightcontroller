@@ -4,7 +4,7 @@
 #include <QtGui>
 #include <QWidget>
 
-#include "config.h"
+#include "default_values.h"
 
 class specialButtons : public QWidget
 {
