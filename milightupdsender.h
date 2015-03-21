@@ -20,8 +20,8 @@ public:
     MiLightUPDsender(QObject *parent = 0, QString ip = QString(MILIGHT_IP_DEFAULT), int port = MILIGHT_PORT_DEFAULT);
 
 public slots:
-    void setColor(unsigned char zone, const QColor &c);
-    void setBright(unsigned char zone, unsigned char value);
+    void setColor(const QColor &c, unsigned char zone);
+    void setBright(unsigned char value, unsigned char zone);
     void setOn(unsigned char zone);
     void setOff(unsigned char zone);
     void setWhite(unsigned char zone);

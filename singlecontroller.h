@@ -15,8 +15,8 @@ public:
     ~SingleController();
 
 signals:
-    void colorChange(unsigned char zone, const QColor &color);
-    void brightChange(unsigned char zone, unsigned char value);
+    void colorChange(const QColor &color, unsigned char zone);
+    void brightChange(unsigned char value, unsigned char zone);
     void doWhite(unsigned char zone);
     void doRandom(unsigned char zone);
     void doOn(unsigned char zone);
@@ -27,16 +27,13 @@ public slots:
     void changeState(bool state);
     void changeColor(const QColor &color);
     void setColor(const QColor &color);
-    void setColor(unsigned char zone, const QColor &color) { setColor(color); }
+
     void setBright(unsigned char value);
-    void setBright(unsigned char zone, unsigned char value) { setBright(value); }
+
     void setWhite();
-    void setWhite(unsigned char zone) { setWhite(); }
     void setRandom();
     void setOn();
-    void setOn(unsigned char zone) { setOn(); }
     void setOff();
-    void setOff(unsigned char zone) { setOff(); }
 
     void red() { changeColor(Qt::red); }
     void green() { changeColor(Qt::green); }
@@ -76,8 +73,8 @@ private:
     QPushButton *blueButton;
 
 private slots:
-    void color(const QColor c) { emit colorChange(zone, c); }
-    void bright(int value) { emit brightChange(zone, (unsigned char)value); }
+    void color(const QColor c) { emit colorChange(c, zone); }
+    void bright(int value) { emit brightChange((unsigned char)value, zone); }
     void white() { emit doWhite(zone); }
 
 };

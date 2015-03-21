@@ -36,14 +36,14 @@ void MiLightUPDsender::udpsend(unsigned char code, unsigned char param)
 
 }
 
-void MiLightUPDsender::setColor(unsigned char zone, const QColor &c)
+void MiLightUPDsender::setColor(const QColor &c, unsigned char zone)
 {
     int color = (256 + 176 - (int)(c.hue() / 360.0 * 255.0)) % 256;
     setOn(zone);
     udpsend(0x40, color);
 }
 
-void MiLightUPDsender::setBright(unsigned char zone, unsigned char value)
+void MiLightUPDsender::setBright(unsigned char value, unsigned char zone)
 {
     unsigned char BRIGHTcodes[19] = {0x02, 0x03, 0x04, 0x05, 0x08,
                             0x09, 0x0A, 0x0B, 0x0D, 0x0E,
