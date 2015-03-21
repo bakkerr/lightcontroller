@@ -25,5 +25,9 @@
 #define FADE_VALUE_MS_MAX               5000
 
 
+/* Debug values */
+//#define ADD_DUMMY_DEVICES
+
+
 
 #endif // CONFIG_H

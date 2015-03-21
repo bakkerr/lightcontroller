@@ -7,7 +7,7 @@
 #include "default_values.h"
 #include "qcustomplot.h"
 
-enum effects { EFFECT_NO, EFFECT_RANDOM_ALL, EFFECT_RANDOM_SAME };
+enum effects { EFFECT_NO, EFFECT_RANDOM_ALL, EFFECT_RANDOM_SAME, EFFECT_FADE10, EFFECT_FADE20 };
 
 typedef QVector<unsigned char> MyBuffer;
 
@@ -45,6 +45,8 @@ signals:
     void beatDetected();
     void setRandomAll();
     void setRandomSame();
+    void fade10();
+    void fade20();
 
 public slots:
     void stateChange(bool s);
@@ -67,9 +69,11 @@ private:
 
     QGroupBox *effectBox;
     QButtonGroup *effect;
-    QRadioButton *noEffect;
-    QRadioButton *randomSame;
-    QRadioButton *randomAll;
+    QRadioButton *noEffectButton;
+    QRadioButton *randomSameButton;
+    QRadioButton *randomAllButton;
+    QRadioButton *fade10Button;
+    QRadioButton *fade20Button;
 
     QGroupBox *settingsBox;
     QSlider *thresholdSlider;

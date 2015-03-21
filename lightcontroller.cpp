@@ -17,12 +17,7 @@ LightController::LightController(QWidget *parent) :
     for(int i = 0; i <= 4; i++){
         zones[i] = new SingleController(i);
 
-        if(i == 0){
-            topLayout->addWidget(zones[i], 1);
-        }
-        else{
-            zoneLayout->addWidget(zones[i]);
-        }
+        zoneLayout->addWidget(zones[i]);
 
         connect(zones[i], SIGNAL(colorChange(unsigned char,QColor)), udp, SLOT(setColor(unsigned char,QColor)));
         connect(zones[i], SIGNAL(brightChange(unsigned char,unsigned char)), udp, SLOT(setBright(unsigned char,unsigned char)));
@@ -45,6 +40,8 @@ LightController::LightController(QWidget *parent) :
     }
 
     connect(audio, SIGNAL(setRandomSame()), zones[0], SLOT(setRandom()));
+    connect(audio, SIGNAL(fade10()), zones[0], SLOT(fade10()));
+    connect(audio, SIGNAL(fade20()), zones[0], SLOT(fade20()));
 
 
     topLayout->addWidget(special, 1);

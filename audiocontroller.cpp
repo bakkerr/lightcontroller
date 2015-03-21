@@ -51,22 +51,26 @@ audioController::audioController(QWidget *parent) :
 
     effectBox = new QGroupBox(tr("Trigger Effect"));
     //effectBox->setEnabled(false);
-    effectBox->setMaximumHeight(100);
+    effectBox->setMaximumHeight(125);
     QVBoxLayout *effectLayout = new QVBoxLayout();
     effect = new QButtonGroup();
     effect->setExclusive(true);
-    noEffect = new QRadioButton(tr("None"));
-    randomSame = new QRadioButton(tr("Same random"));
-    randomSame->setChecked(true);
-    randomAll = new QRadioButton(tr("Different random"));
-    effect->addButton(noEffect, EFFECT_NO);
-    effect->addButton(randomSame, EFFECT_RANDOM_SAME);
-    effect->addButton(randomAll, EFFECT_RANDOM_ALL);
-    effectLayout->addWidget(noEffect);
-    effectLayout->addWidget(randomSame);
-    effectLayout->addWidget(randomAll);
-
-
+    noEffectButton = new QRadioButton(tr("None"));
+    randomSameButton = new QRadioButton(tr("Same random"));
+    randomSameButton->setChecked(true);
+    randomAllButton = new QRadioButton(tr("Different random"));
+    fade10Button = new QRadioButton(tr("Fade +10"));
+    fade20Button = new QRadioButton(tr("Fade +20"));
+    effect->addButton(noEffectButton, EFFECT_NO);
+    effect->addButton(randomSameButton, EFFECT_RANDOM_SAME);
+    effect->addButton(randomAllButton, EFFECT_RANDOM_ALL);
+    effect->addButton(fade10Button, EFFECT_FADE10);
+    effect->addButton(fade20Button, EFFECT_FADE20);
+    effectLayout->addWidget(noEffectButton);
+    effectLayout->addWidget(randomSameButton);
+    effectLayout->addWidget(randomAllButton);
+    effectLayout->addWidget(fade10Button);
+    effectLayout->addWidget(fade20Button);
     effectBox->setLayout(effectLayout);
     hlayout1->addWidget(effectBox);
 
@@ -230,6 +234,12 @@ void audioController::triggerEffect()
         case EFFECT_RANDOM_SAME:
             emit setRandomSame();
             break;
+        case EFFECT_FADE10:
+            emit fade10();
+            break;
+        case EFFECT_FADE20:
+            emit fade20();
+            break;
         case EFFECT_NO:
         default:
             break;
@@ -291,3 +301,4 @@ void AudioThread::run()
         n++;
     }
 }
+

@@ -3,6 +3,8 @@
 MiLightDiscover::MiLightDiscover(QWidget *parent) :
     QWidget(parent)
 {
+    done = false;
+
     QVBoxLayout *l0 = new QVBoxLayout();
 
     QGroupBox *gb = new QGroupBox(tr("Select bridges:"));
@@ -13,26 +15,43 @@ MiLightDiscover::MiLightDiscover(QWidget *parent) :
 
     QStringList devices = discover();
 
-    QStringListIterator i(devices);
-    while(i.hasNext()){
-        QString s = i.next();
-        QStringList sl = s.split(',');
-        if(sl.size() >= 2){
-            QCheckBox *j = new QCheckBox(s);
-            j->setChecked(true);
-            bg->addButton(j);
-            l1->addWidget(j);
+#ifdef ADD_DUMMY_DEVICES
+    devices.append(QString("1.2.3.4,ABCDEFABCDEF,"));
+    devices.append(QString("4.3.2.1,FEDCBAFEDCBA,"));
+#endif
+
+    if(devices.length() == 0){
+        ok->setDisabled(false);
+        QLabel *lbl = new QLabel(tr("No bridges found :("));
+        l0->addWidget(lbl);
+    }
+    else if(devices.length() > 1){
+        QStringListIterator i(devices);
+        while(i.hasNext()){
+            QString s = i.next();
+            QStringList sl = s.split(',');
+            if(sl.size() >= 2){
+                QCheckBox *j = new QCheckBox(s);
+                j->setChecked(true);
+                bg->addButton(j);
+                l1->addWidget(j);
+            }
         }
+
+        gb->setLayout(l1);
+
+        l0->addWidget(gb);
+
+        connect(ok, SIGNAL(clicked()), this, SIGNAL(userSelected()));
+    }
+    else{
+        done = 1;
     }
 
-    gb->setLayout(l1);
-
-    l0->addWidget(gb);
     l0->addWidget(ok);
 
-    connect(ok, SIGNAL(clicked()), this, SIGNAL(userSelected()));
-
     setLayout(l0);
+
 }
 
 MiLightDiscover::~MiLightDiscover()
@@ -62,10 +81,10 @@ QStringList MiLightDiscover::discover()
 
         if(datagram != msg){
             QString s = QString(datagram);
-            //if(!sl.contains(s)){
+            if(!sl.contains(s)){
                 qDebug() << s << endl;
                 sl.append(s);
-            //}
+            }
         }
     }
 

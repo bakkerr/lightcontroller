@@ -42,7 +42,11 @@ public slots:
     void green() { changeColor(Qt::green); }
     void blue() { changeColor(Qt::blue); }
 
-    void fade();
+    void fade() { fade(1); }
+    void fade10() { fade(10); }
+    void fade20() { fade(20); }
+
+    void fade(int n);
     void toggleFade(bool state);
     void enableFade() { toggleFade(true); fadeBox->setChecked(true); }
     void disableFade() { toggleFade(false); fadeBox->setChecked(false); }

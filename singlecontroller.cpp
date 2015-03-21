@@ -155,10 +155,10 @@ void SingleController::toggleFade(bool state){
     }
 }
 
-void SingleController::fade()
+void SingleController::fade(int n)
 {
     QColor c = wheel->color();
-    c.setHsv((c.hue() + 1) % 360, 0, 0);
+    c.setHsv((c.hue() + n) % 360, 0, 0);
     wheel->changeColor(c);
 }
 

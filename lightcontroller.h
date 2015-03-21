@@ -25,7 +25,9 @@ public:
 
 signals:
 
+
 public slots:
+
 
 private:
     MiLightUPDsender *udp;

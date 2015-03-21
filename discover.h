@@ -7,6 +7,8 @@
 
 #include <unistd.h>
 
+#include "default_values.h"
+
 class MiLightDiscover : public QWidget
 {
     Q_OBJECT;
@@ -14,6 +16,7 @@ class MiLightDiscover : public QWidget
 public:
     MiLightDiscover(QWidget *parent = 0);
     ~MiLightDiscover();
+    bool done;
 
 signals:
     void userSelected();

@@ -11,12 +11,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     MiLightDiscover *d = new MiLightDiscover();
 
-    connect(d, SIGNAL(userSelected()), this, SLOT(setupControllers()));
-
     setCentralWidget(d);
 
+    if(d->done){
+      setupControllers();
+    }
+    else{
+      connect(d, SIGNAL(userSelected()), this, SLOT(setupControllers()));
+    }
 
-    qDebug() << "Test5" << endl;
 }
 
 void MainWindow::setupControllers(){
