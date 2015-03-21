@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
+#include <QDebug>
 
 #include "config.h"
 #include "singlecontroller.h"
@@ -13,7 +14,7 @@
 #include "specialbuttons.h"
 #include "milightupdsender.h"
 
-class LightController : public QMainWindow
+class LightController : public QWidget
 {
     Q_OBJECT
 
@@ -29,7 +30,6 @@ public slots:
 private:
     MiLightUPDsender *udp;
 
-    QWidget *centralWidget;
     QVBoxLayout *layout;
     audioController *audio;
     specialButtons *special;

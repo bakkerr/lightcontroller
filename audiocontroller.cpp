@@ -26,7 +26,7 @@ audioController::audioController(QWidget *parent) :
     QHBoxLayout *thresholdLayout = new QHBoxLayout();
     thresholdSlider = new QSlider(Qt::Horizontal);
     thresholdSlider->setMaximum(AUDIO_THRESHOLD_MAX);
-    thresholdSlider->setMinimum(AUDIO_SAMPLES_MIN);
+    thresholdSlider->setMinimum(AUDIO_THRESHOLD_MIN);
     thresholdSlider->setValue(threshold);
     thresholdSlider->setMaximumWidth(150);
     thresholdLabel = new QLabel(tr("Threshold:"));
@@ -50,7 +50,7 @@ audioController::audioController(QWidget *parent) :
 
 
     effectBox = new QGroupBox(tr("Trigger Effect"));
-    effectBox->setEnabled(false);
+    //effectBox->setEnabled(false);
     effectBox->setMaximumHeight(100);
     QVBoxLayout *effectLayout = new QVBoxLayout();
     effect = new QButtonGroup();
@@ -59,12 +59,12 @@ audioController::audioController(QWidget *parent) :
     randomSame = new QRadioButton(tr("Same random"));
     randomSame->setChecked(true);
     randomAll = new QRadioButton(tr("Different random"));
-    effect->addButton(noEffect);
-    effect->addButton(randomSame);
-    effect->addButton(randomAll);
-    effectLayout->addWidget(noEffect, EFFECT_NO);
-    effectLayout->addWidget(randomSame, EFFECT_RANDOM_SAME);
-    effectLayout->addWidget(randomAll, EFFECT_RANDOM_ALL);
+    effect->addButton(noEffect, EFFECT_NO);
+    effect->addButton(randomSame, EFFECT_RANDOM_SAME);
+    effect->addButton(randomAll, EFFECT_RANDOM_ALL);
+    effectLayout->addWidget(noEffect);
+    effectLayout->addWidget(randomSame);
+    effectLayout->addWidget(randomAll);
 
 
     effectBox->setLayout(effectLayout);
@@ -93,6 +93,8 @@ audioController::audioController(QWidget *parent) :
     connect(groupbox, SIGNAL(clicked(bool)), this, SLOT(stateChange(bool)));
     connect(thresholdSlider, SIGNAL(valueChanged(int)), this, SLOT(setThreshold(int)));
     connect(sampleSlider, SIGNAL(valueChanged(int)), this, SLOT(setSamples(int)));
+
+    connect(this, SIGNAL(beatDetected()), this, SLOT(triggerEffect()));
 
     this->setLayout(hlayout);
 
@@ -217,6 +219,22 @@ void audioController::doReplot(MyBuffer buffer, int n)
 
     plot->replot();
 
+}
+
+void audioController::triggerEffect()
+{ qDebug() << "Trigger!" << effect->checkedId() << EFFECT_NO << EFFECT_RANDOM_SAME << EFFECT_RANDOM_ALL << endl;
+    switch(effect->checkedId()){
+        case EFFECT_RANDOM_ALL:
+            emit setRandomAll();
+            break;
+        case EFFECT_RANDOM_SAME:
+            emit setRandomSame();
+            break;
+        case EFFECT_NO:
+        default:
+            break;
+
+    }
 }
 
 /*

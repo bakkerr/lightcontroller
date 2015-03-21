@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -19,7 +19,9 @@ SOURCES += main.cpp\
     colorwheel.cpp \
     audiocontroller.cpp \
     specialbuttons.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    mainwindow.cpp \
+    discover.cpp
 
 HEADERS  += lightcontroller.h \
     singlecontroller.h \
@@ -29,6 +31,7 @@ HEADERS  += lightcontroller.h \
     specialbuttons.h \
     qcustomplot.h \
     config.h \
-    discover.h
+    discover.h \
+    mainwindow.h
 
 FORMS    += lightcontroller.ui

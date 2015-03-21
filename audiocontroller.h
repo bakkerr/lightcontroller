@@ -43,12 +43,17 @@ public:
 
 signals:
     void beatDetected();
+    void setRandomAll();
+    void setRandomSame();
 
 public slots:
     void stateChange(bool s);
     void setThreshold(int value);
     void setSamples(int value);
     void doReplot(MyBuffer buffer, int n);
+
+private slots:
+    void triggerEffect();
 
 private:
     void startAudioThread();

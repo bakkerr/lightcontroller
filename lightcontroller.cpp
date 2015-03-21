@@ -1,18 +1,13 @@
-
 #include "lightcontroller.h"
 
 LightController::LightController(QWidget *parent) :
-    QMainWindow(parent)
+    QWidget(parent)
 
 {
-    setWindowTitle(tr("Light Controller"));
-    setStyleSheet("QGroupBox{border:1px solid gray;border-radius:5px;margin-top: 1ex;} QGroupBox::title{subcontrol-origin: margin;subcontrol-position:top center;padding:0 5px;}");
 
     udp = new MiLightUPDsender();
     audio = new audioController(this);
     special = new specialButtons(this);
-
-    QWidget *cw = new QWidget(this);
 
     layout = new QVBoxLayout();
 
@@ -43,12 +38,14 @@ LightController::LightController(QWidget *parent) :
             connect(zones[0], SIGNAL(doWhite(unsigned char)), zones[i], SLOT(setWhite(unsigned char)));
             connect(zones[0], SIGNAL(fadeEnabled()), zones[i], SLOT(disableFade()));
             connect(zones[i], SIGNAL(fadeEnabled()), zones[0], SLOT(disableFade()));
+            connect(audio, SIGNAL(setRandomAll()), zones[i], SLOT(setRandom()));
             connect(special, SIGNAL(allRandom()), zones[i], SLOT(setRandom()));
             connect(special, SIGNAL(allFade()), zones[i], SLOT(enableFade()));
         }
     }
 
-    connect(audio, SIGNAL(beatDetected()), zones[0], SLOT(setRandom()));
+    connect(audio, SIGNAL(setRandomSame()), zones[0], SLOT(setRandom()));
+
 
     topLayout->addWidget(special, 1);
     topLayout->addWidget(audio, 2);
@@ -56,8 +53,7 @@ LightController::LightController(QWidget *parent) :
     layout->addLayout(topLayout, 2);
     layout->addLayout(zoneLayout, 1);
 
-    setCentralWidget(cw);
-    cw->setLayout(layout);
+    this->setLayout(layout);
 
 }
 

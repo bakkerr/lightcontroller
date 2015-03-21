@@ -10,7 +10,7 @@
 #define BRIGHT_VALUE_DEFAULT              19
 
 #define AUDIO_THRESHOLD_DEFAULT          220
-#define AUDIO_THRESHOLD_MAX              256
+#define AUDIO_THRESHOLD_MAX              255
 #define AUDIO_THRESHOLD_MIN              128
 #define AUDIO_SAMPLES_DEFAULT            400
 #define AUDIO_SAMPLES_MIN                100

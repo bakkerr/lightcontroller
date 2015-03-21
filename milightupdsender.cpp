@@ -32,7 +32,7 @@ void MiLightUPDsender::udpsend(unsigned char code, unsigned char param)
     if(bs <= 0) error("Error sending data!\n");
     bs = sendto(udpSocket, command, 3, 0, (const struct sockaddr*)&destSockAddr, sizeof(destSockAddr));
     if(bs <= 0) error("Error sending data!\n");
-    usleep(10000);
+    //usleep(10000);
 
 }
 

@@ -1,4 +1,4 @@
-#include "lightcontroller.h"
+#include "mainwindow.h"
 
 #include "discover.h"
 
@@ -6,12 +6,11 @@
 
 int main(int argc, char *argv[])
 {
-    discover();
-    return 0;
+    //discover();
 
     QApplication a(argc, argv);
 
-    LightController w;
+    MainWindow w;
     w.show();
 
     return a.exec();
