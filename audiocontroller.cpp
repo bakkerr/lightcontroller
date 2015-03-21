@@ -10,18 +10,19 @@ audioController::audioController(QWidget *parent) :
     lastBeat = 0;
     audiothread = NULL;
 
-    QHBoxLayout *hlayout = new QHBoxLayout();
+    QHBoxLayout *l0 = new QHBoxLayout();
 
     groupbox = new QGroupBox(tr("Audio"));
     groupbox->setCheckable(true);
     groupbox->setChecked(false);
 
-    QHBoxLayout *hlayout1 = new QHBoxLayout();
+    QVBoxLayout *l1 = new QVBoxLayout();
 
 
-    QVBoxLayout *l4 = new QVBoxLayout();
+    QHBoxLayout *l4 = new QHBoxLayout();
 
     settingsBox = new QGroupBox(tr("Trigger Settings"));
+    settingsBox->setMaximumWidth(250);
     QVBoxLayout *settingsLayout = new QVBoxLayout();
     QHBoxLayout *thresholdLayout = new QHBoxLayout();
     thresholdSlider = new QSlider(Qt::Horizontal);
@@ -46,12 +47,10 @@ audioController::audioController(QWidget *parent) :
     sampleLayout->addWidget(sampleSlider);
     settingsLayout->addLayout(sampleLayout);
     settingsBox->setLayout(settingsLayout);
-    hlayout1->addWidget(settingsBox);
+    l1->addWidget(settingsBox);
 
 
     effectBox = new QGroupBox(tr("Trigger Effect"));
-    //effectBox->setEnabled(false);
-    effectBox->setMaximumHeight(125);
     QVBoxLayout *effectLayout = new QVBoxLayout();
     effect = new QButtonGroup();
     effect->setExclusive(true);
@@ -72,11 +71,12 @@ audioController::audioController(QWidget *parent) :
     effectLayout->addWidget(fade10Button);
     effectLayout->addWidget(fade20Button);
     effectBox->setLayout(effectLayout);
-    hlayout1->addWidget(effectBox);
+    l1->addWidget(effectBox);
 
-    l4->addLayout(hlayout1);
+    l4->addLayout(l1);
 
     plot = new QCustomPlot();
+    plot->setMinimumWidth(200);
     plot->addGraph();
     plot->addGraph();
     plot->addGraph();
@@ -92,7 +92,7 @@ audioController::audioController(QWidget *parent) :
 
     groupbox->setLayout(l4);
 
-    hlayout->addWidget(groupbox);
+    l0->addWidget(groupbox);
 
     connect(groupbox, SIGNAL(clicked(bool)), this, SLOT(stateChange(bool)));
     connect(thresholdSlider, SIGNAL(valueChanged(int)), this, SLOT(setThreshold(int)));
@@ -100,7 +100,7 @@ audioController::audioController(QWidget *parent) :
 
     connect(this, SIGNAL(beatDetected()), this, SLOT(triggerEffect()));
 
-    this->setLayout(hlayout);
+    this->setLayout(l0);
 
 }
 

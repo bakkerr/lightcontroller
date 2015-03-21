@@ -9,20 +9,33 @@
 
 #include "default_values.h"
 
-class MiLightDiscover : public QWidget
+class MiLightDiscover : public QDialog
 {
     Q_OBJECT;
 
 public:
     MiLightDiscover(QWidget *parent = 0);
     ~MiLightDiscover();
-    bool done;
 
 signals:
+    void selectedDevices(QStringList);
+
+private slots:
+    void discover();
     void userSelected();
 
-public slots:
-    QStringList discover();
+private:
+    QVBoxLayout  mainLayout;
+    QGroupBox    gb;
+    QVBoxLayout  gbLayout;
+
+    QButtonGroup bg;
+
+    QPushButton  ok;
+    QPushButton  rd;
+    QLabel       noDevicesFound;
+
+    QStringList UDPdiscover();
 
 };
 

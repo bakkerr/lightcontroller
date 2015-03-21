@@ -10,17 +10,28 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 
 signals:
 
 public slots:
 
 private slots:
-    void setupControllers();
+    void setupControllers(QStringList n);
 
 private:
+    QVBoxLayout *l0;
+    QHBoxLayout *l1;
+
     MiLightDiscover *d;
-    LightController *lc;
+
+    SingleController *mc;
+    audioController *audio;
+    specialButtons *special;
+
+    QVector<LightController*> controllers;
+    QVector<QDockWidget*> dockwidgets;
+
 
 };
 

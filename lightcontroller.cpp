@@ -4,20 +4,19 @@ LightController::LightController(QWidget *parent) :
     QWidget(parent)
 
 {
-
     udp = new MiLightUPDsender();
-    audio = new audioController(this);
-    special = new specialButtons(this);
 
-    layout = new QVBoxLayout();
+    layout = new QHBoxLayout();
 
-    QHBoxLayout *topLayout = new QHBoxLayout();
-    QHBoxLayout *zoneLayout = new QHBoxLayout();
+    //QSpacerItem *sp1 = new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding);
+    //QSpacerItem *sp2 = new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding);
 
     for(int i = 0; i <= 4; i++){
         zones[i] = new SingleController(i);
 
-        zoneLayout->addWidget(zones[i]);
+        layout->addWidget(zones[i]);
+        //if(i == 0) layout->addSpacerItem(sp1);
+
 
         connect(zones[i], SIGNAL(colorChange(QColor, unsigned char)), udp, SLOT(setColor(QColor, unsigned char)));
         connect(zones[i], SIGNAL(brightChange(unsigned char, unsigned char)), udp, SLOT(setBright(unsigned char, unsigned char)));
@@ -33,30 +32,22 @@ LightController::LightController(QWidget *parent) :
             connect(zones[0], SIGNAL(doWhite(unsigned char)), zones[i], SLOT(setWhite()));
             connect(zones[0], SIGNAL(fadeEnabled()), zones[i], SLOT(disableFade()));
             connect(zones[i], SIGNAL(fadeEnabled()), zones[0], SLOT(disableFade()));
-            connect(audio, SIGNAL(setRandomAll()), zones[i], SLOT(setRandom()));
-            connect(special, SIGNAL(allRandom()), zones[i], SLOT(setRandom()));
-            connect(special, SIGNAL(allFade()), zones[i], SLOT(enableFade()));
+
         }
     }
 
-    connect(audio, SIGNAL(setRandomSame()), zones[0], SLOT(setRandom()));
-    connect(audio, SIGNAL(fade10()), zones[0], SLOT(fade10()));
-    connect(audio, SIGNAL(fade20()), zones[0], SLOT(fade20()));
-
-
-    topLayout->addWidget(special, 1);
-    topLayout->addWidget(audio, 2);
-
-    layout->addLayout(topLayout, 2);
-    layout->addLayout(zoneLayout, 1);
+    this->zones[4]->setVisible(false);
 
     this->setLayout(layout);
-
 }
 
 LightController::~LightController()
 {
 
-    //delete ui;
+    for(int i = 0; i <= 4; i++){
+        delete zones[i];
+    }
+
+    delete udp;
 }
 

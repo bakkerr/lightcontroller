@@ -11,10 +11,10 @@ SingleController::SingleController(unsigned char z, QWidget *parent) :
     groupbox->setCheckable(true);
     groupbox->setChecked(true);
 
-    groupbox->setMinimumWidth(220);
-    groupbox->setMaximumWidth(220);
-    groupbox->setMinimumHeight(450);
-    groupbox->setMaximumHeight(450);
+    groupbox->setMinimumWidth(175);
+    groupbox->setMaximumWidth(175);
+    groupbox->setMinimumHeight(400);
+    groupbox->setMaximumHeight(400);
     connect(groupbox, SIGNAL(toggled(bool)), this, SLOT(changeState(bool)));
 
     QVBoxLayout *l1 = new QVBoxLayout();

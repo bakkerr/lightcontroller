@@ -32,9 +32,8 @@ public slots:
 private:
     MiLightUPDsender *udp;
 
-    QVBoxLayout *layout;
-    audioController *audio;
-    specialButtons *special;
+    QHBoxLayout *layout;
+
 
 };
 
