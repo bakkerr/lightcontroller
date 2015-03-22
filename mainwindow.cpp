@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
      */
     setStyleSheet("QDockWidget::title {background: darkgray;} QGroupBox{border:1px solid gray;border-radius:5px;margin-top: 1ex;} QGroupBox::title{subcontrol-origin: margin;subcontrol-position:top center;padding:0 5px;}");
 
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::TopDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
@@ -29,10 +29,11 @@ MainWindow::MainWindow(QWidget *parent) :
     masterDockWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
     addDockWidget(Qt::TopDockWidgetArea, masterDockWidget);
 
+    /* Audio Controller */
     audio = new audioController(this);
     addDockWidget(Qt::TopDockWidgetArea, audio);
 
-    /* Fixme: Create real menu */
+    /* Fixme: Move from here */
     statusBar()->show();
     statusBar()->showMessage(tr("Ready!"));
 
@@ -83,12 +84,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *w = window();
     w->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w->size(), qApp->desktop()->availableGeometry()));
 
-
-    /* Set layout */
-    //l1.addWidget(master);
-    //l1.addWidget(special);
-    //l1.addWidget(audio, 2);
-
     mainWidget = new QLabel(tr("Light Controller"));
     mainWidget->setAlignment(Qt::AlignCenter);
     //setCentralWidget(mainWidget);
@@ -104,11 +99,26 @@ MainWindow::~MainWindow()
 
 }
 
-void MainWindow::setupControllers(QStringList n){
+void MainWindow::setupControllers(QStringList devices){
 
 
-    for(int i = 0; i < n.length(); i++){
-        LightController *lc = new LightController(tr("Controller %0").arg(QString::number(controllers.size() + 1)), this);
+    for(int i = 0; i < devices.length(); i++){
+
+        bool dummy = false;
+
+        QString s = devices.at(i);
+        QStringList split = s.split(',');
+
+        if(split.length() < 2){
+            qDebug() << "Invalid device String: " << s << endl;
+            continue;
+        }
+
+        if(split.at(1).startsWith("DUMMY")) dummy = 1;
+
+        qDebug() << "Found device IP: " << split.at(0) << "ID: " << split.at(1) << "Dummy: " << dummy << endl;
+
+        LightController *lc = new LightController(tr("Controller %0").arg(QString::number(controllers.size() + 1)), split.at(0), this, dummy);
 
         for(int j = 1; j <= 4; j++){
             connect(audio, SIGNAL(setRandomAll()), lc->zones[j], SLOT(setRandom()));

@@ -19,7 +19,7 @@ class LightController : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit LightController(QString title, QWidget *parent = 0, bool dummy = 0);
+    explicit LightController(QString title, QString ip, QWidget *parent = 0, bool dummy = 0);
     ~LightController();
     SingleController *zones[5];
 

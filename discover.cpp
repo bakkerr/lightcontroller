@@ -68,17 +68,20 @@ void MiLightDiscover::discover()
 
     QStringList devices = UDPdiscover();
 
-#ifdef ADD_DUMMY_DEVICES
-    devices.append(QString("1.2.3.4,DUMMY01DUMMY,"));
-    devices.append(QString("4.3.2.1,DUMMY02DUMMY,"));
-#endif
-
     if(devices.length() == 0){
         noDevicesFound.setVisible(true);
         gb.setVisible(false);
     }
     else{
         noDevicesFound.setVisible(false);
+    }
+
+#ifdef ADD_DUMMY_DEVICES
+    devices.append(QString("1.2.3.4,DUMMY01DUMMY,"));
+    devices.append(QString("4.3.2.1,DUMMY02DUMMY,"));
+#endif
+
+    if(devices.length() > 0){
         gb.setVisible(true);
         QStringListIterator i(devices);
         while(i.hasNext()){

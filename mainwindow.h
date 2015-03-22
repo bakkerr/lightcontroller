@@ -17,7 +17,7 @@ signals:
 public slots:
 
 private slots:
-    void setupControllers(QStringList n);
+    void setupControllers(QStringList devices);
     void dockAll();
     void about();
 

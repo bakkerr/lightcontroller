@@ -36,6 +36,7 @@ public slots:
     void changeState(bool state);
     void changeColor(const QColor &color);
     void changeBright(unsigned char value) { setBright(value); emit brightChange(value, zone); }
+    void changeWhite() {doWhite(zone); }
     void changeOn() { changeState(true); }
     void changeOff() { changeState(false); }
 
