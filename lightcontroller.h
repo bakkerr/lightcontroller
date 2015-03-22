@@ -14,12 +14,12 @@
 #include "specialbuttons.h"
 #include "milightupdsender.h"
 
-class LightController : public QWidget
+class LightController : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit LightController(QWidget *parent = 0);
+    explicit LightController(QString title, QWidget *parent = 0, bool dummy = 0);
     ~LightController();
     SingleController *zones[5];
 

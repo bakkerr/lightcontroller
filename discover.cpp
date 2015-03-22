@@ -3,7 +3,7 @@
 MiLightDiscover::MiLightDiscover(QWidget *parent) :
     QDialog(parent)
 {
-    setWindowTitle(tr("WiFi Bridge detection"));
+    setWindowTitle(tr("WiFi Bridge Detection"));
 
     gb.setTitle(tr("Found Bridges:"));
     gb.setVisible(false);
@@ -30,7 +30,6 @@ MiLightDiscover::MiLightDiscover(QWidget *parent) :
     discover();
 
     show();
-
 }
 
 MiLightDiscover::~MiLightDiscover()

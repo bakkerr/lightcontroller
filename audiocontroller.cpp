@@ -1,8 +1,10 @@
 #include "audiocontroller.h"
 
 audioController::audioController(QWidget *parent) :
-    QWidget(parent)
+    QDockWidget(tr("Audio Controller"), parent)
 {
+    setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+
     qRegisterMetaType<MyBuffer>("MyBuffer");
 
     threshold = AUDIO_THRESHOLD_DEFAULT;
@@ -10,9 +12,9 @@ audioController::audioController(QWidget *parent) :
     lastBeat = 0;
     audiothread = NULL;
 
-    QHBoxLayout *l0 = new QHBoxLayout();
+    //QHBoxLayout *l0 = new QHBoxLayout();
 
-    groupbox = new QGroupBox(tr("Audio"));
+    groupbox = new QGroupBox(tr("Enable"));
     groupbox->setCheckable(true);
     groupbox->setChecked(false);
 
@@ -52,7 +54,7 @@ audioController::audioController(QWidget *parent) :
 
     effectBox = new QGroupBox(tr("Trigger Effect"));
     QVBoxLayout *effectLayout = new QVBoxLayout();
-    effect = new QButtonGroup();
+    effect = new QButtonGroup(this);
     effect->setExclusive(true);
     noEffectButton = new QRadioButton(tr("None"));
     randomSameButton = new QRadioButton(tr("Same random"));
@@ -92,7 +94,7 @@ audioController::audioController(QWidget *parent) :
 
     groupbox->setLayout(l4);
 
-    l0->addWidget(groupbox);
+    //l0->addWidget(groupbox);
 
     connect(groupbox, SIGNAL(clicked(bool)), this, SLOT(stateChange(bool)));
     connect(thresholdSlider, SIGNAL(valueChanged(int)), this, SLOT(setThreshold(int)));
@@ -100,7 +102,8 @@ audioController::audioController(QWidget *parent) :
 
     connect(this, SIGNAL(beatDetected()), this, SLOT(triggerEffect()));
 
-    this->setLayout(l0);
+    //this->setLayout(l0);
+    setWidget(groupbox);
 
 }
 

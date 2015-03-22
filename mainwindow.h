@@ -18,19 +18,37 @@ public slots:
 
 private slots:
     void setupControllers(QStringList n);
+    void dockAll();
+    void about();
 
 private:
-    QVBoxLayout *l0;
-    QHBoxLayout *l1;
+    QLabel *mainWidget;
 
-    MiLightDiscover *d;
+    QVBoxLayout l0;
+    QHBoxLayout l1;
 
-    SingleController *mc;
+    SingleController *master;
+    QDockWidget *masterDockWidget;
+
     audioController *audio;
-    specialButtons *special;
 
     QVector<LightController*> controllers;
-    QVector<QDockWidget*> dockwidgets;
+
+    QToolBar *toolBar;
+
+    QMenu *fileMenu;
+    QMenu *viewMenu;
+    QMenu *helpMenu;
+
+
+    QAction *viewAudioAction;
+    QAction *viewMasterAction;
+    QAction *dockAllAction;
+
+    QAction *aboutQtAction;
+    QAction *aboutAction;
+    QAction *exitAction;
+
 
 
 };

@@ -11,49 +11,91 @@ MainWindow::MainWindow(QWidget *parent) :
      *
      *  FIXME: Make this an option.
      */
-    setStyleSheet("QGroupBox{border:1px solid gray;border-radius:5px;margin-top: 1ex;} QGroupBox::title{subcontrol-origin: margin;subcontrol-position:top center;padding:0 5px;}");
+    setStyleSheet("QDockWidget::title {background: darkgray;} QGroupBox{border:1px solid gray;border-radius:5px;margin-top: 1ex;} QGroupBox::title{subcontrol-origin: margin;subcontrol-position:top center;padding:0 5px;}");
 
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::TopRightCorner, Qt::TopDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
+    setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 
-    QWidget *mw = new QWidget();
-    statusBar()->show();
-    statusBar()->showMessage(tr("Ready!"));
-    QMenu *file = menuBar()->addMenu(tr("&File"));
-    QAction *quitAction = new QAction(tr("E&xit"), this);
-    file->addAction(quitAction);
-    menuBar()->show();
-
-
-    /* Center the window. */
-    //QWidget *w = window();
-    //w->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w->size(), qApp->desktop()->availableGeometry()));
-
-    l1 = new QHBoxLayout();
-
-    mc = new SingleController(-1);
+    /*
+     * Create Mastercontroller (zone -1)
+     * Controls all zones on all bridges.
+     */
+    master = new SingleController(-1);
+    masterDockWidget = new QDockWidget(tr("Master Controller"), this);
+    masterDockWidget->setWidget(master);
+    masterDockWidget->setMaximumWidth(200);
+    masterDockWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+    addDockWidget(Qt::TopDockWidgetArea, masterDockWidget);
 
     audio = new audioController(this);
-    special = new specialButtons(this);
-    l1->addWidget(mc);
-    l1->addWidget(special);
-    l1->addWidget(audio, 2);
+    addDockWidget(Qt::TopDockWidgetArea, audio);
 
-    mw->setLayout(l1);
+    /* Fixme: Create real menu */
+    statusBar()->show();
+    statusBar()->showMessage(tr("Ready!"));
 
-    setCentralWidget(mw);
+    fileMenu = menuBar()->addMenu(tr("&File"));
+    exitAction = new QAction(tr("E&xit"), this);
+    connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+    fileMenu->addAction(exitAction);
 
-    /* FIXME: Should change this to a dialog! */
+    viewMenu = menuBar()->addMenu(tr("&View"));
 
+    viewAudioAction = new QAction(tr("&Audio Controller"), this);
+    viewAudioAction->setCheckable(true);
+    viewAudioAction->setChecked(true);
+    connect(viewAudioAction, SIGNAL(toggled(bool)), audio, SLOT(setVisible(bool)));
+    viewMenu->addAction(viewAudioAction);
+
+    viewMasterAction = new QAction(tr("&Master Controller"), this);
+    viewMasterAction->setCheckable(true);
+    viewMasterAction->setChecked(true);
+    connect(viewMasterAction, SIGNAL(toggled(bool)), masterDockWidget, SLOT(setVisible(bool)));
+    viewMenu->addAction(viewMasterAction);
+
+    dockAllAction = new QAction(tr("&Dock All"), this);
+    connect(dockAllAction, SIGNAL(triggered()), this, SLOT(dockAll()));
+    viewMenu->addAction(dockAllAction);
+
+    helpMenu = menuBar()->addMenu(tr("&Help"));
+    aboutAction = new QAction(tr("&About"), this);
+    connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
+    helpMenu->addAction(aboutAction);
+    aboutQtAction = new QAction(tr("About &Qt"), this);
+    connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+    helpMenu->addAction(aboutQtAction);
+
+    menuBar()->show();
+
+    toolBar = addToolBar(tr("Tools"));
+    toolBar->addSeparator();
+    toolBar->addAction(viewMasterAction);
+    toolBar->addAction(viewAudioAction);
+    toolBar->addSeparator();
+    toolBar->addAction(dockAllAction);
+    toolBar->addSeparator();
+    toolBar->addAction(aboutAction);
+    toolBar->addSeparator();
+
+    /* Center the window. */
+    QWidget *w = window();
+    w->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w->size(), qApp->desktop()->availableGeometry()));
+
+
+    /* Set layout */
+    //l1.addWidget(master);
+    //l1.addWidget(special);
+    //l1.addWidget(audio, 2);
+
+    mainWidget = new QLabel(tr("Light Controller"));
+    mainWidget->setAlignment(Qt::AlignCenter);
+    //setCentralWidget(mainWidget);
+
+    /* Create Bridge Discovery Dialog. */
     MiLightDiscover *d = new MiLightDiscover(this);
     connect(d, SIGNAL(selectedDevices(QStringList)), this, SLOT(setupControllers(QStringList)));
-
-    /* Hack is only one controller is found, init it directly. */
-    //if(d->done){
-    //  setupControllers(1);
-    //}
-    /* Otherwise, wait for confirmation. */
-    //else{
-      //
-    //}
 
 }
 
@@ -63,32 +105,32 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::setupControllers(QStringList n){
-    //delete d;
 
-    LightController *lc;
-    QDockWidget *dw;
 
     for(int i = 0; i < n.length(); i++){
-        lc = new LightController();
+        LightController *lc = new LightController(tr("Controller %0").arg(QString::number(controllers.size() + 1)), this);
 
         for(int j = 1; j <= 4; j++){
             connect(audio, SIGNAL(setRandomAll()), lc->zones[j], SLOT(setRandom()));
-            connect(special, SIGNAL(allRandom()), lc->zones[j], SLOT(setRandom()));
-            connect(special, SIGNAL(allFade()), lc->zones[j], SLOT(enableFade()));
+            //connect(&special, SIGNAL(allRandom()), lc->zones[j], SLOT(setRandom()));
+            //connect(&special, SIGNAL(allFade()), lc->zones[j], SLOT(enableFade()));
         }
+
+        connect(master, SIGNAL(colorChange(QColor, unsigned char)), lc->zones[0], SLOT(changeColor(QColor)));
+        connect(master, SIGNAL(brightChange(unsigned char, unsigned char)), lc->zones[0], SLOT(changeBright(unsigned char)));
+        connect(master, SIGNAL(doOn(unsigned char)), lc->zones[0], SLOT(changeOn()));
+        connect(master, SIGNAL(doOff(unsigned char)), lc->zones[0], SLOT(changeOff()));
+        connect(master, SIGNAL(doWhite(unsigned char)), lc->zones[0], SLOT(changeWhite()));
+        connect(master, SIGNAL(fadeEnabled()), lc->zones[0], SLOT(disableFade()));
 
         connect(audio, SIGNAL(setRandomSame()), lc->zones[0], SLOT(setRandom()));
         connect(audio, SIGNAL(fade10()), lc->zones[0], SLOT(fade10()));
         connect(audio, SIGNAL(fade20()), lc->zones[0], SLOT(fade20()));
 
-        dw = new QDockWidget(tr("Controller %0").arg(QString::number(i+1)));
-        dw->setWidget(lc);
-
         controllers.append(lc);
-        dockwidgets.append(dw);
 
-        addDockWidget(Qt::BottomDockWidgetArea, dw);
-        if(dockwidgets.size() > 1) tabifyDockWidget(dockwidgets.first(), dockwidgets.last());
+        addDockWidget(Qt::BottomDockWidgetArea, lc);
+        if(controllers.size() > 1) tabifyDockWidget(controllers.first(), controllers.last());
 
     }
 
@@ -96,4 +138,24 @@ void MainWindow::setupControllers(QStringList n){
     //QWidget *w = window();
     //w->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w->size(), qApp->desktop()->availableGeometry()));
 
+}
+
+void MainWindow::dockAll()
+{
+    audio->setFloating(false);
+    masterDockWidget->setFloating(false);
+    for(int i = 0; i < controllers.size(); i++){
+        controllers.at(i)->setFloating(false);
+    }
+}
+
+void MainWindow::about()
+{
+    QMessageBox::about(this, tr("About Lightcontroller"),
+                       tr("A Lightcontroller for MiLight/LimitlessLed/etc WiFi Bridges"
+                          "<br />"
+                          "<br />"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Roy Bakker (2015)<br>"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"mailto:roy@roybakker.nl\">roy@roybakker.nl</a><br />"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"http:/www.roybakker.nl>\">www.roybakker.nl</a><br/>"));
 }

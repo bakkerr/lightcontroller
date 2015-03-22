@@ -34,7 +34,7 @@ private:
     bool stop;
 };
 
-class audioController : public QWidget
+class audioController : public QDockWidget
 {
     Q_OBJECT
 

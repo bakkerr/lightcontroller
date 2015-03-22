@@ -26,7 +26,7 @@
 
 
 /* Debug values */
-//#define ADD_DUMMY_DEVICES
+#define ADD_DUMMY_DEVICES
 
 
 

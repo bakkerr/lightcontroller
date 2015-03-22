@@ -13,8 +13,8 @@ SingleController::SingleController(unsigned char z, QWidget *parent) :
 
     groupbox->setMinimumWidth(175);
     groupbox->setMaximumWidth(175);
-    groupbox->setMinimumHeight(400);
-    groupbox->setMaximumHeight(400);
+    groupbox->setMinimumHeight(375);
+    groupbox->setMaximumHeight(375);
     connect(groupbox, SIGNAL(toggled(bool)), this, SLOT(changeState(bool)));
 
     QVBoxLayout *l1 = new QVBoxLayout();
