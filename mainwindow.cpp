@@ -152,8 +152,9 @@ void MainWindow::setupControllers(QStringList devices){
 
 void MainWindow::dockAll()
 {
-    audio->setFloating(false);
     masterDockWidget->setFloating(false);
+    audio->setFloating(false);
+
     for(int i = 0; i < controllers.size(); i++){
         controllers.at(i)->setFloating(false);
     }

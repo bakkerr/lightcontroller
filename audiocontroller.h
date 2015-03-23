@@ -80,6 +80,8 @@ private:
     QLabel *thresholdLabel;
     QSlider *sampleSlider;
     QLabel *sampleLabel;
+    QPushButton *manualTrigger;
+
     QCustomPlot *plot;
 
     AudioThread *audiothread;

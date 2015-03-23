@@ -48,8 +48,12 @@ audioController::audioController(QWidget *parent) :
     sampleLayout->addWidget(sampleLabel);
     sampleLayout->addWidget(sampleSlider);
     settingsLayout->addLayout(sampleLayout);
+    manualTrigger = new QPushButton(tr("Trigger Manual"));
+    connect(manualTrigger, SIGNAL(clicked()), this, SLOT(triggerEffect()));
+    settingsLayout->addWidget(manualTrigger);
     settingsBox->setLayout(settingsLayout);
     l1->addWidget(settingsBox);
+
 
 
     effectBox = new QGroupBox(tr("Trigger Effect"));
