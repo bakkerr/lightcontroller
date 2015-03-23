@@ -1,5 +1,6 @@
 #include "specialbuttons.h"
 
+/*
 specialButtons::specialButtons(QWidget *parent) :
     QWidget(parent)
 {
@@ -29,3 +30,4 @@ specialButtons::~specialButtons(){
 
     delete groupbox;
 }
+*/

@@ -5,7 +5,7 @@
 #include <QWidget>
 
 #include "default_values.h"
-
+/*
 class specialButtons : public QWidget
 {
     Q_OBJECT
@@ -26,5 +26,5 @@ private:
     QPushButton *allFadeButton;
 
 };
-
+*/
 #endif // SPECIALBUTTONS_H

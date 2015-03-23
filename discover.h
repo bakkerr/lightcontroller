@@ -1,7 +1,15 @@
 #ifndef DISCOVER_H
 #define DISCOVER_H
 
-#include <QtGui>
+#include <QDialog>
+#include <QButtonGroup>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QLabel>
+#include <QGroupBox>
+#include <QCheckBox>
+
 #include <QUdpSocket>
 #include <QDebug>
 

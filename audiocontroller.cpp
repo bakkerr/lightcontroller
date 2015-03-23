@@ -1,7 +1,14 @@
 #include "audiocontroller.h"
 
+const int BufferSize = 100;
+
+
 audioController::audioController(QWidget *parent) :
-    QDockWidget(tr("Audio Controller"), parent)
+    QDockWidget(tr("Audio Controller"), parent),
+    x(AUDIO_GRAPH_DISPLAY_SAMPLES),
+    y(AUDIO_GRAPH_DISPLAY_SAMPLES),
+    z(AUDIO_GRAPH_DISPLAY_SAMPLES),
+    q(AUDIO_GRAPH_DISPLAY_SAMPLES)
 {
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 
@@ -10,7 +17,7 @@ audioController::audioController(QWidget *parent) :
     threshold = AUDIO_THRESHOLD_DEFAULT;
     samples = AUDIO_SAMPLES_DEFAULT;
     lastBeat = 0;
-    audiothread = NULL;
+    //audiothread = NULL;
 
     //QHBoxLayout *l0 = new QHBoxLayout();
 
@@ -20,6 +27,22 @@ audioController::audioController(QWidget *parent) :
 
     QVBoxLayout *l1 = new QVBoxLayout();
 
+    QGroupBox *inputDevice = new QGroupBox(tr("Audio Input"));
+    QHBoxLayout *l001 = new QHBoxLayout();
+
+    m_deviceBox = new QComboBox(this);
+    const QAudioDeviceInfo &defaultDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
+    m_deviceBox->addItem(defaultDeviceInfo.deviceName(), qVariantFromValue(defaultDeviceInfo));
+    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
+        if (deviceInfo != defaultDeviceInfo)
+            m_deviceBox->addItem(deviceInfo.deviceName(), qVariantFromValue(deviceInfo));
+    }
+
+    connect(m_deviceBox, SIGNAL(activated(int)), SLOT(deviceChanged(int)));
+    l001->addWidget(m_deviceBox);
+    inputDevice->setLayout(l001);
+
+    l1->addWidget(inputDevice);
 
     QHBoxLayout *l4 = new QHBoxLayout();
 
@@ -113,11 +136,11 @@ audioController::audioController(QWidget *parent) :
 
 void audioController::stateChange(bool s)
 {
-    if(s && audiothread == NULL) {
-        startAudioThread();
+    if(s) {
+        startAudio();
     }
     else{
-        stopAudiothread();
+        stopAudio();
     }
 }
 
@@ -131,52 +154,71 @@ void audioController::setSamples(int value)
     samples = value;
 }
 
-void audioController::startAudioThread()
+
+
+void audioController::startAudio()
 {
-    audiothread = new AudioThread(this);
-    audiothread->start();
+    QAudioFormat m_format;
+    //m_format.setSampleRate(8000);
+    //m_format.setChannelCount(1);
+    //m_format.setSampleSize(16);
+    //m_format.setSampleType(QAudioFormat::SignedInt);
+    //m_format.setByteOrder(QAudioFormat::LittleEndian);
+    m_format.setSampleRate(2000);
+    m_format.setChannelCount(1);
+    m_format.setSampleSize(8);
+    m_format.setSampleType(QAudioFormat::UnSignedInt);
+    m_format.setByteOrder(QAudioFormat::LittleEndian);
+    m_format.setCodec("audio/pcm");
+
+    QAudioDeviceInfo info(QAudioDeviceInfo::defaultInputDevice());
+    if (!info.isFormatSupported(m_format)) {
+        qWarning() << "Default format not supported - trying to use nearest";
+        m_format = info.nearestFormat(m_format);
+    }
+
+    m_audioInput = new QAudioInput(info, m_format, this);
+    m_ioDevice = m_audioInput->start();
+
+    m_buffer = new QByteArray(BufferSize, 0);
+    connect(m_ioDevice, SIGNAL(readyRead()), this, SLOT(readAudio()));
+
+    qDebug() << m_format.sampleSize() << " " << m_format.sampleType() << endl;
+
 }
 
-void audioController::stopAudiothread()
-{
-    audiothread->setStop();
-    //audiothread->terminate();
+void audioController::readAudio(){
+    qint64 len = m_audioInput->bytesReady();
 
-    audiothread->wait();
-    audiothread->quit();
+    if(len > AUDIO_GRAPH_UPDATE_SAMPLES){
+        doReplot(len);
+    }
 
-    plot->graph(0)->clearData();
-    plot->graph(1)->clearData();
-    plot->graph(2)->clearData();
-    plot->replot();
-
-    delete audiothread;
-
-    audiothread = NULL;
 }
 
-void audioController::doReplot(MyBuffer buffer, int n)
+void audioController::stopAudio()
 {
-    /* Graph data */
-    QVector<double> x(AUDIO_GRAPH_DISPLAY_SAMPLES),
-                    y(AUDIO_GRAPH_DISPLAY_SAMPLES),
-                    z(AUDIO_GRAPH_DISPLAY_SAMPLES),
-                    q(AUDIO_GRAPH_DISPLAY_SAMPLES);
+    m_audioInput->stop();
+}
 
-    /* Initial buffersize might be smaller */
-    int s = buffer.size();
+void audioController::doReplot(qint64 len)
+{
+    if (len > BufferSize){
+        len = BufferSize;
+    }
+    qint64 s = m_ioDevice->read(m_buffer->data(), len);
+
+    /* This is not efficient... */
+    for(int i = s - 1; i >= 0; i--){
+        y.pop_back();
+        y.push_front((double)(unsigned char)m_buffer->at(i));
+    }
 
     /* Calculate graph data */
-    for(int i = 0; i < s; i++){
-
-        /* Value from buffer (newest last) */
-        unsigned char v = buffer.at(i);
+    for(int i = 0; i < AUDIO_GRAPH_DISPLAY_SAMPLES; i++){
 
         /* Set x-axis data in seconds */
         x[i] = (double)(i) / AUDIO_INCOMING_SAMPLES_PER_SEC;
-
-        /* Set data in reverse direction. (newest first) */
-        y[s - 1 - i] = (double)v;
 
         /* Threshold line (constant) */
         z[i] = threshold;
@@ -195,7 +237,7 @@ void audioController::doReplot(MyBuffer buffer, int n)
     }
 
     /* FIXME: When do we want to appove a new beat detect? */
-    lastBeat += AUDIO_GRAPH_UPDATE_SAMPLES;
+    lastBeat += s;
 
     /*
      * Do "beat" detect
@@ -204,7 +246,7 @@ void audioController::doReplot(MyBuffer buffer, int n)
     int max = 0;
 
     /* See if the last detected "beat" is at least more than #samples ago */
-    if(lastBeat >= samples + AUDIO_GRAPH_UPDATE_SAMPLES){
+    if(lastBeat >= samples){
         //qDebug() << "Ready for another beat" << endl;
 
         /* Check for values above threshold, keep last position */
@@ -253,59 +295,3 @@ void audioController::triggerEffect()
 
     }
 }
-
-/*
- * AudioThread constructor
- */
-AudioThread::AudioThread(QWidget *parent)
-{
-    n = 0;
-    stop = false;
-    command = AUDIO_RECORD_COMMAND_DEFAULT;
-    qDebug() << command << endl;
-    /*
-     * For Linux, we can call the command with popen and
-     * get a file descriptor to read the command's output
-     */
-    stream = popen(command, "r");
-
-    connect(this, SIGNAL(bufferFilled(MyBuffer, int)), parent, SLOT(doReplot(MyBuffer, int)));
-
-}
-
-/*
- * AudioThread destructor
- */
-AudioThread::~AudioThread()
-{
-    /* Close stream. */
-    pclose(stream);
-}
-
-/*
- * AudioThread mainloop
- */
-void AudioThread::run()
-{
-    /* Keep running until we need to stop. */
-    while(!stop){
-
-        /* Get samples from audio input */
-        for(int i = 0; i < AUDIO_GRAPH_UPDATE_SAMPLES; i++){
-            unsigned char val = fgetc(stream);
-            buffer.push_back(val);
-        }
-
-        /* Remove oldest values until size is as required. */
-        while(buffer.size() >= AUDIO_GRAPH_DISPLAY_SAMPLES){
-            buffer.pop_front();
-        }
-
-        /* Pass values to the controller (makes a copy of the vector if required) */
-        if(!stop){
-            emit bufferFilled(buffer, n);
-        }
-        n++;
-    }
-}
-

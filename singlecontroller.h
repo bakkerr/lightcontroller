@@ -2,7 +2,15 @@
 #define SINGLECONTROLLER_H
 
 #include <QWidget>
-#include <QtGui>
+
+#include <QSlider>
+#include <QPushButton>
+#include <QGroupBox>
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <QTimer>
 
 #include "default_values.h"
 #include "colorwheel.h"

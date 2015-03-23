@@ -2,37 +2,26 @@
 #define AUDIOCONTROLLER_H
 
 #include <QWidget>
-#include <QtGui>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QDockWidget>
+#include <QComboBox>
+#include <QRadioButton>
+#include <QButtonGroup>
+#include <QLabel>
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <QAudioInput>
+
+
 
 #include "default_values.h"
 #include "qcustomplot.h"
 
 enum effects { EFFECT_NO, EFFECT_RANDOM_ALL, EFFECT_RANDOM_SAME, EFFECT_FADE10, EFFECT_FADE20 };
-
 typedef QVector<unsigned char> MyBuffer;
-
-class AudioThread : public QThread
-{
-    Q_OBJECT
-public:
-    AudioThread(QWidget *parent = 0);
-    ~AudioThread();
-
-public slots:
-    void setStop() { stop = true; }
-
-signals:
-    void bufferFilled(MyBuffer, int n);
-
-private:
-    void run();
-
-    MyBuffer buffer;
-    char *command;
-    FILE *stream;
-    int n;
-    bool stop;
-};
 
 class audioController : public QDockWidget
 {
@@ -52,20 +41,29 @@ public slots:
     void stateChange(bool s);
     void setThreshold(int value);
     void setSamples(int value);
-    void doReplot(MyBuffer buffer, int n);
+    void doReplot(qint64 len);
 
 private slots:
     void triggerEffect();
+    void startAudio();
+    void stopAudio();
+    void readAudio();
 
 private:
-    void startAudioThread();
-    void stopAudiothread();
+
+
 
     int threshold;
     int samples;
     int lastBeat;
 
     QGroupBox *groupbox;
+
+    QComboBox *m_deviceBox;
+    QAudioInput *m_audioInput;
+    QIODevice *m_ioDevice;
+    QByteArray *m_buffer;
+
 
     QGroupBox *effectBox;
     QButtonGroup *effect;
@@ -83,8 +81,8 @@ private:
     QPushButton *manualTrigger;
 
     QCustomPlot *plot;
+    QVector<double> x, y, z, q;
 
-    AudioThread *audiothread;
 };
 
 #endif // AUDIOCONTROLLER_H

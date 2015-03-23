@@ -91,6 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Create Bridge Discovery Dialog. */
     MiLightDiscover *d = new MiLightDiscover(this);
     connect(d, SIGNAL(selectedDevices(QStringList)), this, SLOT(setupControllers(QStringList)));
+    d->exec();
 
 }
 
