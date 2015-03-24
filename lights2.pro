@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += multimedia core gui network widgets printsupport
+QT       += core gui network printsupport multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -33,5 +33,3 @@ HEADERS  += lightcontroller.h \
     discover.h \
     mainwindow.h \
     default_values.h
-
-FORMS    += lightcontroller.ui
