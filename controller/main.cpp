@@ -1,7 +1,5 @@
 #include "mainwindow.h"
 
-#include "discover.h"
-
 #include <QApplication>
 
 int main(int argc, char *argv[])

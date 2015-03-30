@@ -164,7 +164,7 @@ void audioController::startAudio()
     //m_format.setSampleSize(16);
     //m_format.setSampleType(QAudioFormat::SignedInt);
     //m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setSampleRate(2000);
+    m_format.setSampleRate(8000);
     m_format.setChannelCount(1);
     m_format.setSampleSize(8);
     m_format.setSampleType(QAudioFormat::UnSignedInt);
@@ -181,6 +181,7 @@ void audioController::startAudio()
     m_ioDevice = m_audioInput->start();
 
     m_buffer = new QByteArray(BufferSize, 0);
+    //m_buffer = new libbeat::SoundBuffer(BufferSize);
     connect(m_ioDevice, SIGNAL(readyRead()), this, SLOT(readAudio()));
 
     qDebug() << m_format.sampleSize() << " " << m_format.sampleType() << endl;

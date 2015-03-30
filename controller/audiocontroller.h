@@ -15,7 +15,7 @@
 
 #include <QAudioInput>
 
-
+//#include "../../beatdetector/src/soundbuffer.h"
 
 #include "default_values.h"
 #include "qcustomplot.h"

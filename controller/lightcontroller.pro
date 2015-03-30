@@ -8,7 +8,7 @@ QT       += core gui network printsupport multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = lights2
+TARGET = lightcontroller
 TEMPLATE = app
 
 
@@ -32,4 +32,7 @@ HEADERS  += lightcontroller.h \
     qcustomplot.h \
     discover.h \
     mainwindow.h \
-    default_values.h
+    default_values.h \
+    ../../beatdetector/src/soundbuffer.h
+
+#LIBS += -L../../beatdetector/src/ -lbeat
