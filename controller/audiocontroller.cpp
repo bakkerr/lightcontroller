@@ -7,17 +7,12 @@ audioController::audioController(QWidget *parent) :
     QDockWidget(tr("Audio Controller"), parent),
     x(AUDIO_GRAPH_DISPLAY_SAMPLES),
     y(AUDIO_GRAPH_DISPLAY_SAMPLES),
-    z(AUDIO_GRAPH_DISPLAY_SAMPLES),
-    q(AUDIO_GRAPH_DISPLAY_SAMPLES)
+    z(AUDIO_GRAPH_DISPLAY_SAMPLES)
 {
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 
-    threshold = AUDIO_THRESHOLD_DEFAULT;
     samples = AUDIO_SAMPLES_DEFAULT;
     lastBeat = 0;
-    //audiothread = NULL;
-
-    //QHBoxLayout *l0 = new QHBoxLayout();
 
     groupbox = new QGroupBox(tr("Enable"));
     groupbox->setCheckable(true);
@@ -47,17 +42,7 @@ audioController::audioController(QWidget *parent) :
     settingsBox = new QGroupBox(tr("Trigger Settings"));
     settingsBox->setMaximumWidth(250);
     QVBoxLayout *settingsLayout = new QVBoxLayout();
-    QHBoxLayout *thresholdLayout = new QHBoxLayout();
-    thresholdSlider = new QSlider(Qt::Horizontal);
-    thresholdSlider->setMaximum(AUDIO_THRESHOLD_MAX);
-    thresholdSlider->setMinimum(AUDIO_THRESHOLD_MIN);
-    thresholdSlider->setValue(threshold);
-    thresholdSlider->setMaximumWidth(150);
-    thresholdLabel = new QLabel(tr("Threshold:"));
-    thresholdLabel->setMaximumWidth(100);
-    thresholdLayout->addWidget(thresholdLabel);
-    thresholdLayout->addWidget(thresholdSlider);
-    settingsLayout->addLayout(thresholdLayout);
+
     QHBoxLayout *sampleLayout = new QHBoxLayout();
     sampleSlider = new QSlider(Qt::Horizontal);
     sampleSlider->setMinimum(AUDIO_SAMPLES_MIN);
@@ -74,8 +59,6 @@ audioController::audioController(QWidget *parent) :
     settingsLayout->addWidget(manualTrigger);
     settingsBox->setLayout(settingsLayout);
     l1->addWidget(settingsBox);
-
-
 
     effectBox = new QGroupBox(tr("Trigger Effect"));
     QVBoxLayout *effectLayout = new QVBoxLayout();
@@ -107,8 +90,7 @@ audioController::audioController(QWidget *parent) :
     plot->addGraph();
     plot->addGraph();
     plot->addGraph();
-    plot->graph(1)->setPen(QPen(Qt::red));
-    plot->graph(2)->setPen(QPen(Qt::green));
+    plot->graph(1)->setPen(QPen(Qt::green));
 
     plot->setBackground(groupbox->palette().background());
     plot->yAxis->setRange(-128, 127);
@@ -119,15 +101,11 @@ audioController::audioController(QWidget *parent) :
 
     groupbox->setLayout(l4);
 
-    //l0->addWidget(groupbox);
-
     connect(groupbox, SIGNAL(clicked(bool)), this, SLOT(stateChange(bool)));
-    connect(thresholdSlider, SIGNAL(valueChanged(int)), this, SLOT(setThreshold(int)));
     connect(sampleSlider, SIGNAL(valueChanged(int)), this, SLOT(setSamples(int)));
 
     connect(this, SIGNAL(beatDetected()), this, SLOT(triggerEffect()));
 
-    //this->setLayout(l0);
     setWidget(groupbox);
 
 }
@@ -140,11 +118,6 @@ void audioController::stateChange(bool s)
     else{
         stopAudio();
     }
-}
-
-void audioController::setThreshold(int value)
-{
-    threshold = value;
 }
 
 void audioController::setSamples(int value)
@@ -185,55 +158,21 @@ void audioController::doReplot(qint64 len)
         /* Set x-axis data in seconds */
         x[i] = (double)(i) / AUDIO_INCOMING_SAMPLES_PER_SEC;
 
-        /* Threshold line (constant) */
-        z[i] = threshold;
-
         /*
          * Draw vertical lines on samples interval
          * FIXME: Convert to detected "beats"
          */
         if(i % samples == 0){
-            q[i] = 127;
+            z[i] = 127;
         }
         else {
-            q[i] = -128;
+            z[i] = -128;
         }
 
     }
-
-    /* FIXME: When do we want to appove a new beat detect? */
-    lastBeat += s;
-
-    /*
-     * Do "beat" detect
-     * FIXME: should do this somehow more advanced (fft?)
-     */
-    int max = 0;
-
-    /* See if the last detected "beat" is at least more than #samples ago */
-    if(lastBeat >= samples){
-        //qDebug() << "Ready for another beat" << endl;
-
-        /* Check for values above threshold, keep last position */
-        for(int i = samples - 1; i >= 0; i--){
-            if(y[i] > threshold){
-                max = y[i];
-                lastBeat = i;
-            }
-        }
-
-        if(max > threshold){
-            //qDebug() << "Beat Detected!" << endl;
-            emit beatDetected();
-        }
-    }
-    /*else{
-        qDebug() << "Skipping detection..." << endl;
-    }*/
 
     plot->graph(0)->setData(x, y);
     plot->graph(1)->setData(x, z);
-    plot->graph(2)->setData(x, q);
 
     plot->replot();
 

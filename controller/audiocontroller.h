@@ -39,7 +39,6 @@ signals:
 
 public slots:
     void stateChange(bool s);
-    void setThreshold(int value);
     void setSamples(int value);
     void doReplot(qint64 len);
 
@@ -49,10 +48,6 @@ private slots:
     void stopAudio();
 
 private:
-
-
-
-    int threshold;
     int samples;
     int lastBeat;
 
@@ -71,14 +66,12 @@ private:
     QRadioButton *fade20Button;
 
     QGroupBox *settingsBox;
-    QSlider *thresholdSlider;
-    QLabel *thresholdLabel;
     QSlider *sampleSlider;
     QLabel *sampleLabel;
     QPushButton *manualTrigger;
 
     QCustomPlot *plot;
-    QVector<double> x, y, z, q;
+    QVector<double> x, y, z;
 
 };
 
