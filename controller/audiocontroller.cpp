@@ -1,6 +1,6 @@
 #include "audiocontroller.h"
 
-const int BufferSize = 100;
+const int BufferSize = 1000;
 
 
 audioController::audioController(QWidget *parent) :
@@ -11,8 +11,6 @@ audioController::audioController(QWidget *parent) :
     q(AUDIO_GRAPH_DISPLAY_SAMPLES)
 {
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
-
-    qRegisterMetaType<MyBuffer>("MyBuffer");
 
     threshold = AUDIO_THRESHOLD_DEFAULT;
     samples = AUDIO_SAMPLES_DEFAULT;
@@ -164,7 +162,7 @@ void audioController::startAudio()
     //m_format.setSampleSize(16);
     //m_format.setSampleType(QAudioFormat::SignedInt);
     //m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setSampleRate(8000);
+    m_format.setSampleRate(AUDIO_INCOMING_SAMPLES_PER_SEC);
     m_format.setChannelCount(1);
     m_format.setSampleSize(8);
     m_format.setSampleType(QAudioFormat::UnSignedInt);
@@ -180,7 +178,7 @@ void audioController::startAudio()
     m_audioInput = new QAudioInput(info, m_format, this);
     m_ioDevice = m_audioInput->start();
 
-    m_buffer = new QByteArray(BufferSize, 0);
+    m_buffer = new QByteArray(AUDIO_GRAPH_UPDATE_SAMPLES, 0);
     //m_buffer = new libbeat::SoundBuffer(BufferSize);
     connect(m_ioDevice, SIGNAL(readyRead()), this, SLOT(readAudio()));
 
@@ -204,8 +202,8 @@ void audioController::stopAudio()
 
 void audioController::doReplot(qint64 len)
 {
-    if (len > BufferSize){
-        len = BufferSize;
+    if (len > AUDIO_GRAPH_UPDATE_SAMPLES){
+        len = AUDIO_GRAPH_UPDATE_SAMPLES;
     }
     qint64 s = m_ioDevice->read(m_buffer->data(), len);
 

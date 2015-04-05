@@ -18,7 +18,6 @@
 #define AUDIO_INCOMING_SAMPLES_PER_SEC  2000
 #define AUDIO_GRAPH_DISPLAY_SAMPLES     5000
 #define AUDIO_GRAPH_UPDATE_SAMPLES       400
-#define AUDIO_RECORD_COMMAND_DEFAULT    "arecord -t raw -D pulse -f U8 -r 2000 2> /dev/null"
 
 #define FADE_VALUE_MS_DEFAULT            250
 #define FADE_VALUE_MS_MIN                 50
