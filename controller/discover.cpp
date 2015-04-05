@@ -89,7 +89,12 @@ void MiLightDiscover::discover()
             QStringList sl = s.split(',');
             if(sl.size() >= 2){
                 QCheckBox *j = new QCheckBox(s);
-                j->setChecked(true);
+                if(sl.at(1).startsWith(tr("DUMMY"))){
+                    j->setChecked(false);
+                }
+                else{
+                    j->setChecked(true);
+                }
                 bg.addButton(j);
                 gbLayout.addWidget(j);
             }
