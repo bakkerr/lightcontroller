@@ -11,7 +11,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = lightcontroller
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         lightcontroller.cpp \
     singlecontroller.cpp \
@@ -33,6 +32,6 @@ HEADERS  += lightcontroller.h \
     discover.h \
     mainwindow.h \
     default_values.h \
-    ../../beatdetector/src/soundbuffer.h
+    ../../libbeat/src/beatcontroller.h
 
-#LIBS += -L../../beatdetector/src/ -lbeat
+LIBS += -L../../libbeat/src/ -lbeat

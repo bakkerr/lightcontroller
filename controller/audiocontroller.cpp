@@ -111,7 +111,7 @@ audioController::audioController(QWidget *parent) :
     plot->graph(2)->setPen(QPen(Qt::green));
 
     plot->setBackground(groupbox->palette().background());
-    plot->yAxis->setRange(0, 255);
+    plot->yAxis->setRange(-128, 127);
     plot->xAxis->setRange(0, AUDIO_GRAPH_DISPLAY_SAMPLES / (double)AUDIO_INCOMING_SAMPLES_PER_SEC);
     plot->replot();
 
@@ -152,52 +152,16 @@ void audioController::setSamples(int value)
     samples = value;
 }
 
-
-
 void audioController::startAudio()
 {
-    QAudioFormat m_format;
-    //m_format.setSampleRate(8000);
-    //m_format.setChannelCount(1);
-    //m_format.setSampleSize(16);
-    //m_format.setSampleType(QAudioFormat::SignedInt);
-    //m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setSampleRate(AUDIO_INCOMING_SAMPLES_PER_SEC);
-    m_format.setChannelCount(1);
-    m_format.setSampleSize(8);
-    m_format.setSampleType(QAudioFormat::UnSignedInt);
-    m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setCodec("audio/pcm");
-
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultInputDevice());
-    if (!info.isFormatSupported(m_format)) {
-        qWarning() << "Default format not supported - trying to use nearest";
-        m_format = info.nearestFormat(m_format);
-    }
-
-    m_audioInput = new QAudioInput(info, m_format, this);
-    m_ioDevice = m_audioInput->start();
-
-    m_buffer = new QByteArray(AUDIO_GRAPH_UPDATE_SAMPLES, 0);
-    //m_buffer = new libbeat::SoundBuffer(BufferSize);
-    connect(m_ioDevice, SIGNAL(readyRead()), this, SLOT(readAudio()));
-
-    qDebug() << m_format.sampleSize() << " " << m_format.sampleType() << endl;
-
+    m_Beat = new libbeat::BeatController(this, 4096, 44100, 192);
+    connect(m_Beat, SIGNAL(beatDrum()), this, SLOT(triggerEffect()));
 }
 
-void audioController::readAudio(){
-    qint64 len = m_audioInput->bytesReady();
-
-    if(len > AUDIO_GRAPH_UPDATE_SAMPLES){
-        doReplot(len);
-    }
-
-}
 
 void audioController::stopAudio()
 {
-    m_audioInput->stop();
+    delete m_Beat;
 }
 
 void audioController::doReplot(qint64 len)
@@ -205,12 +169,14 @@ void audioController::doReplot(qint64 len)
     if (len > AUDIO_GRAPH_UPDATE_SAMPLES){
         len = AUDIO_GRAPH_UPDATE_SAMPLES;
     }
-    qint64 s = m_ioDevice->read(m_buffer->data(), len);
+    qint64 s = 0;//m_ioDevice->read(m_buffer->data(), len);
 
     /* This is not efficient... */
     for(int i = s - 1; i >= 0; i--){
         y.pop_back();
-        y.push_front((double)(unsigned char)m_buffer->at(i));
+        quint8 v = 0;//(quint8)m_buffer->at(i);
+        qDebug() << v << endl;
+        y.push_front((double)v-128);
     }
 
     /* Calculate graph data */
@@ -227,10 +193,10 @@ void audioController::doReplot(qint64 len)
          * FIXME: Convert to detected "beats"
          */
         if(i % samples == 0){
-            q[i] = 255;
+            q[i] = 127;
         }
         else {
-            q[i] = 0;
+            q[i] = -128;
         }
 
     }
@@ -274,7 +240,7 @@ void audioController::doReplot(qint64 len)
 }
 
 void audioController::triggerEffect()
-{ qDebug() << "Trigger!" << effect->checkedId() << EFFECT_NO << EFFECT_RANDOM_SAME << EFFECT_RANDOM_ALL << endl;
+{
     switch(effect->checkedId()){
         case EFFECT_RANDOM_ALL:
             emit setRandomAll();

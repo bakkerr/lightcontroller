@@ -15,7 +15,7 @@
 
 #include <QAudioInput>
 
-//#include "../../beatdetector/src/soundbuffer.h"
+#include "../../libbeat/src/beatcontroller.h"
 
 #include "default_values.h"
 #include "qcustomplot.h"
@@ -47,7 +47,6 @@ private slots:
     void triggerEffect();
     void startAudio();
     void stopAudio();
-    void readAudio();
 
 private:
 
@@ -60,10 +59,8 @@ private:
     QGroupBox *groupbox;
 
     QComboBox *m_deviceBox;
-    QAudioInput *m_audioInput;
-    QIODevice *m_ioDevice;
-    QByteArray *m_buffer;
 
+    libbeat::BeatController *m_Beat;
 
     QGroupBox *effectBox;
     QButtonGroup *effect;

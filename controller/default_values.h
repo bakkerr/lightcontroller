@@ -9,15 +9,15 @@
 
 #define BRIGHT_VALUE_DEFAULT              19
 
-#define AUDIO_THRESHOLD_DEFAULT          220
-#define AUDIO_THRESHOLD_MAX              255
-#define AUDIO_THRESHOLD_MIN              128
-#define AUDIO_SAMPLES_DEFAULT            400
-#define AUDIO_SAMPLES_MIN                100
-#define AUDIO_SAMPLES_MAX               4000
-#define AUDIO_INCOMING_SAMPLES_PER_SEC  2000
-#define AUDIO_GRAPH_DISPLAY_SAMPLES     5000
-#define AUDIO_GRAPH_UPDATE_SAMPLES       400
+#define AUDIO_THRESHOLD_DEFAULT           80
+#define AUDIO_THRESHOLD_MAX              128
+#define AUDIO_THRESHOLD_MIN                0
+#define AUDIO_SAMPLES_DEFAULT           4096
+#define AUDIO_SAMPLES_MIN               2048
+#define AUDIO_SAMPLES_MAX              88200
+#define AUDIO_INCOMING_SAMPLES_PER_SEC 44100
+#define AUDIO_GRAPH_DISPLAY_SAMPLES    88200
+#define AUDIO_GRAPH_UPDATE_SAMPLES      4096
 
 #define FADE_VALUE_MS_DEFAULT            250
 #define FADE_VALUE_MS_MIN                 50
