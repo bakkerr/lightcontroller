@@ -11,6 +11,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = lightcontroller
 TEMPLATE = app
 
+DEPENDPATH  += ../libbeat
+INCLUDEPATH += ../libbeat
+
 SOURCES += main.cpp\
         lightcontroller.cpp \
     singlecontroller.cpp \
@@ -32,6 +35,6 @@ HEADERS  += lightcontroller.h \
     discover.h \
     mainwindow.h \
     default_values.h \
-    ../../libbeat/src/beatcontroller.h
+    beatcontroller.h
 
-LIBS += -L../../libbeat/src/ -lbeat
+LIBS += -L../libbeat/ -lbeat
