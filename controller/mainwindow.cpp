@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
      * Create Mastercontroller (zone -1)
      * Controls all zones on all bridges.
      */
-    master = new SingleController(-1);
+    master = new SingleController("Master", -1);
     masterDockWidget = new QDockWidget(tr("Master Controller"), this);
     masterDockWidget->setWidget(master);
     masterDockWidget->setMaximumWidth(200);

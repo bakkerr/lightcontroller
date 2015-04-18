@@ -19,7 +19,7 @@ class SingleController : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SingleController(unsigned char z, QWidget *parent = 0);
+    explicit SingleController(QString name, unsigned char z, QWidget *parent = 0);
     ~SingleController();
 
 signals:

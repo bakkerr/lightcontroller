@@ -1,13 +1,13 @@
 #include "singlecontroller.h"
 
-SingleController::SingleController(unsigned char z, QWidget *parent) :
+SingleController::SingleController(QString name, unsigned char z, QWidget *parent) :
     QWidget(parent)
 {
     this->zone = z;
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
 
-    groupbox = new QGroupBox(tr("Zone %0").arg(QString::number(z)));
+    groupbox = new QGroupBox(name);
     groupbox->setCheckable(true);
     groupbox->setChecked(true);
 

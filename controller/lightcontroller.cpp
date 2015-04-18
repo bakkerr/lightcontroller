@@ -17,7 +17,12 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
     //QSpacerItem *sp2 = new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding);
 
     for(int i = 0; i <= 4; i++){
-        zones[i] = new SingleController(i, this);
+        if(i == 0){
+            zones[i] = new SingleController(tr("Controller Master"), i, this);
+        }
+        else{
+            zones[i] = new SingleController(tr("Zone %0").arg(QString::number(i)), i, this);
+        }
 
         layout->addWidget(zones[i]);
         //if(i == 0) layout->addSpacerItem(sp1);
