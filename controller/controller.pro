@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     specialbuttons.cpp \
     qcustomplot.cpp \
     mainwindow.cpp \
-    discover.cpp
+    discover.cpp \
+    fftdisplay.cpp
 
 HEADERS  += lightcontroller.h \
     singlecontroller.h \
@@ -35,6 +36,7 @@ HEADERS  += lightcontroller.h \
     discover.h \
     mainwindow.h \
     default_values.h \
-    beatcontroller.h
+    beatcontroller.h \
+    fftdisplay.h
 
 LIBS += -L../libbeat/ -lbeat

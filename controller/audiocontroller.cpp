@@ -26,6 +26,7 @@ audioController::audioController(QWidget *parent) :
     m_deviceBox = new QComboBox(this);
     const QAudioDeviceInfo &defaultDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
     m_deviceBox->addItem(defaultDeviceInfo.deviceName(), qVariantFromValue(defaultDeviceInfo));
+    m_deviceBox->setMaximumWidth(150);
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
         if (deviceInfo != defaultDeviceInfo)
             m_deviceBox->addItem(deviceInfo.deviceName(), qVariantFromValue(deviceInfo));
@@ -54,6 +55,18 @@ audioController::audioController(QWidget *parent) :
     sampleLayout->addWidget(sampleLabel);
     sampleLayout->addWidget(sampleSlider);
     settingsLayout->addLayout(sampleLayout);
+
+    QHBoxLayout *fftWindowLayout = new QHBoxLayout();
+    m_fftWindowBox = new QComboBox(this);
+    m_fftWindowLabel = new QLabel(tr("FFT Window:"));
+    m_fftWindowBox->addItem(tr("None"));
+    m_fftWindowBox->addItem(tr("Hanning"));
+    m_fftWindowBox->addItem(tr("Blackman"));
+    connect(m_fftWindowBox, SIGNAL(currentTextChanged(QString)), this, SLOT(setFFTWindow(QString)));
+    fftWindowLayout->addWidget(m_fftWindowLabel);
+    fftWindowLayout->addWidget(m_fftWindowBox);
+    settingsLayout->addLayout(fftWindowLayout);
+
     manualTrigger = new QPushButton(tr("Trigger Manual"));
     connect(manualTrigger, SIGNAL(clicked()), this, SLOT(triggerEffect()));
     settingsLayout->addWidget(manualTrigger);
@@ -85,9 +98,10 @@ audioController::audioController(QWidget *parent) :
 
     l4->addLayout(l1);
 
+    QVBoxLayout *l5 = new QVBoxLayout();
+
     plot = new QCustomPlot();
     plot->setMinimumWidth(200);
-    plot->addGraph();
     plot->addGraph();
     plot->addGraph();
     plot->graph(1)->setPen(QPen(Qt::green));
@@ -98,10 +112,17 @@ audioController::audioController(QWidget *parent) :
 
     plot->setBackground(groupbox->palette().background());
     plot->yAxis->setRange(-30000, 30000);
+    plot->yAxis->setTickLabels(false);
     plot->xAxis->setRange(0, AUDIO_GRAPH_DISPLAY_SAMPLES / ((double)AUDIO_INCOMING_SAMPLES_PER_SEC/AUDIO_AVERAGE_SAMPLES));
+
     plot->replot();
 
-    l4->addWidget(plot);
+    l5->addWidget(plot);
+
+    m_fft = new FFTDisplay(NULL);
+    l5->addWidget(m_fft);
+
+    l4->addLayout(l5);
 
     groupbox->setLayout(l4);
 
@@ -109,7 +130,6 @@ audioController::audioController(QWidget *parent) :
     connect(sampleSlider, SIGNAL(valueChanged(int)), this, SLOT(setSamples(int)));
 
     connect(this, SIGNAL(beatDetected()), this, SLOT(triggerEffect()));
-
 
     setWidget(groupbox);
 
@@ -127,23 +147,28 @@ void audioController::stateChange(bool s)
 
 void audioController::setSamples(int value)
 {
-    samples = value;
     stopAudio();
+    samples = value;
     startAudio();
 }
 
 void audioController::startAudio()
 {
+    sampleSlider->setEnabled(false);
     m_Beat = new libbeat::BeatController(this, samples, AUDIO_INCOMING_SAMPLES_PER_SEC, 192);
+    m_fft->setController(m_Beat);
     connect(m_Beat, SIGNAL(beatDrum()), this, SLOT(triggerEffect()));
     connect(m_Beat, SIGNAL(processingDone()), this, SLOT(doReplot()));
+    connect(m_Beat, SIGNAL(processingDone()), m_fft, SLOT(drawNewData()));
 }
 
 
 void audioController::stopAudio()
 {
+    m_fft->setController(NULL);
     delete m_Beat;
     m_Beat = NULL;
+    sampleSlider->setEnabled(true);
 }
 
 void audioController::doReplot()
@@ -151,12 +176,12 @@ void audioController::doReplot()
 
     if(m_Beat){
         libbeat::SoundBuffer *buf = m_Beat->getBuffer();
-
-        double *data = y.data();
         int buflen = buf->size();
         int num_samples = buflen / AUDIO_AVERAGE_SAMPLES;
 
-        memmove(data+(num_samples-1), data, (AUDIO_GRAPH_DISPLAY_SAMPLES-num_samples)*sizeof(double));
+        double *ydata = y.data();
+
+        memmove(ydata+(num_samples-1), ydata, (AUDIO_GRAPH_DISPLAY_SAMPLES-num_samples)*sizeof(double));
 
         /* Calculate graph data */
         for(int i = 0; i < num_samples; i++){
@@ -164,19 +189,11 @@ void audioController::doReplot()
             for(int j = 0; j < AUDIO_AVERAGE_SAMPLES; j++){
                 v += (double)buf->read(AUDIO_AVERAGE_SAMPLES*i+j);
             }
-            data[i] = v/AUDIO_AVERAGE_SAMPLES;
-
-            /*if(i % samples == 0){
-                z[i] = 127;
-            }
-            else {
-                z[i] = -128;
-            }*/
-
+            ydata[i] = v/AUDIO_AVERAGE_SAMPLES;
         }
 
         plot->graph(0)->setData(x, y);
-        plot->graph(1)->setData(x, z);
+        //plot->graph(1)->setData(x, z);
 
         plot->replot();
     }
@@ -203,4 +220,16 @@ void audioController::triggerEffect()
             break;
 
     }
+}
+
+void audioController::setFFTWindow(const QString value)
+{
+    if(m_Beat == NULL) return;
+
+    if (value == "None")
+        m_Beat->getFFT()->setWindowFunction(libbeat::NO_WINDOW);
+    if (value == "Hanning")
+        m_Beat->getFFT()->setWindowFunction(libbeat::HANNING);
+    if (value == "Blackman")
+        m_Beat->getFFT()->setWindowFunction(libbeat::BLACKMAN);
 }

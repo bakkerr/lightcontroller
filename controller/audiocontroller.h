@@ -20,6 +20,7 @@
 
 #include "default_values.h"
 #include "qcustomplot.h"
+#include "fftdisplay.h"
 
 enum effects { EFFECT_NO, EFFECT_RANDOM_ALL, EFFECT_RANDOM_SAME, EFFECT_FADE10, EFFECT_FADE20 };
 
@@ -43,6 +44,7 @@ public slots:
     void doReplot();
 
 private slots:
+    void setFFTWindow(QString value);
     void triggerEffect();
     void startAudio();
     void stopAudio();
@@ -71,6 +73,9 @@ private:
     QPushButton *manualTrigger;
 
     QCustomPlot *plot;
+    FFTDisplay *m_fft;
+    QLabel *m_fftWindowLabel;
+    QComboBox *m_fftWindowBox;
     QVector<double> x, y, z;
 
 };
