@@ -4,6 +4,7 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
     QWidget(parent)
 {
     this->zone = z;
+    m_fixed = false;
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
 
@@ -13,14 +14,18 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
 
     groupbox->setMinimumWidth(175);
     groupbox->setMaximumWidth(175);
-    groupbox->setMinimumHeight(375);
-    groupbox->setMaximumHeight(375);
+    groupbox->setMinimumHeight(400);
+    groupbox->setMaximumHeight(400);
     connect(groupbox, SIGNAL(toggled(bool)), this, SLOT(changeState(bool)));
 
     QVBoxLayout *l1 = new QVBoxLayout();
 
     wheel = new ColorWheel();
     connect(wheel, SIGNAL(colorChange(QColor)), this, SLOT(color(QColor)));
+
+    fixedBox = new QCheckBox(tr("Fixed"));
+    fixedBox->setChecked(false);
+    connect(fixedBox, SIGNAL(toggled(bool)), this, SLOT(setFixed(bool)));
 
     QHBoxLayout *l2 = new QHBoxLayout();
     brightBox = new QGroupBox(tr("Brightness"));
@@ -32,14 +37,12 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
     brightBox->setLayout(l2);
     connect(brightSlider, SIGNAL(valueChanged(int)), this, SLOT(bright(int)));
 
-
     QHBoxLayout *l3 = new QHBoxLayout();
     fadeBox = new QGroupBox(tr("Fade"));
     fadeBox->setCheckable(true);
     fadeBox->setChecked(false);
     connect(fadeBox, SIGNAL(toggled(bool)), this, SLOT(toggleFade(bool)));
     fadeSlider = new QSlider(Qt::Horizontal);
-    //fadeSlider->setMaximumWidth(140);
     fadeSlider->setMinimum(FADE_VALUE_MS_MIN);
     fadeSlider->setMaximum(FADE_VALUE_MS_MAX);
     fadeSlider->setValue(FADE_VALUE_MS_DEFAULT);
@@ -90,6 +93,7 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
     buttonBox->setLayout(l4);
 
     l1->addWidget(wheel);
+    l1->addWidget(fixedBox);
     l1->addWidget(brightBox);
     l1->addWidget(fadeBox);
     l1->addWidget(buttonBox);
@@ -128,11 +132,15 @@ void SingleController::changeColor(const QColor &color)
 
 void SingleController::setColor(const QColor &color)
 {
+    if(m_fixed) return;
+
     wheel->setColor(color);
 }
 
 void SingleController::setBright(unsigned char value)
 {
+    if(m_fixed) return;
+
     brightSlider->blockSignals(true);
     brightSlider->setValue(value);
     brightSlider->blockSignals(false);
@@ -140,11 +148,15 @@ void SingleController::setBright(unsigned char value)
 
 void SingleController::setWhite()
 {
+    if(m_fixed) return;
+
     wheel->setColor(Qt::white);
 }
 
 void SingleController::setRandom()
 {
+    if(m_fixed) return;
+
     QColor c;
     c.setHsv(rand() % 360, 0, 0);
     wheel->changeColor(c);
