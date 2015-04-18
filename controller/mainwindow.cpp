@@ -38,96 +38,105 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(audio, SIGNAL(fade10()), master, SLOT(fade10()));
     connect(audio, SIGNAL(fade20()), master, SLOT(fade20()));
 
-    /* Fixme: Move from here */
-    statusBar()->show();
-    statusBar()->showMessage(tr("Ready!"));
-
-    fileMenu = menuBar()->addMenu(tr("&File"));
-    exitAction = new QAction(tr("E&xit"), this);
-    connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
-    fileMenu->addAction(exitAction);
-
-    viewMenu = menuBar()->addMenu(tr("&View"));
-
-    viewAudioMenu = viewMenu->addMenu(tr("&Audio"));
-
-    viewAudioAction = new QAction(tr("&Audio Controller"), this);
-    viewAudioAction->setCheckable(true);
-    viewAudioAction->setChecked(true);
-    connect(viewAudioAction, SIGNAL(toggled(bool)), audio, SLOT(setVisible(bool)));
-    viewAudioMenu->addAction(viewAudioAction);
-
-    viewAudioGraphAction = new QAction(tr("Audio &Graph"), this);
-    viewAudioGraphAction->setCheckable(true);
-    viewAudioGraphAction->setChecked(true);
-    connect(viewAudioGraphAction, SIGNAL(toggled(bool)), audio, SLOT(showGraph(bool)));
-    viewAudioMenu->addAction(viewAudioGraphAction);
-
-    viewAudioFFTAction = new QAction(tr("Audio &FFT"), this);
-    viewAudioFFTAction->setCheckable(true);
-    viewAudioFFTAction->setChecked(true);
-    connect(viewAudioFFTAction, SIGNAL(toggled(bool)), audio, SLOT(showFFT(bool)));
-    viewAudioMenu->addAction(viewAudioFFTAction);
-
-    viewMasterAction = new QAction(tr("&Master Controller"), this);
-    viewMasterAction->setCheckable(true);
-    viewMasterAction->setChecked(true);
-    connect(viewMasterAction, SIGNAL(toggled(bool)), masterDockWidget, SLOT(setVisible(bool)));
-    viewMenu->addAction(viewMasterAction);
-
-    dockAllAction = new QAction(tr("&Dock All"), this);
-    connect(dockAllAction, SIGNAL(triggered()), this, SLOT(dockAll()));
-    viewMenu->addAction(dockAllAction);
-
-    helpMenu = menuBar()->addMenu(tr("&Help"));
-    aboutAction = new QAction(tr("&About"), this);
-    connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
-    helpMenu->addAction(aboutAction);
-    aboutQtAction = new QAction(tr("About &Qt"), this);
-    connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-    helpMenu->addAction(aboutQtAction);
-
-    menuBar()->show();
-
-    toolBar = addToolBar(tr("Tools"));
-    toolBar->addSeparator();
-    toolBar->addAction(viewMasterAction);
-    toolBar->addAction(viewAudioAction);
-    toolBar->addSeparator();
-    toolBar->addAction(dockAllAction);
-    toolBar->addSeparator();
-    toolBar->addAction(aboutAction);
-    toolBar->addSeparator();
+    setupActions();
+    setupMenuBar();
+    setupToolBar();
+    setupStatusBar();
 
     /* Center the window. */
     QWidget *w = window();
     w->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w->size(), qApp->desktop()->availableGeometry()));
-
-    mainWidget = new QLabel(tr("Light Controller"));
-    mainWidget->setAlignment(Qt::AlignCenter);
-    //setCentralWidget(mainWidget);
 
     /* Create Bridge Discovery Dialog. */
     MiLightDiscover *d = new MiLightDiscover(this);
     connect(d, SIGNAL(selectedDevices(QStringList)), this, SLOT(setupControllers(QStringList)));
     d->exec();
 
-    /*if (QSystemTrayIcon::isSystemTrayAvailable()) {
-        qDebug() << "Systray available!" << endl;
-        QMenu *trayIconMenu = new QMenu(this);
-        trayIconMenu->addAction(exitAction);
-        QSystemTrayIcon *tray = new QSystemTrayIcon(this);
-        tray->setIcon(QIcon("/tmp/heart.svg"));
-        tray->setContextMenu(trayIconMenu);
-
-        tray->show();
-    }*/
-
 }
 
 MainWindow::~MainWindow()
 {
 
+}
+
+void MainWindow::setupActions()
+{
+    exitAction = new QAction(tr("E&xit"), this);
+    connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+
+    viewMasterAction = new QAction(tr("&Master Controller"), this);
+    viewMasterAction->setCheckable(true);
+    viewMasterAction->setChecked(true);
+    connect(viewMasterAction, SIGNAL(toggled(bool)), masterDockWidget, SLOT(setVisible(bool)));
+
+    viewStatusBarAction = new QAction(tr("&Status Bar"), this);
+    viewStatusBarAction->setCheckable(true);
+    viewStatusBarAction->setChecked(true);
+    connect(viewStatusBarAction, SIGNAL(toggled(bool)), statusBar(), SLOT(setVisible(bool)));
+
+    viewToolBarAction = new QAction(tr("&Tool Bar"), this);
+    viewToolBarAction->setCheckable(true);
+    viewToolBarAction->setChecked(true);
+
+    dockAllAction = new QAction(tr("&Dock All"), this);
+    connect(dockAllAction, SIGNAL(triggered()), this, SLOT(dockAll()));
+
+    aboutAction = new QAction(tr("&About"), this);
+    connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
+
+    aboutQtAction = new QAction(tr("About &Qt"), this);
+    connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+}
+
+void MainWindow::setupMenuBar()
+{
+    /* File Menu */
+    fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(exitAction);
+
+    /* View Menu */
+    viewMenu = menuBar()->addMenu(tr("&View"));
+    viewMenu->addAction(viewMasterAction);
+
+    viewControllersMenu = viewMenu->addMenu(tr("&Controllers"));
+    viewMenu->addMenu(audio->viewAudioMenu);
+
+    viewMenu->addSeparator();
+
+    viewMenu->addAction(viewStatusBarAction);
+    viewMenu->addAction(viewToolBarAction);
+
+    viewMenu->addSeparator();
+
+    viewMenu->addAction(dockAllAction);
+
+    /* Help Menu */
+    helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(aboutAction);
+    helpMenu->addAction(aboutQtAction);
+
+    menuBar()->show();
+}
+
+void MainWindow::setupToolBar()
+{
+    toolBar = addToolBar(tr("Tools"));
+    toolBar->addSeparator();
+    toolBar->addAction(viewMasterAction);
+    toolBar->addAction(audio->viewAudioAction);
+    toolBar->addSeparator();
+    toolBar->addAction(dockAllAction);
+    toolBar->addSeparator();
+    toolBar->addAction(aboutAction);
+    toolBar->addSeparator();
+
+    connect(viewToolBarAction, SIGNAL(toggled(bool)), toolBar, SLOT(setVisible(bool)));
+}
+
+void MainWindow::setupStatusBar()
+{
+    statusBar()->show();
+    statusBar()->showMessage(tr("LightController - Roy Bakker - 2015 - http://github.com/bakkerr/lightcontroller"), 0);
 }
 
 void MainWindow::setupControllers(QStringList devices){
@@ -168,6 +177,8 @@ void MainWindow::setupControllers(QStringList devices){
 
         addDockWidget(Qt::BottomDockWidgetArea, lc);
         if(controllers.size() > 1) tabifyDockWidget(controllers.first(), controllers.last());
+
+        viewControllersMenu->addMenu(lc->viewControllerMenu);
 
     }
 

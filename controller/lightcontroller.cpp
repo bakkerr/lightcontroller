@@ -7,6 +7,16 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
 
     QWidget *mw = new QWidget();
 
+    viewControllerMenu = new QMenu(title);
+
+    viewControllerAction = new QAction(title, this);
+    viewControllerAction->setCheckable(true);
+    viewControllerAction->setChecked(true);
+    connect(viewControllerAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
+
+    viewControllerMenu->addAction(viewControllerAction);
+    viewControllerMenu->addSeparator();
+
     if(!dummy){
         udp = new MiLightUPDsender(this, ip);
     }
@@ -40,6 +50,8 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
             connect(zones[0], SIGNAL(fadeEnabled()), zones[i], SLOT(disableFade()));
             connect(zones[i], SIGNAL(fadeEnabled()), zones[0], SLOT(disableFade()));
         }
+
+        viewControllerMenu->addAction(zones[i]->viewControllerAction);
     }
 
     mw->setLayout(layout);

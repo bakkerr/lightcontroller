@@ -9,6 +9,7 @@
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QAction>
 
 #include <QTimer>
 
@@ -21,6 +22,7 @@ class SingleController : public QWidget
 public:
     explicit SingleController(QString name, unsigned char z, QWidget *parent = 0);
     ~SingleController();
+    QAction *viewControllerAction;
 
 signals:
     void colorChange(const QColor &color, unsigned char zone);

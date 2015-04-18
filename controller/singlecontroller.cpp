@@ -98,6 +98,11 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
 
     mainLayout->addWidget(groupbox);
 
+    viewControllerAction = new QAction(name, this);
+    viewControllerAction->setCheckable(true);
+    viewControllerAction->setChecked(true);
+    connect(viewControllerAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
+
     this->setLayout(mainLayout);
 }
 

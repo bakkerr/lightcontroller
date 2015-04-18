@@ -30,6 +30,10 @@ class audioController : public QDockWidget
 
 public:
     explicit audioController(QWidget *parent = 0);
+    QMenu *viewAudioMenu;
+    QAction *viewAudioAction;
+    QAction *viewAudioGraphAction;
+    QAction *viewAudioFFTAction;
 
 signals:
     void beatDetected();
@@ -52,6 +56,7 @@ private slots:
     void stopAudio();
 
 private:
+    void createViewMenu();
     int samples;
     int lastBeat;
 

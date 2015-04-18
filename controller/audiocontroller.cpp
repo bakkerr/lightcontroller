@@ -26,11 +26,12 @@ audioController::audioController(QWidget *parent) :
     m_deviceBox = new QComboBox(this);
     const QAudioDeviceInfo &defaultDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
     m_deviceBox->addItem(defaultDeviceInfo.deviceName(), qVariantFromValue(defaultDeviceInfo));
-    m_deviceBox->setMaximumWidth(150);
+    m_deviceBox->setMaximumWidth(230);
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
         if (deviceInfo != defaultDeviceInfo)
             m_deviceBox->addItem(deviceInfo.deviceName(), qVariantFromValue(deviceInfo));
     }
+    m_deviceBox->setEnabled(false);
 
     connect(m_deviceBox, SIGNAL(activated(int)), SLOT(deviceChanged(int)));
     l001->addWidget(m_deviceBox);
@@ -124,14 +125,39 @@ audioController::audioController(QWidget *parent) :
 
     l4->addLayout(l5);
 
-    groupbox->setLayout(l4);
+    groupbox->setLayout(l4);    
 
     connect(groupbox, SIGNAL(clicked(bool)), this, SLOT(stateChange(bool)));
     connect(sampleSlider, SIGNAL(valueChanged(int)), this, SLOT(setSamples(int)));
 
     connect(this, SIGNAL(beatDetected()), this, SLOT(triggerEffect()));
 
+    createViewMenu();
+
     setWidget(groupbox);
+}
+
+void audioController::createViewMenu()
+{
+    viewAudioMenu = new QMenu(tr("&Audio Controller"));
+
+    viewAudioAction = new QAction(tr("&Audio Controller"), this);
+    viewAudioAction->setCheckable(true);
+    viewAudioAction->setChecked(true);
+    connect(viewAudioAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
+    viewAudioMenu->addAction(viewAudioAction);
+
+    viewAudioGraphAction = new QAction(tr("Audio &Graph"), this);
+    viewAudioGraphAction->setCheckable(true);
+    viewAudioGraphAction->setChecked(true);
+    connect(viewAudioGraphAction, SIGNAL(toggled(bool)), this, SLOT(showGraph(bool)));
+    viewAudioMenu->addAction(viewAudioGraphAction);
+
+    viewAudioFFTAction = new QAction(tr("Audio &FFT"), this);
+    viewAudioFFTAction->setCheckable(true);
+    viewAudioFFTAction->setChecked(true);
+    connect(viewAudioFFTAction, SIGNAL(toggled(bool)), this, SLOT(showFFT(bool)));
+    viewAudioMenu->addAction(viewAudioFFTAction);
 
 }
 

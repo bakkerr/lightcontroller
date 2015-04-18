@@ -23,7 +23,10 @@ private slots:
     void about();
 
 private:
-    QLabel *mainWidget;
+    void setupActions();
+    void setupMenuBar();
+    void setupToolBar();
+    void setupStatusBar();
 
     QVBoxLayout l0;
     QHBoxLayout l1;
@@ -39,13 +42,13 @@ private:
 
     QMenu *fileMenu;
     QMenu *viewMenu;
-    QMenu *viewAudioMenu;
+    QMenu *viewControllersMenu;
     QMenu *helpMenu;
 
-    QAction *viewAudioAction;
-    QAction *viewAudioGraphAction;
-    QAction *viewAudioFFTAction;
     QAction *viewMasterAction;
+
+    QAction *viewToolBarAction;
+    QAction *viewStatusBarAction;
     QAction *dockAllAction;
 
     QAction *aboutQtAction;

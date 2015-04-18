@@ -22,6 +22,8 @@ public:
     explicit LightController(QString title, QString ip, QWidget *parent = 0, bool dummy = 0);
     ~LightController();
     SingleController *zones[5];
+    QAction *viewControllerAction;
+    QMenu *viewControllerMenu;
 
 signals:
 
