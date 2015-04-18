@@ -171,10 +171,20 @@ void audioController::stopAudio()
     sampleSlider->setEnabled(true);
 }
 
+void audioController::showGraph(bool s)
+{
+    plot->setVisible(s);
+}
+
+void audioController::showFFT(bool s)
+{
+    m_fft->setVisible(s);
+}
+
 void audioController::doReplot()
 {
 
-    if(m_Beat){
+    if(m_Beat != NULL && plot->isVisible()){
         libbeat::SoundBuffer *buf = m_Beat->getBuffer();
         int buflen = buf->size();
         int num_samples = buflen / AUDIO_AVERAGE_SAMPLES;

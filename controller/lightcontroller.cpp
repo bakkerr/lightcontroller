@@ -13,9 +13,6 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
 
     layout = new QHBoxLayout();
 
-    //QSpacerItem *sp1 = new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding);
-    //QSpacerItem *sp2 = new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding);
-
     for(int i = 0; i <= 4; i++){
         if(i == 0){
             zones[i] = new SingleController(tr("Controller Master"), i, this);
@@ -25,7 +22,6 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
         }
 
         layout->addWidget(zones[i]);
-        //if(i == 0) layout->addSpacerItem(sp1);
 
         if(!dummy){
             connect(zones[i], SIGNAL(colorChange(QColor, unsigned char)), udp, SLOT(setColor(QColor, unsigned char)));

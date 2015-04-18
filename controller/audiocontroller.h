@@ -42,6 +42,8 @@ public slots:
     void stateChange(bool s);
     void setSamples(int value);
     void doReplot();
+    void showGraph(bool s);
+    void showFFT(bool s);
 
 private slots:
     void setFFTWindow(QString value);

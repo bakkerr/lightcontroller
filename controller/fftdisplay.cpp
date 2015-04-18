@@ -13,7 +13,7 @@ void FFTDisplay::paintEvent(QPaintEvent *)
     myPainter.setBrush(Qt::white);
     myPainter.drawRect(QRectF(0,0,width(),height()));
 
-    if(m_Controller == NULL) return;
+    if(m_Controller == NULL || this->isVisible() == false) return;
 
     myPainter.setPen(Qt::green);
     for(uint16_t i=0;i<4096;i++)

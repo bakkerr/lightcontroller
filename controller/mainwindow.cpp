@@ -49,11 +49,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
     viewMenu = menuBar()->addMenu(tr("&View"));
 
+    viewAudioMenu = viewMenu->addMenu(tr("&Audio"));
+
     viewAudioAction = new QAction(tr("&Audio Controller"), this);
     viewAudioAction->setCheckable(true);
     viewAudioAction->setChecked(true);
     connect(viewAudioAction, SIGNAL(toggled(bool)), audio, SLOT(setVisible(bool)));
-    viewMenu->addAction(viewAudioAction);
+    viewAudioMenu->addAction(viewAudioAction);
+
+    viewAudioGraphAction = new QAction(tr("Audio &Graph"), this);
+    viewAudioGraphAction->setCheckable(true);
+    viewAudioGraphAction->setChecked(true);
+    connect(viewAudioGraphAction, SIGNAL(toggled(bool)), audio, SLOT(showGraph(bool)));
+    viewAudioMenu->addAction(viewAudioGraphAction);
+
+    viewAudioFFTAction = new QAction(tr("Audio &FFT"), this);
+    viewAudioFFTAction->setCheckable(true);
+    viewAudioFFTAction->setChecked(true);
+    connect(viewAudioFFTAction, SIGNAL(toggled(bool)), audio, SLOT(showFFT(bool)));
+    viewAudioMenu->addAction(viewAudioFFTAction);
 
     viewMasterAction = new QAction(tr("&Master Controller"), this);
     viewMasterAction->setCheckable(true);

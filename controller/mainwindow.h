@@ -39,18 +39,18 @@ private:
 
     QMenu *fileMenu;
     QMenu *viewMenu;
+    QMenu *viewAudioMenu;
     QMenu *helpMenu;
 
-
     QAction *viewAudioAction;
+    QAction *viewAudioGraphAction;
+    QAction *viewAudioFFTAction;
     QAction *viewMasterAction;
     QAction *dockAllAction;
 
     QAction *aboutQtAction;
     QAction *aboutAction;
     QAction *exitAction;
-
-
 
 };
 
