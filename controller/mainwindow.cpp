@@ -33,6 +33,11 @@ MainWindow::MainWindow(QWidget *parent) :
     audio = new audioController(this);
     addDockWidget(Qt::TopDockWidgetArea, audio);
 
+    /* Connect Audio to Master .*/
+    connect(audio, SIGNAL(setRandomSame()), master, SLOT(setRandom()));
+    connect(audio, SIGNAL(fade10()), master, SLOT(fade10()));
+    connect(audio, SIGNAL(fade20()), master, SLOT(fade20()));
+
     /* Fixme: Move from here */
     statusBar()->show();
     statusBar()->showMessage(tr("Ready!"));
@@ -144,10 +149,6 @@ void MainWindow::setupControllers(QStringList devices){
         connect(master, SIGNAL(doOff(unsigned char)), lc->zones[0], SLOT(changeOff()));
         connect(master, SIGNAL(doWhite(unsigned char)), lc->zones[0], SLOT(changeWhite()));
         connect(master, SIGNAL(fadeEnabled()), lc->zones[0], SLOT(disableFade()));
-
-        connect(audio, SIGNAL(setRandomSame()), lc->zones[0], SLOT(setRandom()));
-        connect(audio, SIGNAL(fade10()), lc->zones[0], SLOT(fade10()));
-        connect(audio, SIGNAL(fade20()), lc->zones[0], SLOT(fade20()));
 
         controllers.append(lc);
 
