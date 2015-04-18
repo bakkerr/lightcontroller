@@ -92,9 +92,13 @@ audioController::audioController(QWidget *parent) :
     plot->addGraph();
     plot->graph(1)->setPen(QPen(Qt::green));
 
+    for(int i = 0; i < AUDIO_GRAPH_DISPLAY_SAMPLES; i++){
+        x[i] = (double)(i) / (AUDIO_INCOMING_SAMPLES_PER_SEC / AUDIO_AVERAGE_SAMPLES);
+    }
+
     plot->setBackground(groupbox->palette().background());
-    plot->yAxis->setRange(-128, 127);
-    plot->xAxis->setRange(0, AUDIO_GRAPH_DISPLAY_SAMPLES / (double)AUDIO_INCOMING_SAMPLES_PER_SEC);
+    plot->yAxis->setRange(-30000, 30000);
+    plot->xAxis->setRange(0, AUDIO_GRAPH_DISPLAY_SAMPLES / ((double)AUDIO_INCOMING_SAMPLES_PER_SEC/AUDIO_AVERAGE_SAMPLES));
     plot->replot();
 
     l4->addWidget(plot);
@@ -105,6 +109,7 @@ audioController::audioController(QWidget *parent) :
     connect(sampleSlider, SIGNAL(valueChanged(int)), this, SLOT(setSamples(int)));
 
     connect(this, SIGNAL(beatDetected()), this, SLOT(triggerEffect()));
+
 
     setWidget(groupbox);
 
@@ -123,58 +128,58 @@ void audioController::stateChange(bool s)
 void audioController::setSamples(int value)
 {
     samples = value;
+    stopAudio();
+    startAudio();
 }
 
 void audioController::startAudio()
 {
-    m_Beat = new libbeat::BeatController(this, 4096, 44100, 192);
+    m_Beat = new libbeat::BeatController(this, samples, AUDIO_INCOMING_SAMPLES_PER_SEC, 192);
     connect(m_Beat, SIGNAL(beatDrum()), this, SLOT(triggerEffect()));
+    connect(m_Beat, SIGNAL(processingDone()), this, SLOT(doReplot()));
 }
 
 
 void audioController::stopAudio()
 {
     delete m_Beat;
+    m_Beat = NULL;
 }
 
-void audioController::doReplot(qint64 len)
+void audioController::doReplot()
 {
-    if (len > AUDIO_GRAPH_UPDATE_SAMPLES){
-        len = AUDIO_GRAPH_UPDATE_SAMPLES;
-    }
-    qint64 s = 0;//m_ioDevice->read(m_buffer->data(), len);
 
-    /* This is not efficient... */
-    for(int i = s - 1; i >= 0; i--){
-        y.pop_back();
-        quint8 v = 0;//(quint8)m_buffer->at(i);
-        qDebug() << v << endl;
-        y.push_front((double)v-128);
-    }
+    if(m_Beat){
+        libbeat::SoundBuffer *buf = m_Beat->getBuffer();
 
-    /* Calculate graph data */
-    for(int i = 0; i < AUDIO_GRAPH_DISPLAY_SAMPLES; i++){
+        double *data = y.data();
+        int buflen = buf->size();
+        int num_samples = buflen / AUDIO_AVERAGE_SAMPLES;
 
-        /* Set x-axis data in seconds */
-        x[i] = (double)(i) / AUDIO_INCOMING_SAMPLES_PER_SEC;
+        memmove(data+(num_samples-1), data, (AUDIO_GRAPH_DISPLAY_SAMPLES-num_samples)*sizeof(double));
 
-        /*
-         * Draw vertical lines on samples interval
-         * FIXME: Convert to detected "beats"
-         */
-        if(i % samples == 0){
-            z[i] = 127;
-        }
-        else {
-            z[i] = -128;
+        /* Calculate graph data */
+        for(int i = 0; i < num_samples; i++){
+            double v = 0.0;
+            for(int j = 0; j < AUDIO_AVERAGE_SAMPLES; j++){
+                v += (double)buf->read(AUDIO_AVERAGE_SAMPLES*i+j);
+            }
+            data[i] = v/AUDIO_AVERAGE_SAMPLES;
+
+            /*if(i % samples == 0){
+                z[i] = 127;
+            }
+            else {
+                z[i] = -128;
+            }*/
+
         }
 
+        plot->graph(0)->setData(x, y);
+        plot->graph(1)->setData(x, z);
+
+        plot->replot();
     }
-
-    plot->graph(0)->setData(x, y);
-    plot->graph(1)->setData(x, z);
-
-    plot->replot();
 
 }
 

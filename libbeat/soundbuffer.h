@@ -54,6 +54,7 @@ public:
         @return the value at pos
     */
     int16_t read(uint16_t pos);
+    int16_t size();
 
 private:
     uint16_t m_size;

@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-    //discover();
+    //Q_INIT_RESOURCE(systray);
 
     QApplication a(argc, argv);
 

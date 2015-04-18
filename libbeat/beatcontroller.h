@@ -77,6 +77,7 @@ private:
     QAudioInput *m_audioInput;
     QIODevice *m_ioDevice;
     BeatAnalyser *m_Analyser;
+    int16_t m_RecordSize;
 
     /*! this QSet contains all custom beats. */
     QSet<uint16_t> m_customBeats;

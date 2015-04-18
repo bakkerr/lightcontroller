@@ -63,4 +63,8 @@ int16_t SoundBuffer::read(uint16_t pos)
 {
         return m_Buffer.at(pos);
 }
+int16_t SoundBuffer::size()
+{
+    return m_size;
+}
 } //namespace libbeat

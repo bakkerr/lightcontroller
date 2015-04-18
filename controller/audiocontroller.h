@@ -15,13 +15,13 @@
 
 #include <QAudioInput>
 
-#include "../../libbeat/src/beatcontroller.h"
+#include "../libbeat/beatcontroller.h"
+#include "../libbeat/soundbuffer.h"
 
 #include "default_values.h"
 #include "qcustomplot.h"
 
 enum effects { EFFECT_NO, EFFECT_RANDOM_ALL, EFFECT_RANDOM_SAME, EFFECT_FADE10, EFFECT_FADE20 };
-typedef QVector<unsigned char> MyBuffer;
 
 class audioController : public QDockWidget
 {
@@ -40,7 +40,7 @@ signals:
 public slots:
     void stateChange(bool s);
     void setSamples(int value);
-    void doReplot(qint64 len);
+    void doReplot();
 
 private slots:
     void triggerEffect();

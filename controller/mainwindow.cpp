@@ -93,6 +93,17 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(d, SIGNAL(selectedDevices(QStringList)), this, SLOT(setupControllers(QStringList)));
     d->exec();
 
+    /*if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        qDebug() << "Systray available!" << endl;
+        QMenu *trayIconMenu = new QMenu(this);
+        trayIconMenu->addAction(exitAction);
+        QSystemTrayIcon *tray = new QSystemTrayIcon(this);
+        tray->setIcon(QIcon("/tmp/heart.svg"));
+        tray->setContextMenu(trayIconMenu);
+
+        tray->show();
+    }*/
+
 }
 
 MainWindow::~MainWindow()

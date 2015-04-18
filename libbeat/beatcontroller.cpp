@@ -22,6 +22,7 @@ namespace libbeat
 
 BeatController::BeatController(QObject *parent, uint16_t recordSize, uint32_t sampleRate, uint16_t m_bandCount) : QObject(parent)
 {
+    m_RecordSize = recordSize;
     m_Buffer = new SoundBuffer(recordSize);
     m_Analyser = new BeatAnalyser(m_bandCount,sampleRate,recordSize);
 
@@ -62,13 +63,12 @@ void BeatController::readAudio()
 {
     qint64 len = m_audioInput->bytesReady();
 
-    if(len > 8192){
-        char data[8192];
+    if(len > m_RecordSize*2){
+        char data[m_RecordSize*2];
         const qint16 *data16 = reinterpret_cast<const qint16 *>(&data);
-        m_ioDevice->read(data, 8192);
-        for(int i = 0; i < 4096; i++){
+        m_ioDevice->read(data, m_RecordSize*2);
+        for(int i = 0; i < m_RecordSize; i++){
             qint16 v = data16[i];
-            //qDebug() << v << endl;
             m_Buffer->write(i, v);
         }
         processNewData();
