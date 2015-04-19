@@ -46,6 +46,7 @@ void SingleController::setupLayout()
     connect(m_wheel, SIGNAL(colorChange(QColor)), this, SLOT(color(QColor)));
 
     m_fixedBox = new QCheckBox(tr("Fixed"));
+    m_fixedBox->setToolTip(tr("If checked, this zone will ignore all external input."));
     m_fixedBox->setChecked(false);
     connect(m_fixedBox, SIGNAL(toggled(bool)), this, SLOT(setFixed(bool)));
 
@@ -53,6 +54,7 @@ void SingleController::setupLayout()
     m_brightLabel = new QLabel(tr("Brightness"));
     l2->addWidget(m_brightLabel);
     m_brightSlider = new QSlider(Qt::Horizontal);
+    m_brightSlider->setToolTip(tr("Set the Brightness of this zone"));
     m_brightSlider->setMinimumWidth(80);
     m_brightSlider->setMaximumWidth(80);
     m_brightSlider->setMinimum(1);
@@ -67,6 +69,7 @@ void SingleController::setupLayout()
     connect(m_fadeBox, SIGNAL(toggled(bool)), this, SLOT(toggleFade(bool)));
     l3->addWidget(m_fadeBox);
     m_fadeSlider = new QSlider(Qt::Horizontal);
+    m_fadeSlider->setToolTip(tr("Set the fading time"));
     m_fadeSlider->setMinimumWidth(80);
     m_fadeSlider->setMaximumWidth(80);
     m_fadeSlider->setMinimum(FADE_VALUE_MS_MIN);
@@ -82,10 +85,12 @@ void SingleController::setupLayout()
     QHBoxLayout *l4 = new QHBoxLayout();
 
     m_randomButton = new QPushButton("Random");
+    m_randomButton->setToolTip(tr("Set a random color"));
     connect(m_randomButton, SIGNAL(clicked()), this, SLOT(setRandom()));
     l4->addWidget(m_randomButton);
 
     m_whiteButton = new QPushButton("White");
+    m_whiteButton->setToolTip(tr("White"));
     m_whiteButton->setStyleSheet("QPushButton {background-color: #FFFFFF}");
     connect(m_whiteButton, SIGNAL(clicked()), this, SLOT(white()));
     l4->addWidget(m_whiteButton);
@@ -93,16 +98,19 @@ void SingleController::setupLayout()
     QHBoxLayout *l5 = new QHBoxLayout();
 
     m_redButton = new QPushButton(tr("R"));
+    m_redButton->setToolTip(tr("Red"));
     m_redButton->setStyleSheet("QPushButton {background-color: #FF0000}");
     connect(m_redButton, SIGNAL(clicked()), this, SLOT(red()));
     l5->addWidget(m_redButton);
 
     m_greenButton = new QPushButton(tr("G"));
+    m_greenButton->setToolTip(tr("Green"));
     m_greenButton->setStyleSheet("QPushButton {background-color: #00FF00}");
     connect(m_greenButton, SIGNAL(clicked()), this, SLOT(green()));
     l5->addWidget(m_greenButton);
 
     m_blueButton = new QPushButton(tr("B"));
+    m_blueButton->setToolTip(tr("Blue"));
     m_blueButton->setStyleSheet("QPushButton {background-color: #0000FF}");
     connect(m_blueButton, SIGNAL(clicked()), this, SLOT(blue()));
     l5->addWidget(m_blueButton);

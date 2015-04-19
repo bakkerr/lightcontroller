@@ -102,6 +102,7 @@ audioController::audioController(QWidget *parent) :
     QVBoxLayout *l5 = new QVBoxLayout();
 
     m_plot = new QCustomPlot();
+    m_plot->setToolTip(tr("Raw audio data view"));
     m_plot->setMinimumWidth(200);
     m_plot->addGraph();
     m_plot->addGraph();
@@ -121,6 +122,7 @@ audioController::audioController(QWidget *parent) :
     l5->addWidget(m_plot);
 
     m_fft = new FFTDisplay(NULL);
+    m_fft->setToolTip(tr("FFT output: Volume bar (right), Triggers [Beat: yellow, Snare blue] (circles), Audio values (bottom), Triggers for each FFT band (above)"));
     l5->addWidget(m_fft);
 
     l4->addLayout(l5);
