@@ -11,8 +11,10 @@ This application lets you control MiLight (and equivalent) LED bulbs and LED str
 
 ## Build:
 
+```
   qmake
   make
+```
 
 ## Bugs and Feature ideas:
 
