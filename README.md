@@ -18,6 +18,8 @@ This application lets you control MiLight (and equivalent) LED bulbs and LED str
 ## Build:
 
 ```
+  cd lightcontroller
+  apt-get install qt5-default qtmultimedia5-dev libfftw3-dev
   qmake
   make
 ```
