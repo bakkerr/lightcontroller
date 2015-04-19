@@ -9,6 +9,12 @@ This application lets you control MiLight (and equivalent) LED bulbs and LED str
   3. Audio triggered effects
   4. Fading
 
+## Get sources
+```
+  apt-get install git
+  git clone https://github.com/bakkerr/lightcontroller.git
+```
+
 ## Build:
 
 ```

@@ -11,7 +11,9 @@ MainWindow::MainWindow(QWidget *parent) :
      *
      *  FIXME: Make this an option.
      */
+#ifdef LC_FIX_LAYOUT
     setStyleSheet("QDockWidget::title {background: darkgray;} QGroupBox{border:1px solid gray;border-radius:5px;margin-top: 1ex;} QGroupBox::title{subcontrol-origin: margin;subcontrol-position:top center;padding:0 5px;}");
+#endif
 
     setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::TopDockWidgetArea);
