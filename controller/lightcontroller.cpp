@@ -5,25 +5,34 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
 {
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 
+    /* Main Widget. */
     QWidget *mw = new QWidget();
 
+    /* Menu to show/hide the controller/zones. */
     viewControllerMenu = new QMenu(title);
 
+    /* Actions to show/hide the controller. */
     viewControllerAction = new QAction(title, this);
     viewControllerAction->setCheckable(true);
     viewControllerAction->setChecked(true);
     connect(viewControllerAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
 
+    /* Add controller to the menu. */
     viewControllerMenu->addAction(viewControllerAction);
     viewControllerMenu->addSeparator();
 
+    /* Create a UDP Sender for non-dummy controllers. */
     if(!dummy){
-        udp = new MiLightUPDsender(this, ip);
+        m_udp = new MiLightUPDsender(this, ip);
     }
 
-    layout = new QHBoxLayout();
+    /* The main layout, which contains all zone controllers. */
+    m_mainLayout = new QHBoxLayout();
 
+    /* Create 5 zone controllers 1 Master, 4 Zones. */
     for(int i = 0; i <= 4; i++){
+
+        /* Create controller, set title to Master / Zone. */
         if(i == 0){
             zones[i] = new SingleController(tr("Controller Master"), i, this);
         }
@@ -31,6 +40,7 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
             zones[i] = new SingleController(tr("Zone %0").arg(QString::number(i)), i, this);
         }
 
+        /* Connect signals to UPD Sender if it is not a Dummy. */
         if(!dummy){
             connect(zones[i], SIGNAL(doColor(QColor, unsigned char)), this, SLOT(setColor(QColor, unsigned char)));
             connect(zones[i], SIGNAL(doBright(unsigned char, unsigned char)), this, SLOT(setBright(unsigned char, unsigned char)));
@@ -39,6 +49,7 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
             connect(zones[i], SIGNAL(doWhite(unsigned char)), this, SLOT(setWhite(unsigned char)));
         }
 
+        /* For all except the master connect to the Master. */
         if(i != 0){
             connect(zones[0], SIGNAL(doColor(QColor, unsigned char)), zones[i], SLOT(setColorExt(QColor)));
             connect(zones[0], SIGNAL(doBright(unsigned char, unsigned char)), zones[i], SLOT(setBrightExt(unsigned char)));
@@ -51,13 +62,19 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
             connect(zones[i], SIGNAL(fadeEnabled()), zones[0], SLOT(disableFade()));
         }
 
-        layout->addWidget(zones[i]);
+        /* Add the zone to the Menu for show/hide. */
         viewControllerMenu->addAction(zones[i]->viewControllerAction);
+
+        /* Add the zone to the Layout */
+        m_mainLayout->addWidget(zones[i]);
     }
 
-    mw->setLayout(layout);
+    /* Set the layout to the main Widget. */
+    mw->setLayout(m_mainLayout);
 
+    /* Set the main Widget. */
     setWidget(mw);
+
 }
 
 LightController::~LightController()
@@ -74,11 +91,11 @@ void LightController::setBright(unsigned char value, unsigned char zone)
 {
     if(zone == 0 && areSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!zones[i]->fixed()) udp->setBright(value, i);
+            if(!zones[i]->fixed()) m_udp->setBright(value, i);
         }
     }
     else{
-        udp->setBright(value, zone);
+        m_udp->setBright(value, zone);
     }
 }
 
@@ -86,11 +103,11 @@ void LightController::setColor(QColor c, unsigned char zone)
 {
     if(zone == 0 && areSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!zones[i]->fixed()) udp->setColor(c, i);
+            if(!zones[i]->fixed()) m_udp->setColor(c, i);
         }
     }
     else{
-        udp->setColor(c, zone);
+        m_udp->setColor(c, zone);
     }
 }
 
@@ -98,11 +115,11 @@ void LightController::setOn(unsigned char zone)
 {
     if(zone == 0 && areSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!zones[i]->fixed()) udp->setOn(i);
+            if(!zones[i]->fixed()) m_udp->setOn(i);
         }
     }
     else{
-        udp->setOn(zone);
+        m_udp->setOn(zone);
     }
 }
 
@@ -110,11 +127,11 @@ void LightController::setOff(unsigned char zone)
 {
     if(zone == 0 && areSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!zones[i]->fixed()) udp->setOff(i);
+            if(!zones[i]->fixed()) m_udp->setOff(i);
         }
     }
     else{
-        udp->setOff(zone);
+        m_udp->setOff(zone);
     }
 }
 
@@ -122,10 +139,10 @@ void LightController::setWhite(unsigned char zone)
 {
     if(zone == 0 && areSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!zones[i]->fixed()) udp->setWhite(i);
+            if(!zones[i]->fixed()) m_udp->setWhite(i);
         }
     }
     else{
-        udp->setWhite(zone);
+        m_udp->setWhite(zone);
     }
 }
