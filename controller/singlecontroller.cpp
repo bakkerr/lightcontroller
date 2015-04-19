@@ -30,15 +30,15 @@ void SingleController::setupLayout()
 {
     m_mainLayout = new QHBoxLayout;
 
-    m_groupbox = new QGroupBox(m_name);
-    m_groupbox->setCheckable(true);
-    m_groupbox->setChecked(true);
+    m_groupBox = new QGroupBox(m_name);
+    m_groupBox->setCheckable(true);
+    m_groupBox->setChecked(true);
 
-    m_groupbox->setMinimumWidth(175);
-    m_groupbox->setMaximumWidth(175);
-    m_groupbox->setMinimumHeight(325);
-    m_groupbox->setMaximumHeight(325);
-    connect(m_groupbox, SIGNAL(toggled(bool)), this, SLOT(changeState(bool)));
+    m_groupBox->setMinimumWidth(175);
+    m_groupBox->setMaximumWidth(175);
+    m_groupBox->setMinimumHeight(325);
+    m_groupBox->setMaximumHeight(325);
+    connect(m_groupBox, SIGNAL(toggled(bool)), this, SLOT(changeState(bool)));
 
     QVBoxLayout *l1 = new QVBoxLayout();
 
@@ -114,9 +114,9 @@ void SingleController::setupLayout()
     l1->addLayout(l4);
     l1->addLayout(l5);
 
-    m_groupbox->setLayout(l1);
+    m_groupBox->setLayout(l1);
 
-    m_mainLayout->addWidget(m_groupbox, 0, Qt::AlignTop | Qt::AlignLeft);
+    m_mainLayout->addWidget(m_groupBox, 0, Qt::AlignTop | Qt::AlignLeft);
 }
 
 void SingleController::changeState(bool state)
@@ -192,10 +192,10 @@ void SingleController::updateOn()
 {
     if(m_fixed) return;
 
-    m_groupbox->blockSignals(true);
-    m_groupbox->setChecked(true);
+    m_groupBox->blockSignals(true);
+    m_groupBox->setChecked(true);
     m_wheel->setColor(Qt::white);
-    m_groupbox->blockSignals(false);
+    m_groupBox->blockSignals(false);
 
 }
 
@@ -203,9 +203,9 @@ void SingleController::updateOff()
 {
     if(m_fixed) return;
 
-    m_groupbox->blockSignals(true);
-    m_groupbox->setChecked(false);
+    m_groupBox->blockSignals(true);
+    m_groupBox->setChecked(false);
     m_wheel->setColor(Qt::gray);
-    m_groupbox->blockSignals(false);
+    m_groupBox->blockSignals(false);
 
 }

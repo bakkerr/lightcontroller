@@ -95,7 +95,7 @@ private:
     bool m_fixed;
 
     /* Outer groupbox container. */
-    QGroupBox *m_groupbox;
+    QGroupBox *m_groupBox;
 
     /* Color Picker Wheel. */
     ColorWheel *m_wheel;
