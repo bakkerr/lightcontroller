@@ -30,28 +30,28 @@ public:
     bool fixed() { return m_fixed; }
 
 signals:
-    void colorChange(const QColor &color, unsigned char zone);
-    void brightChange(unsigned char value, unsigned char zone);
+    void doColor(const QColor &color, unsigned char zone);
+    void doBright(unsigned char value, unsigned char zone);
     void doWhite(unsigned char zone);
-    void doRandom(unsigned char zone);
     void doOn(unsigned char zone);
     void doOff(unsigned char zone);
     void fadeEnabled();
 
 public slots:
-    void setColor(const QColor &color);
-    void setBright(unsigned char value);
+    void setColorExt(const QColor &color);
+    void setBrightExt(unsigned char value);
+    void setRandomExt();
 
-    void setWhite();
     void setRandom();
-    void setOn();
-    void setOff();
 
+    void updateWhite();
+    void updateOn();
+    void updateOff();
 
     void changeState(bool state);
     void changeColor(const QColor &color);
-    void changeBright(unsigned char value) { setBright(value); emit brightChange(value, zone); }
-    void changeWhite() {doWhite(zone); }
+    void changeBright(unsigned char value) { setBrightExt(value); emit doBright(value, m_zone); }
+    void changeWhite() { doWhite(m_zone); }
     void changeOn() { changeState(true); }
     void changeOff() { changeState(false); }
 
@@ -66,40 +66,40 @@ public slots:
 
     void fade(int n);
     void toggleFade(bool state);
-    void enableFade() { toggleFade(true); fadeBox->setChecked(true); }
-    void disableFade() { toggleFade(false); fadeBox->setChecked(false); }
-    void setFadeTime(int msec) { this->timer->setInterval(msec); }
+    void enableFade() { toggleFade(true); m_fadeBox->setChecked(true); }
+    void disableFade() { toggleFade(false); m_fadeBox->setChecked(false); }
+    void setFadeTime(int msec) { m_fadeTimer->setInterval(msec); }
 
 protected:
 
 private:
-    unsigned char zone;
+    unsigned char m_zone;
     bool m_fixed;
 
-    QGroupBox *groupbox;
+    QGroupBox *m_groupbox;
 
-    ColorWheel *wheel;
+    ColorWheel *m_wheel;
 
-    QCheckBox *fixedBox;
+    QCheckBox *m_fixedBox;
 
-    QLabel *brightBox;
-    QSlider *brightSlider;
+    QLabel *m_brightBox;
+    QSlider *m_brightSlider;
 
-    QCheckBox *fadeBox;
-    QSlider *fadeSlider;
-    QTimer *timer;
+    QCheckBox *m_fadeBox;
+    QSlider *m_fadeSlider;
+    QTimer *m_fadeTimer;
 
-    QPushButton *randomButton;
-    QPushButton *whiteButton;
-    QPushButton *redButton;
-    QPushButton *greenButton;
-    QPushButton *blueButton;
+    QPushButton *m_randomButton;
+    QPushButton *m_whiteButton;
+    QPushButton *m_redButton;
+    QPushButton *m_greenButton;
+    QPushButton *m_blueButton;
 
 private slots:
     void setFixed(bool s) { m_fixed = s; }
-    void color(const QColor c) { emit colorChange(c, zone); }
-    void bright(int value) { emit brightChange((unsigned char)value, zone); }
-    void white() { emit doWhite(zone); }
+    void color(const QColor c) { emit doColor(c, m_zone); }
+    void bright(int value) { emit doBright((unsigned char)value, m_zone); }
+    void white() { emit doWhite(m_zone); }
 
 };
 

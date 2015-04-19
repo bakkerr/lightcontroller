@@ -169,8 +169,8 @@ void MainWindow::setupControllers(QStringList devices){
             //connect(&special, SIGNAL(allFade()), lc->zones[j], SLOT(enableFade()));
         }
 
-        connect(master, SIGNAL(colorChange(QColor, unsigned char)), lc->zones[0], SLOT(changeColor(QColor)));
-        connect(master, SIGNAL(brightChange(unsigned char, unsigned char)), lc->zones[0], SLOT(changeBright(unsigned char)));
+        connect(master, SIGNAL(doColor(QColor, unsigned char)), lc->zones[0], SLOT(changeColor(QColor)));
+        connect(master, SIGNAL(doBright(unsigned char, unsigned char)), lc->zones[0], SLOT(changeBright(unsigned char)));
         connect(master, SIGNAL(doOn(unsigned char)), lc->zones[0], SLOT(changeOn()));
         connect(master, SIGNAL(doOff(unsigned char)), lc->zones[0], SLOT(changeOff()));
         connect(master, SIGNAL(doWhite(unsigned char)), lc->zones[0], SLOT(changeWhite()));

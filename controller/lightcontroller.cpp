@@ -31,26 +31,27 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
             zones[i] = new SingleController(tr("Zone %0").arg(QString::number(i)), i, this);
         }
 
-        layout->addWidget(zones[i]);
-
         if(!dummy){
-            connect(zones[i], SIGNAL(colorChange(QColor, unsigned char)), this, SLOT(setColor(QColor, unsigned char)));
-            connect(zones[i], SIGNAL(brightChange(unsigned char, unsigned char)), this, SLOT(setBright(unsigned char, unsigned char)));
+            connect(zones[i], SIGNAL(doColor(QColor, unsigned char)), this, SLOT(setColor(QColor, unsigned char)));
+            connect(zones[i], SIGNAL(doBright(unsigned char, unsigned char)), this, SLOT(setBright(unsigned char, unsigned char)));
             connect(zones[i], SIGNAL(doOn(unsigned char)), this, SLOT(setOn(unsigned char)));
             connect(zones[i], SIGNAL(doOff(unsigned char)), this, SLOT(setOff(unsigned char)));
             connect(zones[i], SIGNAL(doWhite(unsigned char)), this, SLOT(setWhite(unsigned char)));
         }
 
         if(i != 0){
-            connect(zones[0], SIGNAL(colorChange(QColor, unsigned char)), zones[i], SLOT(setColor(QColor)));
-            connect(zones[0], SIGNAL(brightChange(unsigned char, unsigned char)), zones[i], SLOT(setBright(unsigned char)));
-            connect(zones[0], SIGNAL(doOn(unsigned char)), zones[i], SLOT(setOn()));
-            connect(zones[0], SIGNAL(doOff(unsigned char)), zones[i], SLOT(setOff()));
-            connect(zones[0], SIGNAL(doWhite(unsigned char)), zones[i], SLOT(setWhite()));
+            connect(zones[0], SIGNAL(doColor(QColor, unsigned char)), zones[i], SLOT(setColorExt(QColor)));
+            connect(zones[0], SIGNAL(doBright(unsigned char, unsigned char)), zones[i], SLOT(setBrightExt(unsigned char)));
+
+            connect(zones[0], SIGNAL(doOn(unsigned char)), zones[i], SLOT(updateOn()));
+            connect(zones[0], SIGNAL(doOff(unsigned char)), zones[i], SLOT(updateOff()));
+            connect(zones[0], SIGNAL(doWhite(unsigned char)), zones[i], SLOT(updateWhite()));
+
             connect(zones[0], SIGNAL(fadeEnabled()), zones[i], SLOT(disableFade()));
             connect(zones[i], SIGNAL(fadeEnabled()), zones[0], SLOT(disableFade()));
         }
 
+        layout->addWidget(zones[i]);
         viewControllerMenu->addAction(zones[i]->viewControllerAction);
     }
 
