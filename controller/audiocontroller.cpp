@@ -5,18 +5,17 @@ const int BufferSize = 1000;
 
 audioController::audioController(QWidget *parent) :
     QDockWidget(tr("Audio Controller"), parent),
-    x(AUDIO_GRAPH_DISPLAY_SAMPLES),
-    y(AUDIO_GRAPH_DISPLAY_SAMPLES),
-    z(AUDIO_GRAPH_DISPLAY_SAMPLES)
+    m_plotX(AUDIO_GRAPH_DISPLAY_SAMPLES),
+    m_plotY(AUDIO_GRAPH_DISPLAY_SAMPLES),
+    m_plotZ(AUDIO_GRAPH_DISPLAY_SAMPLES)
 {
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 
-    samples = AUDIO_SAMPLES_DEFAULT;
-    lastBeat = 0;
+    m_samples = AUDIO_SAMPLES_DEFAULT;
 
-    groupbox = new QGroupBox(tr("Enable"));
-    groupbox->setCheckable(true);
-    groupbox->setChecked(false);
+    m_groupBox = new QGroupBox(tr("Enable"));
+    m_groupBox->setCheckable(true);
+    m_groupBox->setChecked(false);
 
     QVBoxLayout *l1 = new QVBoxLayout();
 
@@ -41,20 +40,20 @@ audioController::audioController(QWidget *parent) :
 
     QHBoxLayout *l4 = new QHBoxLayout();
 
-    settingsBox = new QGroupBox(tr("Trigger Settings"));
-    settingsBox->setMaximumWidth(250);
+    m_settingsBox = new QGroupBox(tr("Trigger Settings"));
+    m_settingsBox->setMaximumWidth(250);
     QVBoxLayout *settingsLayout = new QVBoxLayout();
 
     QHBoxLayout *sampleLayout = new QHBoxLayout();
-    sampleSlider = new QSlider(Qt::Horizontal);
-    sampleSlider->setMinimum(AUDIO_SAMPLES_MIN);
-    sampleSlider->setMaximum(AUDIO_SAMPLES_MAX);
-    sampleSlider->setValue(samples);
-    sampleSlider->setMaximumWidth(150);
-    sampleLabel = new QLabel(tr("Samples:"));
-    sampleLabel->setMaximumWidth(100);
-    sampleLayout->addWidget(sampleLabel);
-    sampleLayout->addWidget(sampleSlider);
+    m_sampleSlider = new QSlider(Qt::Horizontal);
+    m_sampleSlider->setMinimum(AUDIO_SAMPLES_MIN);
+    m_sampleSlider->setMaximum(AUDIO_SAMPLES_MAX);
+    m_sampleSlider->setValue(m_samples);
+    m_sampleSlider->setMaximumWidth(150);
+    m_sampleLabel = new QLabel(tr("Samples:"));
+    m_sampleLabel->setMaximumWidth(100);
+    sampleLayout->addWidget(m_sampleLabel);
+    sampleLayout->addWidget(m_sampleSlider);
     settingsLayout->addLayout(sampleLayout);
 
     QHBoxLayout *fftWindowLayout = new QHBoxLayout();
@@ -68,73 +67,73 @@ audioController::audioController(QWidget *parent) :
     fftWindowLayout->addWidget(m_fftWindowBox);
     settingsLayout->addLayout(fftWindowLayout);
 
-    manualTrigger = new QPushButton(tr("Trigger Manual"));
-    connect(manualTrigger, SIGNAL(clicked()), this, SLOT(triggerEffect()));
-    settingsLayout->addWidget(manualTrigger);
-    settingsBox->setLayout(settingsLayout);
-    l1->addWidget(settingsBox);
+    m_manualTriggerButton = new QPushButton(tr("Trigger Manual"));
+    connect(m_manualTriggerButton, SIGNAL(clicked()), this, SLOT(triggerEffect()));
+    settingsLayout->addWidget(m_manualTriggerButton);
+    m_settingsBox->setLayout(settingsLayout);
+    l1->addWidget(m_settingsBox);
 
-    effectBox = new QGroupBox(tr("Trigger Effect"));
+    m_effectBox = new QGroupBox(tr("Trigger Effect"));
     QVBoxLayout *effectLayout = new QVBoxLayout();
-    effect = new QButtonGroup(this);
-    effect->setExclusive(true);
-    noEffectButton = new QRadioButton(tr("None"));
-    randomSameButton = new QRadioButton(tr("Same random"));
-    randomSameButton->setChecked(true);
-    randomAllButton = new QRadioButton(tr("Different random"));
-    fade10Button = new QRadioButton(tr("Fade +10"));
-    fade20Button = new QRadioButton(tr("Fade +20"));
-    effect->addButton(noEffectButton, EFFECT_NO);
-    effect->addButton(randomSameButton, EFFECT_RANDOM_SAME);
-    effect->addButton(randomAllButton, EFFECT_RANDOM_ALL);
-    effect->addButton(fade10Button, EFFECT_FADE10);
-    effect->addButton(fade20Button, EFFECT_FADE20);
-    effectLayout->addWidget(noEffectButton);
-    effectLayout->addWidget(randomSameButton);
-    effectLayout->addWidget(randomAllButton);
-    effectLayout->addWidget(fade10Button);
-    effectLayout->addWidget(fade20Button);
-    effectBox->setLayout(effectLayout);
-    l1->addWidget(effectBox);
+    m_effectGroup = new QButtonGroup(this);
+    m_effectGroup->setExclusive(true);
+    m_noEffectButton = new QRadioButton(tr("None"));
+    m_randomSameButton = new QRadioButton(tr("Same random"));
+    m_randomSameButton->setChecked(true);
+    m_randomAllButton = new QRadioButton(tr("Different random"));
+    m_fade10Button = new QRadioButton(tr("Fade +10"));
+    m_fade20Button = new QRadioButton(tr("Fade +20"));
+    m_effectGroup->addButton(m_noEffectButton, EFFECT_NO);
+    m_effectGroup->addButton(m_randomSameButton, EFFECT_RANDOM_SAME);
+    m_effectGroup->addButton(m_randomAllButton, EFFECT_RANDOM_ALL);
+    m_effectGroup->addButton(m_fade10Button, EFFECT_FADE10);
+    m_effectGroup->addButton(m_fade20Button, EFFECT_FADE20);
+    effectLayout->addWidget(m_noEffectButton);
+    effectLayout->addWidget(m_randomSameButton);
+    effectLayout->addWidget(m_randomAllButton);
+    effectLayout->addWidget(m_fade10Button);
+    effectLayout->addWidget(m_fade20Button);
+    m_effectBox->setLayout(effectLayout);
+    l1->addWidget(m_effectBox);
 
     l4->addLayout(l1);
 
     QVBoxLayout *l5 = new QVBoxLayout();
 
-    plot = new QCustomPlot();
-    plot->setMinimumWidth(200);
-    plot->addGraph();
-    plot->addGraph();
-    plot->graph(1)->setPen(QPen(Qt::green));
+    m_plot = new QCustomPlot();
+    m_plot->setMinimumWidth(200);
+    m_plot->addGraph();
+    m_plot->addGraph();
+    m_plot->graph(1)->setPen(QPen(Qt::green));
 
     for(int i = 0; i < AUDIO_GRAPH_DISPLAY_SAMPLES; i++){
-        x[i] = (double)(i) / (AUDIO_INCOMING_SAMPLES_PER_SEC / AUDIO_AVERAGE_SAMPLES);
+        m_plotX[i] = (double)(i) / (AUDIO_INCOMING_SAMPLES_PER_SEC / AUDIO_AVERAGE_SAMPLES);
     }
 
-    plot->setBackground(groupbox->palette().background());
-    plot->yAxis->setRange(-30000, 30000);
-    plot->yAxis->setTickLabels(false);
-    plot->xAxis->setRange(0, AUDIO_GRAPH_DISPLAY_SAMPLES / ((double)AUDIO_INCOMING_SAMPLES_PER_SEC/AUDIO_AVERAGE_SAMPLES));
+    m_plot->setBackground(m_groupBox->palette().background());
+    m_plot->yAxis->setRange(-30000, 30000);
+    m_plot->yAxis->setTickLabels(false);
+    m_plot->xAxis->setRange(0, AUDIO_GRAPH_DISPLAY_SAMPLES / ((double)AUDIO_INCOMING_SAMPLES_PER_SEC/AUDIO_AVERAGE_SAMPLES));
 
-    plot->replot();
+    m_plot->replot();
 
-    l5->addWidget(plot);
+    l5->addWidget(m_plot);
 
     m_fft = new FFTDisplay(NULL);
     l5->addWidget(m_fft);
 
     l4->addLayout(l5);
 
-    groupbox->setLayout(l4);    
+    m_groupBox->setLayout(l4);
 
-    connect(groupbox, SIGNAL(clicked(bool)), this, SLOT(stateChange(bool)));
-    connect(sampleSlider, SIGNAL(valueChanged(int)), this, SLOT(setSamples(int)));
+    connect(m_groupBox, SIGNAL(clicked(bool)), this, SLOT(stateChange(bool)));
+    connect(m_sampleSlider, SIGNAL(valueChanged(int)), this, SLOT(setSamples(int)));
 
     connect(this, SIGNAL(beatDetected()), this, SLOT(triggerEffect()));
 
     createViewMenu();
 
-    setWidget(groupbox);
+    setWidget(m_groupBox);
 }
 
 void audioController::createViewMenu()
@@ -174,32 +173,31 @@ void audioController::stateChange(bool s)
 void audioController::setSamples(int value)
 {
     stopAudio();
-    samples = value;
+    m_samples = value;
     startAudio();
 }
 
 void audioController::startAudio()
 {
-    sampleSlider->setEnabled(false);
-    m_Beat = new libbeat::BeatController(this, samples, AUDIO_INCOMING_SAMPLES_PER_SEC, 192);
-    m_fft->setController(m_Beat);
-    connect(m_Beat, SIGNAL(beatDrum()), this, SLOT(triggerEffect()));
-    connect(m_Beat, SIGNAL(processingDone()), this, SLOT(doReplot()));
-    connect(m_Beat, SIGNAL(processingDone()), m_fft, SLOT(drawNewData()));
+    m_sampleSlider->setEnabled(false);
+    m_beat = new libbeat::BeatController(this, m_samples, AUDIO_INCOMING_SAMPLES_PER_SEC, 192);
+    m_fft->setController(m_beat);
+    connect(m_beat, SIGNAL(beatDrum()), this, SLOT(triggerEffect()));
+    connect(m_beat, SIGNAL(processingDone()), this, SLOT(doReplot()));
+    connect(m_beat, SIGNAL(processingDone()), m_fft, SLOT(drawNewData()));
 }
 
 
 void audioController::stopAudio()
 {
     m_fft->setController(NULL);
-    delete m_Beat;
-    m_Beat = NULL;
-    sampleSlider->setEnabled(true);
+    delete m_beat;
+    m_beat = NULL;
 }
 
 void audioController::showGraph(bool s)
 {
-    plot->setVisible(s);
+    m_plot->setVisible(s);
 }
 
 void audioController::showFFT(bool s)
@@ -210,12 +208,12 @@ void audioController::showFFT(bool s)
 void audioController::doReplot()
 {
 
-    if(m_Beat != NULL && plot->isVisible()){
-        libbeat::SoundBuffer *buf = m_Beat->getBuffer();
+    if(m_beat != NULL && m_plot->isVisible()){
+        libbeat::SoundBuffer *buf = m_beat->getBuffer();
         int buflen = buf->size();
         int num_samples = buflen / AUDIO_AVERAGE_SAMPLES;
 
-        double *ydata = y.data();
+        double *ydata = m_plotY.data();
 
         memmove(ydata+(num_samples-1), ydata, (AUDIO_GRAPH_DISPLAY_SAMPLES-num_samples)*sizeof(double));
 
@@ -228,17 +226,17 @@ void audioController::doReplot()
             ydata[i] = v/AUDIO_AVERAGE_SAMPLES;
         }
 
-        plot->graph(0)->setData(x, y);
+        m_plot->graph(0)->setData(m_plotX, m_plotY);
         //plot->graph(1)->setData(x, z);
 
-        plot->replot();
+        m_plot->replot();
     }
 
 }
 
 void audioController::triggerEffect()
 {
-    switch(effect->checkedId()){
+    switch(m_effectGroup->checkedId()){
         case EFFECT_RANDOM_ALL:
             emit setRandomAll();
             break;
@@ -260,12 +258,12 @@ void audioController::triggerEffect()
 
 void audioController::setFFTWindow(const QString value)
 {
-    if(m_Beat == NULL) return;
+    if(m_beat == NULL) return;
 
     if (value == "None")
-        m_Beat->getFFT()->setWindowFunction(libbeat::NO_WINDOW);
+        m_beat->getFFT()->setWindowFunction(libbeat::NO_WINDOW);
     if (value == "Hanning")
-        m_Beat->getFFT()->setWindowFunction(libbeat::HANNING);
+        m_beat->getFFT()->setWindowFunction(libbeat::HANNING);
     if (value == "Blackman")
-        m_Beat->getFFT()->setWindowFunction(libbeat::BLACKMAN);
+        m_beat->getFFT()->setWindowFunction(libbeat::BLACKMAN);
 }

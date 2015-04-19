@@ -57,33 +57,32 @@ private slots:
 
 private:
     void createViewMenu();
-    int samples;
-    int lastBeat;
+    int m_samples;
 
-    QGroupBox *groupbox;
+    QGroupBox *m_groupBox;
 
     QComboBox *m_deviceBox;
 
-    libbeat::BeatController *m_Beat;
+    libbeat::BeatController *m_beat;
 
-    QGroupBox *effectBox;
-    QButtonGroup *effect;
-    QRadioButton *noEffectButton;
-    QRadioButton *randomSameButton;
-    QRadioButton *randomAllButton;
-    QRadioButton *fade10Button;
-    QRadioButton *fade20Button;
+    QGroupBox *m_effectBox;
+    QButtonGroup *m_effectGroup;
+    QRadioButton *m_noEffectButton;
+    QRadioButton *m_randomSameButton;
+    QRadioButton *m_randomAllButton;
+    QRadioButton *m_fade10Button;
+    QRadioButton *m_fade20Button;
 
-    QGroupBox *settingsBox;
-    QSlider *sampleSlider;
-    QLabel *sampleLabel;
-    QPushButton *manualTrigger;
+    QGroupBox *m_settingsBox;
+    QSlider *m_sampleSlider;
+    QLabel *m_sampleLabel;
+    QPushButton *m_manualTriggerButton;
 
-    QCustomPlot *plot;
+    QCustomPlot *m_plot;
     FFTDisplay *m_fft;
     QLabel *m_fftWindowLabel;
     QComboBox *m_fftWindowBox;
-    QVector<double> x, y, z;
+    QVector<double> m_plotX, m_plotY, m_plotZ;
 
 };
 
