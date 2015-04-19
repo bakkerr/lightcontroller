@@ -204,7 +204,19 @@ void MainWindow::about()
                        tr("A Lightcontroller for MiLight/LimitlessLed/etc WiFi Bridges"
                           "<br />"
                           "<br />"
+                          "<b>Author:</b><br />"
                           "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Roy Bakker (2015)<br>"
                           "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"mailto:roy@roybakker.nl\">roy@roybakker.nl</a><br />"
-                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"http:/www.roybakker.nl>\">www.roybakker.nl</a><br/>"));
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"http:/www.roybakker.nl>\">www.roybakker.nl</a><br />"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"https:/github.com/bakkerr/lightcontroller>\">github.com/bakkerr/lightcontroller</a><br />"
+                          "<br />"
+                          "<br />"
+                          "<b>Credits:</b><br />"
+                          "&nbsp;&nbsp; This project makes use of:<br />"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- a modified version of <a href=\"https://github.com/mguentner/libbeat\">Libbeat</a> by Maximilian Güntner<br />"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- a modified version of <a href=\"https://github.com/liuyanghejerry/Qt-Plus/tree/master/develop/ColorWheel\">ColorWheel</a> by liuyanghejerry<br />"
+                          "<br />"
+                          "<br />"
+                          "<b>Note:</b> This project is in Alpha stage and will most probably contain several bugs and/or stability issues...<br />"
+                        ));
 }
