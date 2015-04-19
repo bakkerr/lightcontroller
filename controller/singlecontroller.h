@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QGroupBox>
 #include <QCheckBox>
+#include <QLabel>
 
 #include <QAction>
 
@@ -81,14 +82,13 @@ private:
 
     QCheckBox *fixedBox;
 
-    QGroupBox *brightBox;
+    QLabel *brightBox;
     QSlider *brightSlider;
 
-    QGroupBox *fadeBox;
+    QCheckBox *fadeBox;
     QSlider *fadeSlider;
     QTimer *timer;
 
-    QGroupBox *buttonBox;
     QPushButton *randomButton;
     QPushButton *whiteButton;
     QPushButton *redButton;
