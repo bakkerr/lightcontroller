@@ -192,12 +192,20 @@ void SingleController::updateOn()
 {
     if(m_fixed) return;
 
+    m_groupbox->blockSignals(true);
+    m_groupbox->setChecked(true);
     m_wheel->setColor(Qt::white);
+    m_groupbox->blockSignals(false);
+
 }
 
 void SingleController::updateOff()
 {
     if(m_fixed) return;
 
+    m_groupbox->blockSignals(true);
+    m_groupbox->setChecked(false);
     m_wheel->setColor(Qt::gray);
+    m_groupbox->blockSignals(false);
+
 }
