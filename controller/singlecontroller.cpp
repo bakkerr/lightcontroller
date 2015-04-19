@@ -162,6 +162,8 @@ void SingleController::setRandomExt()
 {
     if(m_fixed) return;
 
+    m_groupBox->setChecked(true);
+
     setRandom();
 }
 
@@ -169,12 +171,16 @@ void SingleController::setColorExt(const QColor &color)
 {
     if(m_fixed) return;
 
+    m_groupBox->setChecked(true);
+
     m_wheel->setColor(color);
 }
 
 void SingleController::setBrightExt(unsigned char value)
 {
     if(m_fixed) return;
+
+    m_groupBox->setChecked(true);
 
     m_brightSlider->blockSignals(true);
     m_brightSlider->setValue(value);
@@ -184,6 +190,8 @@ void SingleController::setBrightExt(unsigned char value)
 void SingleController::updateWhite()
 {
     if(m_fixed) return;
+
+    m_groupBox->setChecked(true);
 
     m_wheel->setColor(Qt::white);
 }
