@@ -34,11 +34,11 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
         layout->addWidget(zones[i]);
 
         if(!dummy){
-            connect(zones[i], SIGNAL(colorChange(QColor, unsigned char)), udp, SLOT(setColor(QColor, unsigned char)));
-            connect(zones[i], SIGNAL(brightChange(unsigned char, unsigned char)), udp, SLOT(setBright(unsigned char, unsigned char)));
-            connect(zones[i], SIGNAL(doOn(unsigned char)), udp, SLOT(setOn(unsigned char)));
-            connect(zones[i], SIGNAL(doOff(unsigned char)), udp, SLOT(setOff(unsigned char)));
-            connect(zones[i], SIGNAL(doWhite(unsigned char)), udp, SLOT(setWhite(unsigned char)));
+            connect(zones[i], SIGNAL(colorChange(QColor, unsigned char)), this, SLOT(setColor(QColor, unsigned char)));
+            connect(zones[i], SIGNAL(brightChange(unsigned char, unsigned char)), this, SLOT(setBright(unsigned char, unsigned char)));
+            connect(zones[i], SIGNAL(doOn(unsigned char)), this, SLOT(setOn(unsigned char)));
+            connect(zones[i], SIGNAL(doOff(unsigned char)), this, SLOT(setOff(unsigned char)));
+            connect(zones[i], SIGNAL(doWhite(unsigned char)), this, SLOT(setWhite(unsigned char)));
         }
 
         if(i != 0){
@@ -64,3 +64,67 @@ LightController::~LightController()
 
 }
 
+bool LightController::areSomeFixed()
+{
+    return (zones[1]->fixed() || zones[2]->fixed() || zones[3]->fixed() || zones[4]->fixed());
+}
+
+void LightController::setBright(unsigned char value, unsigned char zone)
+{
+    if(zone == 0 && areSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!zones[i]->fixed()) udp->setBright(value, i);
+        }
+    }
+    else{
+        udp->setBright(value, zone);
+    }
+}
+
+void LightController::setColor(QColor c, unsigned char zone)
+{
+    if(zone == 0 && areSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!zones[i]->fixed()) udp->setColor(c, i);
+        }
+    }
+    else{
+        udp->setColor(c, zone);
+    }
+}
+
+void LightController::setOn(unsigned char zone)
+{
+    if(zone == 0 && areSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!zones[i]->fixed()) udp->setOn(i);
+        }
+    }
+    else{
+        udp->setOn(zone);
+    }
+}
+
+void LightController::setOff(unsigned char zone)
+{
+    if(zone == 0 && areSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!zones[i]->fixed()) udp->setOff(i);
+        }
+    }
+    else{
+        udp->setOff(zone);
+    }
+}
+
+void LightController::setWhite(unsigned char zone)
+{
+    if(zone == 0 && areSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!zones[i]->fixed()) udp->setWhite(i);
+        }
+    }
+    else{
+        udp->setWhite(zone);
+    }
+}

@@ -31,11 +31,19 @@ signals:
 public slots:
 
 
+private slots:
+    void setBright(unsigned char value, unsigned char zone);
+    void setColor(QColor c, unsigned char zone);
+    void setOn(unsigned char zone);
+    void setOff(unsigned char zone);
+    void setWhite(unsigned char zone);
+
 private:
+    bool areSomeFixed();
+
     MiLightUPDsender *udp;
 
     QHBoxLayout *layout;
-
 
 };
 

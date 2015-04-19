@@ -6,10 +6,13 @@
 #include <QSlider>
 #include <QPushButton>
 #include <QGroupBox>
+#include <QCheckBox>
+
+#include <QAction>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QAction>
+
 
 #include <QTimer>
 
@@ -23,6 +26,7 @@ public:
     explicit SingleController(QString name, unsigned char z, QWidget *parent = 0);
     ~SingleController();
     QAction *viewControllerAction;
+    bool fixed() { return m_fixed; }
 
 signals:
     void colorChange(const QColor &color, unsigned char zone);
@@ -69,10 +73,13 @@ protected:
 
 private:
     unsigned char zone;
+    bool m_fixed;
 
     QGroupBox *groupbox;
 
     ColorWheel *wheel;
+
+    QCheckBox *fixedBox;
 
     QGroupBox *brightBox;
     QSlider *brightSlider;
@@ -89,6 +96,7 @@ private:
     QPushButton *blueButton;
 
 private slots:
+    void setFixed(bool s) { m_fixed = s; }
     void color(const QColor c) { emit colorChange(c, zone); }
     void bright(int value) { emit brightChange((unsigned char)value, zone); }
     void white() { emit doWhite(zone); }
