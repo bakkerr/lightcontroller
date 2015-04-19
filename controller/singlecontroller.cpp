@@ -48,6 +48,7 @@ void SingleController::setupLayout()
     m_fixedBox = new QCheckBox(tr("Fixed"));
     m_fixedBox->setToolTip(tr("If checked, this zone will ignore all external input."));
     m_fixedBox->setChecked(false);
+    if(m_zone <= 0 || m_zone > 4) m_fixedBox->setEnabled(false);
     connect(m_fixedBox, SIGNAL(toggled(bool)), this, SLOT(setFixed(bool)));
 
     QHBoxLayout *l2 = new QHBoxLayout();
