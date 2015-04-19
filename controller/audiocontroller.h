@@ -50,6 +50,7 @@ public slots:
     void showFFT(bool s);
 
 private slots:
+    void inputDeviceChanged(int dev);
     void setFFTWindow(QString value);
     void triggerEffect();
     void startAudio();
@@ -58,6 +59,7 @@ private slots:
 private:
     void createViewMenu();
     int m_samples;
+    QAudioDeviceInfo m_inputDevice;
 
     QGroupBox *m_groupBox;
 

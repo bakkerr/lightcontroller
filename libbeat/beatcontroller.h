@@ -44,7 +44,7 @@ public:
         @param sampleRate
         @param *parent
     */
-    explicit BeatController (QObject *parent = 0, uint16_t recordSize = 0, uint32_t sampleRate = 0, uint16_t m_bandCount = 0);
+    explicit BeatController(QAudioDeviceInfo inputDevice, uint16_t recordSize = 0, uint32_t sampleRate = 0, uint16_t m_bandCount = 0, QObject *parent = 0);
     ~BeatController();
     /*!
         provides raw access to m_FFT
@@ -73,6 +73,7 @@ private:
         the SoundRecorder connected to this BeatController
     */
     FFT *m_FFT;
+    QAudioDeviceInfo m_inputDevice;
     SoundBuffer *m_Buffer;
     QAudioInput *m_audioInput;
     QIODevice *m_ioDevice;

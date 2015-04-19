@@ -24,15 +24,16 @@ audioController::audioController(QWidget *parent) :
 
     m_deviceBox = new QComboBox(this);
     const QAudioDeviceInfo &defaultDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
+    m_inputDevice = defaultDeviceInfo;
     m_deviceBox->addItem(defaultDeviceInfo.deviceName(), qVariantFromValue(defaultDeviceInfo));
     m_deviceBox->setMaximumWidth(230);
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
         if (deviceInfo != defaultDeviceInfo)
             m_deviceBox->addItem(deviceInfo.deviceName(), qVariantFromValue(deviceInfo));
     }
-    m_deviceBox->setEnabled(false);
+    //m_deviceBox->setEnabled(false);
 
-    connect(m_deviceBox, SIGNAL(activated(int)), SLOT(deviceChanged(int)));
+    connect(m_deviceBox, SIGNAL(activated(int)), SLOT(inputDeviceChanged(int)));
     l001->addWidget(m_deviceBox);
     inputDevice->setLayout(l001);
 
@@ -179,8 +180,8 @@ void audioController::setSamples(int value)
 
 void audioController::startAudio()
 {
-    m_sampleSlider->setEnabled(false);
-    m_beat = new libbeat::BeatController(this, m_samples, AUDIO_INCOMING_SAMPLES_PER_SEC, 192);
+    //m_sampleSlider->setEnabled(false);
+    m_beat = new libbeat::BeatController(m_inputDevice, m_samples, AUDIO_INCOMING_SAMPLES_PER_SEC, 192, this);
     m_fft->setController(m_beat);
     connect(m_beat, SIGNAL(beatDrum()), this, SLOT(triggerEffect()));
     connect(m_beat, SIGNAL(processingDone()), this, SLOT(doReplot()));
@@ -254,6 +255,13 @@ void audioController::triggerEffect()
             break;
 
     }
+}
+
+void audioController::inputDeviceChanged(int dev)
+{
+    stopAudio();
+    m_inputDevice = m_deviceBox->itemData(dev).value<QAudioDeviceInfo>();
+    startAudio();
 }
 
 void audioController::setFFTWindow(const QString value)

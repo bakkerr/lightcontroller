@@ -20,31 +20,33 @@
 namespace libbeat
 {
 
-BeatController::BeatController(QObject *parent, uint16_t recordSize, uint32_t sampleRate, uint16_t m_bandCount) : QObject(parent)
+BeatController::BeatController(QAudioDeviceInfo inputDevice, uint16_t recordSize, uint32_t sampleRate, uint16_t m_bandCount, QObject *parent) : QObject(parent)
 {
     m_RecordSize = recordSize;
     m_Buffer = new SoundBuffer(recordSize);
     m_Analyser = new BeatAnalyser(m_bandCount,sampleRate,recordSize);
+    m_inputDevice = QAudioDeviceInfo(inputDevice);
 
     m_FFT = new FFT(recordSize);
     m_FFT->setSoundBuffer(m_Buffer);
     m_Analyser->setFFT(m_FFT);
 
-    QAudioFormat m_format;
-    m_format.setSampleRate(sampleRate);
-    m_format.setChannelCount(1);
-    m_format.setSampleSize(16);
-    m_format.setSampleType(QAudioFormat::SignedInt);
-    m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setCodec("audio/pcm");
+    QAudioFormat audioFormat;
+    audioFormat.setSampleRate(sampleRate);
+    audioFormat.setChannelCount(1);
+    audioFormat.setSampleSize(16);
+    audioFormat.setSampleType(QAudioFormat::SignedInt);
+    audioFormat.setByteOrder(QAudioFormat::LittleEndian);
+    audioFormat.setCodec("audio/pcm");
 
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultInputDevice());
-    if (!info.isFormatSupported(m_format)) {
+    //QAudioDeviceInfo info(QAudioDeviceInfo::defaultInputDevice());
+
+    if (!m_inputDevice.isFormatSupported(audioFormat)) {
         qWarning() << "Default format not supported - trying to use nearest";
-        m_format = info.nearestFormat(m_format);
+        audioFormat = m_inputDevice.nearestFormat(audioFormat);
     }
 
-    m_audioInput = new QAudioInput(info, m_format, this);
+    m_audioInput = new QAudioInput(m_inputDevice, audioFormat, this);
     m_ioDevice = m_audioInput->start();
     connect(m_ioDevice, SIGNAL(readyRead()), this, SLOT(readAudio()));
 
@@ -52,11 +54,12 @@ BeatController::BeatController(QObject *parent, uint16_t recordSize, uint32_t sa
 
 BeatController::~BeatController()
 {
+    m_ioDevice->close();
     m_audioInput->stop();
-    delete m_FFT;
-    delete m_Buffer;
-    delete m_Analyser;
-    delete m_audioInput;
+    //delete m_FFT;
+    //delete m_Buffer;
+    //delete m_Analyser;
+    //delete m_audioInput;
 }
 
 void BeatController::readAudio()
