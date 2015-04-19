@@ -3,12 +3,34 @@
 SingleController::SingleController(QString name, unsigned char z, QWidget *parent) :
     QWidget(parent)
 {
-    this->m_zone = z;
+    /* Set local state variables. */
+    m_name = name;
+    m_zone = z;
     m_fixed = false;
 
-    QHBoxLayout *mainLayout = new QHBoxLayout;
+    /* Setup the layout. */
+    setupLayout();
 
-    m_groupbox = new QGroupBox(name);
+    /* Create Actions. */
+    viewControllerAction = new QAction(name, this);
+    viewControllerAction->setCheckable(true);
+    viewControllerAction->setChecked(true);
+    connect(viewControllerAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
+
+    /* Set the layout for this Widget. */
+    this->setLayout(m_mainLayout);
+}
+
+SingleController::~SingleController()
+{
+    delete m_wheel;
+}
+
+void SingleController::setupLayout()
+{
+    m_mainLayout = new QHBoxLayout;
+
+    m_groupbox = new QGroupBox(m_name);
     m_groupbox->setCheckable(true);
     m_groupbox->setChecked(true);
 
@@ -28,8 +50,8 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
     connect(m_fixedBox, SIGNAL(toggled(bool)), this, SLOT(setFixed(bool)));
 
     QHBoxLayout *l2 = new QHBoxLayout();
-    m_brightBox = new QLabel(tr("Brightness"));
-    l2->addWidget(m_brightBox);
+    m_brightLabel = new QLabel(tr("Brightness"));
+    l2->addWidget(m_brightLabel);
     m_brightSlider = new QSlider(Qt::Horizontal);
     m_brightSlider->setMinimumWidth(80);
     m_brightSlider->setMaximumWidth(80);
@@ -94,19 +116,7 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
 
     m_groupbox->setLayout(l1);
 
-    mainLayout->addWidget(m_groupbox, 0, Qt::AlignTop | Qt::AlignLeft);
-
-    viewControllerAction = new QAction(name, this);
-    viewControllerAction->setCheckable(true);
-    viewControllerAction->setChecked(true);
-    connect(viewControllerAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
-
-    this->setLayout(mainLayout);
-}
-
-SingleController::~SingleController()
-{
-    delete m_wheel;
+    m_mainLayout->addWidget(m_groupbox, 0, Qt::AlignTop | Qt::AlignLeft);
 }
 
 void SingleController::changeState(bool state)
