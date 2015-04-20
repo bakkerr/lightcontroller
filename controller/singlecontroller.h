@@ -12,6 +12,8 @@
 #include <QCheckBox>
 #include <QLabel>
 
+#include <QMenu>
+
 #include <QAction>
 
 #include <QTimer>
@@ -96,6 +98,8 @@ private slots:
     void fade() { fade(1); }
     void fade10() { fade(10); }
     void fade20() { fade(20); }
+
+    void contextMenu(const QPoint& x);
 
 private:
     /* Set the layout */

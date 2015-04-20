@@ -31,7 +31,6 @@ class audioController : public QDockWidget
 public:
     explicit audioController(QWidget *parent = 0);
     QMenu *viewAudioMenu;
-    QAction *viewAudioAction;
     QAction *viewAudioGraphAction;
     QAction *viewAudioFFTAction;
 

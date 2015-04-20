@@ -29,7 +29,6 @@ public:
     SingleController *zones[5];
 
     /* Actions to show/hide and create the menu. */
-    QAction *viewControllerAction;
     QMenu *viewControllerMenu;
 
 signals:
@@ -44,12 +43,16 @@ private slots:
     void setOff(unsigned char zone);
     void setWhite(unsigned char zone);
 
+    void contextMenu(const QPoint& x);
+
 private:
     /*
      * See if there are any zones in this controller fixed
      * and should not be changed externally.
      */
     bool areSomeFixed();
+
+    QWidget *m_mainWidget;
 
     /* The connected UPD sender for this controller. */
     MiLightUPDsender *m_udp;

@@ -3,23 +3,13 @@
 LightController::LightController(QString title, QString ip, QWidget *parent, bool dummy) :
     QDockWidget(title, parent)
 {
-    setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
-
     /* Main Widget. */
-    QWidget *mw = new QWidget();
+    m_mainWidget = new QWidget();
+    m_mainWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_mainWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu(QPoint)));
 
     /* Menu to show/hide the controller/zones. */
     viewControllerMenu = new QMenu(title);
-
-    /* Actions to show/hide the controller. */
-    viewControllerAction = new QAction(title, this);
-    viewControllerAction->setCheckable(true);
-    viewControllerAction->setChecked(true);
-    connect(viewControllerAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
-
-    /* Add controller to the menu. */
-    viewControllerMenu->addAction(viewControllerAction);
-    viewControllerMenu->addSeparator();
 
     /* Create a UDP Sender for non-dummy controllers. */
     if(!dummy){
@@ -70,10 +60,10 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
     }
 
     /* Set the layout to the main Widget. */
-    mw->setLayout(m_mainLayout);
+    m_mainWidget->setLayout(m_mainLayout);
 
     /* Set the main Widget. */
-    setWidget(mw);
+    setWidget(m_mainWidget);
 
 }
 
@@ -81,6 +71,12 @@ LightController::~LightController()
 {
 
 }
+
+void LightController::contextMenu(const QPoint& x)
+{
+    viewControllerMenu->exec(m_mainWidget->mapToGlobal(x));
+}
+
 
 bool LightController::areSomeFixed()
 {

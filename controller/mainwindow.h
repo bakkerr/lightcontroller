@@ -42,12 +42,8 @@ private:
 
     QMenu *fileMenu;
     QMenu *viewMenu;
-    QMenu *viewControllersMenu;
     QMenu *helpMenu;
 
-    QAction *viewMasterAction;
-
-    QAction *viewToolBarAction;
     QAction *viewStatusBarAction;
     QAction *dockAllAction;
 

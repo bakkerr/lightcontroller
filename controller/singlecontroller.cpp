@@ -124,8 +124,21 @@ void SingleController::setupLayout()
     l1->addLayout(l5);
 
     m_groupBox->setLayout(l1);
+    m_groupBox->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_groupBox, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu(QPoint)));
 
     m_mainLayout->addWidget(m_groupBox, 0, Qt::AlignTop | Qt::AlignLeft);
+}
+
+void SingleController::contextMenu(const QPoint &x)
+{
+    QPoint gp = m_groupBox->mapToGlobal(x);
+
+    QMenu myMenu;
+    myMenu.addAction(tr("Change name"));
+    myMenu.addAction(viewControllerAction);
+
+    QAction * selected = myMenu.exec(gp);
 }
 
 void SingleController::setState(bool state)

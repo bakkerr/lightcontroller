@@ -27,7 +27,7 @@ void MiLightUPDsender::error(const char* x){
 
 void MiLightUPDsender::udpsend(unsigned char code, unsigned char param)
 {
-    qDebug() << "Command: " << code << " Param: " << param << endl;
+    //qDebug() << "Command: " << code << " Param: " << param << endl;
 
     unsigned char command[3] = {code, param, 0x55};
     int bs = sendto(udpSocket, command, 3, 0, (const struct sockaddr*)&destSockAddr, sizeof(destSockAddr));

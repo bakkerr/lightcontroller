@@ -9,8 +9,6 @@ audioController::audioController(QWidget *parent) :
     m_plotY(AUDIO_GRAPH_DISPLAY_SAMPLES),
     m_plotZ(AUDIO_GRAPH_DISPLAY_SAMPLES)
 {
-    setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
-
     m_samples = AUDIO_SAMPLES_DEFAULT;
 
     m_groupBox = new QGroupBox(tr("Enable"));
@@ -142,12 +140,6 @@ audioController::audioController(QWidget *parent) :
 void audioController::createViewMenu()
 {
     viewAudioMenu = new QMenu(tr("&Audio Controller"));
-
-    viewAudioAction = new QAction(tr("&Audio Controller"), this);
-    viewAudioAction->setCheckable(true);
-    viewAudioAction->setChecked(true);
-    connect(viewAudioAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
-    viewAudioMenu->addAction(viewAudioAction);
 
     viewAudioGraphAction = new QAction(tr("Audio &Graph"), this);
     viewAudioGraphAction->setCheckable(true);

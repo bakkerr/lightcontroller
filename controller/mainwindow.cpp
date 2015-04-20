@@ -29,7 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
     masterDockWidget = new QDockWidget(tr("Master Controller"), this);
     masterDockWidget->setWidget(master);
     masterDockWidget->setMaximumWidth(200);
-    masterDockWidget->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
     addDockWidget(Qt::TopDockWidgetArea, masterDockWidget);
 
     /* Audio Controller */
@@ -41,11 +40,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(audio, SIGNAL(fade10()), master, SLOT(fade10Ext()));
     connect(audio, SIGNAL(fade20()), master, SLOT(fade20Ext()));
 
-    setupActions();
-    setupMenuBar();
-    setupToolBar();
-    setupStatusBar();
-
     /* Center the window. */
     QWidget *w = window();
     w->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w->size(), qApp->desktop()->availableGeometry()));
@@ -55,6 +49,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(d, SIGNAL(selectedDevices(QStringList)), this, SLOT(setupControllers(QStringList)));
     d->exec();
 
+    setupActions();
+    setupToolBar();
+    setupMenuBar();
+    setupStatusBar();
 }
 
 MainWindow::~MainWindow()
@@ -67,19 +65,10 @@ void MainWindow::setupActions()
     exitAction = new QAction(tr("E&xit"), this);
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-    viewMasterAction = new QAction(tr("&Master Controller"), this);
-    viewMasterAction->setCheckable(true);
-    viewMasterAction->setChecked(true);
-    connect(viewMasterAction, SIGNAL(toggled(bool)), masterDockWidget, SLOT(setVisible(bool)));
-
     viewStatusBarAction = new QAction(tr("&Status Bar"), this);
     viewStatusBarAction->setCheckable(true);
     viewStatusBarAction->setChecked(true);
     connect(viewStatusBarAction, SIGNAL(toggled(bool)), statusBar(), SLOT(setVisible(bool)));
-
-    viewToolBarAction = new QAction(tr("&Tool Bar"), this);
-    viewToolBarAction->setCheckable(true);
-    viewToolBarAction->setChecked(true);
 
     dockAllAction = new QAction(tr("&Dock All"), this);
     connect(dockAllAction, SIGNAL(triggered()), this, SLOT(dockAll()));
@@ -99,15 +88,28 @@ void MainWindow::setupMenuBar()
 
     /* View Menu */
     viewMenu = menuBar()->addMenu(tr("&View"));
-    viewMenu->addAction(viewMasterAction);
 
-    viewControllersMenu = viewMenu->addMenu(tr("&Controllers"));
+    viewMenu->addAction(masterDockWidget->toggleViewAction());
+
+    viewMenu->addSeparator();
+
+    viewMenu->addAction(audio->toggleViewAction());
     viewMenu->addMenu(audio->viewAudioMenu);
 
     viewMenu->addSeparator();
 
+    QVectorIterator<LightController*> i(controllers);
+    while(i.hasNext()){
+        LightController * lc = i.next();
+        viewMenu->addAction(lc->toggleViewAction());
+        viewMenu->addMenu(lc->viewControllerMenu);
+        viewMenu->addSeparator();
+    }
+
+    viewMenu->addSeparator();
+
     viewMenu->addAction(viewStatusBarAction);
-    viewMenu->addAction(viewToolBarAction);
+    viewMenu->addAction(toolBar->toggleViewAction());
 
     viewMenu->addSeparator();
 
@@ -125,15 +127,20 @@ void MainWindow::setupToolBar()
 {
     toolBar = addToolBar(tr("Tools"));
     toolBar->addSeparator();
-    toolBar->addAction(viewMasterAction);
-    toolBar->addAction(audio->viewAudioAction);
+    toolBar->addAction(masterDockWidget->toggleViewAction());
+    toolBar->addAction(audio->toggleViewAction());
+    toolBar->addSeparator();
+
+    QVectorIterator<LightController*> i(controllers);
+    while(i.hasNext()){
+        toolBar->addAction(i.next()->toggleViewAction());
+    }
+
     toolBar->addSeparator();
     toolBar->addAction(dockAllAction);
     toolBar->addSeparator();
     toolBar->addAction(aboutAction);
     toolBar->addSeparator();
-
-    connect(viewToolBarAction, SIGNAL(toggled(bool)), toolBar, SLOT(setVisible(bool)));
 }
 
 void MainWindow::setupStatusBar()
@@ -178,8 +185,6 @@ void MainWindow::setupControllers(QStringList devices){
 
         addDockWidget(Qt::BottomDockWidgetArea, lc);
         if(controllers.size() > 1) tabifyDockWidget(controllers.first(), controllers.last());
-
-        viewControllersMenu->addMenu(lc->viewControllerMenu);
 
     }
 
