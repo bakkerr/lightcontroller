@@ -56,7 +56,7 @@ public slots:
     void setWhiteExt();
     void setBrightExt(unsigned char value);
     void setRandomExt();
-    void fadeExt() { if(!m_fixed) fade(1); }
+    void fadeExt()   { if(!m_fixed) fade(1);  }
     void fade10Ext() { if(!m_fixed) fade(10); }
     void fade20Ext() { if(!m_fixed) fade(20); }
 
@@ -79,15 +79,15 @@ private slots:
     void setFixed(bool s) { m_fixed = s; }
 
     /* Internal triggers */
-    void setColor(const QColor c) { emit doColor(c, m_zone); }
-    void setBright(int value) { emit doBright((unsigned char)value, m_zone); }
-    void setWhite() { updateWhite(); emit doWhite(m_zone); }
+    void setColor(const QColor c) { emit doColor(c, m_zone);                                 }
+    void setBright(int value)     { emit doBright((unsigned char)value, m_zone);             }
+    void setWhite()               { m_wheel->setInnerColor(Qt::white); emit doWhite(m_zone); }
     void setRandom();
 
     /* Color Shortcuts */
-    void red() { setColor(Qt::red); }
+    void red()   { setColor(Qt::red);   }
     void green() { setColor(Qt::green); }
-    void blue() { setColor(Qt::blue); }
+    void blue()  { setColor(Qt::blue);  }
 
     /* Fading. */
     void fade(int n);
@@ -95,7 +95,7 @@ private slots:
     void setFadeTime(int msec);
 
     /* Fading shortcuts. */
-    void fade() { fade(1); }
+    void fade()   { fade(1);  }
     void fade10() { fade(10); }
     void fade20() { fade(20); }
 
