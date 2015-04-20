@@ -43,12 +43,12 @@ void SingleController::setupLayout()
     QVBoxLayout *l1 = new QVBoxLayout();
 
     m_wheel = new ColorWheel();
-    connect(m_wheel, SIGNAL(colorChange(QColor)), this, SLOT(color(QColor)));
+    connect(m_wheel, SIGNAL(colorChange(QColor)), this, SLOT(setColor(QColor)));
 
     m_fixedBox = new QCheckBox(tr("Fixed"));
     m_fixedBox->setToolTip(tr("If checked, this zone will ignore all external input."));
     m_fixedBox->setChecked(false);
-    if(m_zone <= 0 || m_zone > 4) m_fixedBox->setEnabled(false);
+    //if(m_zone <= 0 || m_zone > 4) m_fixedBox->setEnabled(false);
     connect(m_fixedBox, SIGNAL(toggled(bool)), this, SLOT(setFixed(bool)));
 
     QHBoxLayout *l2 = new QHBoxLayout();
@@ -62,7 +62,7 @@ void SingleController::setupLayout()
     m_brightSlider->setMaximum(19);
     m_brightSlider->setValue(BRIGHT_VALUE_DEFAULT);
     l2->addWidget(m_brightSlider, 0, Qt::AlignRight);
-    connect(m_brightSlider, SIGNAL(valueChanged(int)), this, SLOT(bright(int)));
+    connect(m_brightSlider, SIGNAL(valueChanged(int)), this, SLOT(setBright(int)));
 
     QHBoxLayout *l3 = new QHBoxLayout();
     m_fadeBox = new QCheckBox(tr("Fade"));
@@ -93,7 +93,7 @@ void SingleController::setupLayout()
     m_whiteButton = new QPushButton("White");
     m_whiteButton->setToolTip(tr("White"));
     m_whiteButton->setStyleSheet("QPushButton {background-color: #FFFFFF}");
-    connect(m_whiteButton, SIGNAL(clicked()), this, SLOT(white()));
+    connect(m_whiteButton, SIGNAL(clicked()), this, SLOT(setWhite()));
     l4->addWidget(m_whiteButton);
 
     QHBoxLayout *l5 = new QHBoxLayout();
@@ -140,19 +140,33 @@ void SingleController::setState(bool state)
     }
 }
 
-void SingleController::changeColor(const QColor &color)
-{
-    m_wheel->changeColor(color);
-}
-
 void SingleController::toggleFade(bool state){
     if(state){
         m_fadeTimer->start();
-        emit fadeEnabled();
+        if(!m_fixed) emit fadeEnabled();
     }
     else{
         m_fadeTimer->stop();
     }
+}
+
+void SingleController::enableFade()
+{
+    toggleFade(true);
+    m_fadeBox->setChecked(true);
+}
+
+void SingleController::disableFade()
+{
+    if(!m_fixed){
+        toggleFade(false);
+        m_fadeBox->setChecked(false);
+    }
+}
+
+void SingleController::setFadeTime(int msec)
+{
+    m_fadeTimer->setInterval(msec);
 }
 
 void SingleController::fade(int n)
@@ -169,6 +183,55 @@ void SingleController::setRandom()
     m_wheel->changeColor(c);
 }
 
+void SingleController::setOnExt()
+{
+    if(m_fixed) return;
+
+    m_groupBox->setChecked(true);
+
+    setState(true);
+}
+
+void SingleController::setOffExt()
+{
+    if(m_fixed) return;
+
+    m_groupBox->setChecked(true);
+
+    setState(false);
+}
+
+
+void SingleController::setColorExt(const QColor &color)
+{
+    if(m_fixed) return;
+
+    m_groupBox->setChecked(true);
+
+    updateColor(color);
+    setColor(color);
+}
+
+void SingleController::setWhiteExt()
+{
+    if(m_fixed) return;
+
+    m_groupBox->setChecked(true);
+
+    updateWhite();
+    setWhite();
+}
+
+void SingleController::setBrightExt(unsigned char value){
+    if(m_fixed) return;
+
+    m_groupBox->setChecked(true);
+
+    updateBright(value);
+    setBright(value);
+}
+
+
 void SingleController::setRandomExt()
 {
     if(m_fixed) return;
@@ -178,7 +241,7 @@ void SingleController::setRandomExt()
     setRandom();
 }
 
-void SingleController::setColorExt(const QColor &color)
+void SingleController::updateColor(const QColor &color)
 {
     if(m_fixed) return;
 
@@ -187,7 +250,7 @@ void SingleController::setColorExt(const QColor &color)
     m_wheel->setColor(color);
 }
 
-void SingleController::setBrightExt(unsigned char value)
+void SingleController::updateBright(unsigned char value)
 {
     if(m_fixed) return;
 

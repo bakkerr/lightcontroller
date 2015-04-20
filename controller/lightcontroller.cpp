@@ -51,8 +51,8 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
 
         /* For all except the master connect to the Master. */
         if(i != 0){
-            connect(zones[0], SIGNAL(doColor(QColor, unsigned char)), zones[i], SLOT(setColorExt(QColor)));
-            connect(zones[0], SIGNAL(doBright(unsigned char, unsigned char)), zones[i], SLOT(setBrightExt(unsigned char)));
+            connect(zones[0], SIGNAL(doColor(QColor, unsigned char)), zones[i], SLOT(updateColor(QColor)));
+            connect(zones[0], SIGNAL(doBright(unsigned char, unsigned char)), zones[i], SLOT(updateBright(unsigned char)));
 
             connect(zones[0], SIGNAL(doOn(unsigned char)), zones[i], SLOT(updateOn()));
             connect(zones[0], SIGNAL(doOff(unsigned char)), zones[i], SLOT(updateOff()));

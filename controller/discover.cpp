@@ -27,9 +27,10 @@ MiLightDiscover::MiLightDiscover(QWidget *parent) :
 
     setLayout(&mainLayout);
 
+    ok.setFocus();
+
     discover();
 
-    //show();
 }
 
 MiLightDiscover::~MiLightDiscover()
@@ -76,11 +77,6 @@ void MiLightDiscover::discover()
         noDevicesFound.setVisible(false);
     }
 
-#ifdef ADD_DUMMY_DEVICES
-    devices.append(QString("1.2.3.4,DUMMY01DUMMY,"));
-    devices.append(QString("4.3.2.1,DUMMY02DUMMY,"));
-#endif
-
     if(devices.length() > 0){
         gb.setVisible(true);
         QStringListIterator i(devices);
@@ -89,18 +85,34 @@ void MiLightDiscover::discover()
             QStringList sl = s.split(',');
             if(sl.size() >= 2){
                 QCheckBox *j = new QCheckBox(s);
-                if(sl.at(1).startsWith(tr("DUMMY"))){
-                    j->setChecked(false);
-                }
-                else{
-                    j->setChecked(true);
-                }
+                j->setChecked(true);
                 bg.addButton(j);
                 gbLayout.addWidget(j);
             }
         }
-
     }
+
+#ifdef ADD_DUMMY_DEVICES
+    gbLayout.addSpacing(25);
+    gbLayout.addWidget(new QLabel(tr("Dummy devices:")));
+    QStringList dummys;
+    dummys.append(QString("1.2.3.4,DUMMY01DUMMY,"));
+    dummys.append(QString("4.3.2.1,DUMMY02DUMMY,"));
+    if(dummys.length() > 0){
+        gb.setVisible(true);
+        QStringListIterator i(dummys);
+        while(i.hasNext()){
+            QString s = i.next();
+            QStringList sl = s.split(',');
+            if(sl.size() >= 2){
+                QCheckBox *j = new QCheckBox(s);
+                j->setChecked(false);
+                bg.addButton(j);
+                gbLayout.addWidget(j);
+            }
+        }
+    }
+#endif
 
 }
 

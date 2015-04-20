@@ -42,47 +42,60 @@ signals:
     void doWhite(unsigned char zone);
     void doOn(unsigned char zone);
     void doOff(unsigned char zone);
+
+    /* Sync fade state between Master and Zones. */
     void fadeEnabled();
 
 public slots:
-    /* Manipulate trigger from outside. */
+    /* Manipulate triggers for zone 0 from Master. */
+    void setOnExt();
+    void setOffExt();
     void setColorExt(const QColor &color);
+    void setWhiteExt();
     void setBrightExt(unsigned char value);
     void setRandomExt();
+    void fadeExt() { if(!m_fixed) fade(1); }
+    void fade10Ext() { if(!m_fixed) fade(10); }
+    void fade20Ext() { if(!m_fixed) fade(20); }
 
-    void setState(bool state);
-    void setOn() { setState(true); }
-    void setOff() { setState(false); }
-    void setRandom();
-
-    /* Called when state needs to be updated, but is set from a different place. */
-    void updateWhite();
+    /* Update layout when triggers are from zone 0. */
     void updateOn();
     void updateOff();
-
-    /* Slots triggered externally. */
-    void changeColor(const QColor &color);
-    void changeBright(unsigned char value) { setBrightExt(value); emit doBright(value, m_zone); }
-    void changeWhite() { doWhite(m_zone); }
+    void updateColor(const QColor &color);
+    void updateWhite();
+    void updateBright(unsigned char value);
 
     /* Fading Slots. */
+    void enableFade();
+    void disableFade();
+
+private slots:
+    /* Toggle On/Off */
+    void setState(bool state);
+
+    /* Toggle Fixed */
+    void setFixed(bool s) { m_fixed = s; }
+
+    /* Internal triggers */
+    void setColor(const QColor c) { emit doColor(c, m_zone); }
+    void setBright(int value) { emit doBright((unsigned char)value, m_zone); }
+    void setWhite() { updateWhite(); emit doWhite(m_zone); }
+    void setRandom();
+
+    /* Color Shortcuts */
+    void red() { setColor(Qt::red); }
+    void green() { setColor(Qt::green); }
+    void blue() { setColor(Qt::blue); }
+
+    /* Fading. */
     void fade(int n);
     void toggleFade(bool state);
-    void enableFade() { toggleFade(true); m_fadeBox->setChecked(true); }
-    void disableFade() { toggleFade(false); m_fadeBox->setChecked(false); }
-    void setFadeTime(int msec) { m_fadeTimer->setInterval(msec); }
+    void setFadeTime(int msec);
 
     /* Fading shortcuts. */
     void fade() { fade(1); }
     void fade10() { fade(10); }
     void fade20() { fade(20); }
-
-    /* Color Shortcuts */
-    void red() { changeColor(Qt::red); }
-    void green() { changeColor(Qt::green); }
-    void blue() { changeColor(Qt::blue); }
-
-protected:
 
 private:
     /* Set the layout */
@@ -118,12 +131,6 @@ private:
     QPushButton *m_redButton;
     QPushButton *m_greenButton;
     QPushButton *m_blueButton;
-
-private slots:
-    void setFixed(bool s) { m_fixed = s; }
-    void color(const QColor c) { emit doColor(c, m_zone); }
-    void bright(int value) { emit doBright((unsigned char)value, m_zone); }
-    void white() { updateWhite(); emit doWhite(m_zone); }
 
 };
 

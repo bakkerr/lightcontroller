@@ -37,9 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
     addDockWidget(Qt::TopDockWidgetArea, audio);
 
     /* Connect Audio to Master .*/
-    connect(audio, SIGNAL(setRandomSame()), master, SLOT(setRandom()));
-    connect(audio, SIGNAL(fade10()), master, SLOT(fade10()));
-    connect(audio, SIGNAL(fade20()), master, SLOT(fade20()));
+    connect(audio, SIGNAL(setRandomSame()), master, SLOT(setRandomExt()));
+    connect(audio, SIGNAL(fade10()), master, SLOT(fade10Ext()));
+    connect(audio, SIGNAL(fade20()), master, SLOT(fade20Ext()));
 
     setupActions();
     setupMenuBar();
@@ -164,16 +164,14 @@ void MainWindow::setupControllers(QStringList devices){
         LightController *lc = new LightController(tr("Controller %0").arg(QString::number(controllers.size() + 1)), split.at(0), this, dummy);
 
         for(int j = 1; j <= 4; j++){
-            connect(audio, SIGNAL(setRandomAll()), lc->zones[j], SLOT(setRandom()));
-            //connect(&special, SIGNAL(allRandom()), lc->zones[j], SLOT(setRandom()));
-            //connect(&special, SIGNAL(allFade()), lc->zones[j], SLOT(enableFade()));
+            connect(audio, SIGNAL(setRandomAll()), lc->zones[j], SLOT(setRandomExt()));
         }
 
-        connect(master, SIGNAL(doColor(QColor, unsigned char)), lc->zones[0], SLOT(changeColor(QColor)));
-        connect(master, SIGNAL(doBright(unsigned char, unsigned char)), lc->zones[0], SLOT(changeBright(unsigned char)));
-        connect(master, SIGNAL(doOn(unsigned char)), lc->zones[0], SLOT(changeOn()));
-        connect(master, SIGNAL(doOff(unsigned char)), lc->zones[0], SLOT(changeOff()));
-        connect(master, SIGNAL(doWhite(unsigned char)), lc->zones[0], SLOT(changeWhite()));
+        connect(master, SIGNAL(doColor(QColor, unsigned char)), lc->zones[0], SLOT(setColorExt(QColor)));
+        connect(master, SIGNAL(doBright(unsigned char, unsigned char)), lc->zones[0], SLOT(setBrightExt(unsigned char)));
+        connect(master, SIGNAL(doOn(unsigned char)), lc->zones[0], SLOT(setOnExt()));
+        connect(master, SIGNAL(doOff(unsigned char)), lc->zones[0], SLOT(setOffExt()));
+        connect(master, SIGNAL(doWhite(unsigned char)), lc->zones[0], SLOT(setWhiteExt()));
         connect(master, SIGNAL(fadeEnabled()), lc->zones[0], SLOT(disableFade()));
 
         controllers.append(lc);
@@ -184,10 +182,6 @@ void MainWindow::setupControllers(QStringList devices){
         viewControllersMenu->addMenu(lc->viewControllerMenu);
 
     }
-
-    /* Re-center window. FIXME: doesn't work. */
-    //QWidget *w = window();
-    //w->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w->size(), qApp->desktop()->availableGeometry()));
 
 }
 
