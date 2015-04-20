@@ -38,7 +38,7 @@ void SingleController::setupLayout()
     m_groupBox->setMaximumWidth(175);
     m_groupBox->setMinimumHeight(325);
     m_groupBox->setMaximumHeight(325);
-    connect(m_groupBox, SIGNAL(toggled(bool)), this, SLOT(changeState(bool)));
+    connect(m_groupBox, SIGNAL(toggled(bool)), this, SLOT(setState(bool)));
 
     QVBoxLayout *l1 = new QVBoxLayout();
 
@@ -128,12 +128,14 @@ void SingleController::setupLayout()
     m_mainLayout->addWidget(m_groupBox, 0, Qt::AlignTop | Qt::AlignLeft);
 }
 
-void SingleController::changeState(bool state)
+void SingleController::setState(bool state)
 {
     if(state){
+        updateOn();
         emit doOn(m_zone);
     }
     else {
+        updateOff();
         emit doOff(m_zone);
     }
 }
@@ -202,7 +204,7 @@ void SingleController::updateWhite()
 
     m_groupBox->setChecked(true);
 
-    m_wheel->setColor(Qt::white);
+    m_wheel->setInnerColor(Qt::white);
 }
 
 void SingleController::updateOn()
@@ -211,7 +213,7 @@ void SingleController::updateOn()
 
     m_groupBox->blockSignals(true);
     m_groupBox->setChecked(true);
-    m_wheel->setColor(Qt::white);
+    m_wheel->setInnerColor(m_wheel->color());
     m_groupBox->blockSignals(false);
 
 }
@@ -222,7 +224,7 @@ void SingleController::updateOff()
 
     m_groupBox->blockSignals(true);
     m_groupBox->setChecked(false);
-    m_wheel->setColor(Qt::gray);
+    m_wheel->setInnerColor(Qt::gray);
     m_groupBox->blockSignals(false);
 
 }

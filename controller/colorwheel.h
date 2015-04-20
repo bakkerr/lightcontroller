@@ -20,6 +20,7 @@ signals:
 public slots:
     void setColor(const int &hue);
     void setColor(const QColor &color);
+    void setInnerColor(const QColor &color);
     void changeColor(const QColor &color);
 
 protected:
@@ -39,7 +40,7 @@ private:
     int wheelWidth;
     QRegion wheelRegion;
     QColor current;
-    QColor innercolor;
+    QColor innerColor;
     bool inWheel;
     QColor posColor(const QPoint &point);
     void drawWheelImage(const QSize &newSize);

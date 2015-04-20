@@ -13,7 +13,7 @@ ColorWheel::ColorWheel(QWidget *parent) :
     margin(0),
     wheelWidth(30),
     current(Qt::blue),
-    innercolor(Qt::blue),
+    innerColor(Qt::blue),
     inWheel(false)
 {
     //resize(initSize);
@@ -33,6 +33,12 @@ void ColorWheel::setColor(const QColor &color)
     setColor(color.hue());
 }
 
+void ColorWheel::setInnerColor(const QColor &color)
+{
+    innerColor = color;
+    repaint();
+}
+
 void ColorWheel::changeColor(const QColor &color)
 {
     setColor(color);
@@ -45,7 +51,7 @@ void ColorWheel::setColor(const int &hue)
     int s = current.saturation();
     int v = current.value();
     current.setHsv(hue, s, v);
-    innercolor = current;
+    innerColor = current;
     if(!isVisible()) return;
     repaint();
 }
@@ -246,7 +252,7 @@ void ColorWheel::composeWheel()
     composePainter.drawImage(0, 0, wheelImage);
     composePainter.end();
     drawIndicator(current.hue());
-    drawColor(innercolor);
+    drawColor(innerColor);
 }
 
 void ColorWheel::hueChanged(const int &hue)

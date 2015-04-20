@@ -50,6 +50,9 @@ public slots:
     void setBrightExt(unsigned char value);
     void setRandomExt();
 
+    void setState(bool state);
+    void setOn() { setState(true); }
+    void setOff() { setState(false); }
     void setRandom();
 
     /* Called when state needs to be updated, but is set from a different place. */
@@ -58,12 +61,9 @@ public slots:
     void updateOff();
 
     /* Slots triggered externally. */
-    void changeState(bool state);
     void changeColor(const QColor &color);
     void changeBright(unsigned char value) { setBrightExt(value); emit doBright(value, m_zone); }
     void changeWhite() { doWhite(m_zone); }
-    void changeOn() { changeState(true); }
-    void changeOff() { changeState(false); }
 
     /* Fading Slots. */
     void fade(int n);
@@ -123,7 +123,7 @@ private slots:
     void setFixed(bool s) { m_fixed = s; }
     void color(const QColor c) { emit doColor(c, m_zone); }
     void bright(int value) { emit doBright((unsigned char)value, m_zone); }
-    void white() { emit doWhite(m_zone); }
+    void white() { updateWhite(); emit doWhite(m_zone); }
 
 };
 
