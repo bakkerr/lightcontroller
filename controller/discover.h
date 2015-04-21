@@ -26,7 +26,7 @@ public:
     ~MiLightDiscover();
 
 signals:
-    void selectedDevices(QStringList);
+    void selectedDevices(const QStringList &devices);
 
 private slots:
     void discover();

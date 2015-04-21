@@ -85,9 +85,9 @@ private slots:
     void setRandom();
 
     /* Color Shortcuts */
-    void red()   { setColor(Qt::red);   }
-    void green() { setColor(Qt::green); }
-    void blue()  { setColor(Qt::blue);  }
+    void red()   { m_wheel->changeColor(Qt::red);   }
+    void green() { m_wheel->changeColor(Qt::green); }
+    void blue()  { m_wheel->changeColor(Qt::blue);  }
 
     /* Fading. */
     void fade(int n);

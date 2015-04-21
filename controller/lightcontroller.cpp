@@ -1,6 +1,6 @@
 #include "lightcontroller.h"
 
-LightController::LightController(QString title, QString ip, QWidget *parent, bool dummy) :
+LightController::LightController(QString title, QString ip, bool dummy, QWidget *parent) :
     QDockWidget(title, parent)
 {
     /* Main Widget. */
@@ -9,7 +9,7 @@ LightController::LightController(QString title, QString ip, QWidget *parent, boo
     connect(m_mainWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu(QPoint)));
 
     /* Menu to show/hide the controller/zones. */
-    viewControllerMenu = new QMenu(title);
+    viewControllerMenu = new QMenu(title, this);
 
     /* Create a UDP Sender for non-dummy controllers. */
     if(!dummy){

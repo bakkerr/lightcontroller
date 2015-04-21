@@ -11,13 +11,13 @@ audioController::audioController(QWidget *parent) :
 {
     m_samples = AUDIO_SAMPLES_DEFAULT;
 
-    m_groupBox = new QGroupBox(tr("Enable"));
+    m_groupBox = new QGroupBox(tr("Enable"), this);
     m_groupBox->setCheckable(true);
     m_groupBox->setChecked(false);
 
     QVBoxLayout *l1 = new QVBoxLayout();
 
-    QGroupBox *inputDevice = new QGroupBox(tr("Audio Input"));
+    QGroupBox *inputDevice = new QGroupBox(tr("Audio Input"), this);
     QHBoxLayout *l001 = new QHBoxLayout();
 
     m_deviceBox = new QComboBox(this);
@@ -39,17 +39,17 @@ audioController::audioController(QWidget *parent) :
 
     QHBoxLayout *l4 = new QHBoxLayout();
 
-    m_settingsBox = new QGroupBox(tr("Trigger Settings"));
+    m_settingsBox = new QGroupBox(tr("Trigger Settings"), this);
     m_settingsBox->setMaximumWidth(250);
     QVBoxLayout *settingsLayout = new QVBoxLayout();
 
     QHBoxLayout *sampleLayout = new QHBoxLayout();
-    m_sampleSlider = new QSlider(Qt::Horizontal);
+    m_sampleSlider = new QSlider(Qt::Horizontal, this);
     m_sampleSlider->setMinimum(AUDIO_SAMPLES_MIN);
     m_sampleSlider->setMaximum(AUDIO_SAMPLES_MAX);
     m_sampleSlider->setValue(m_samples);
     m_sampleSlider->setMaximumWidth(150);
-    m_sampleLabel = new QLabel(tr("Samples:"));
+    m_sampleLabel = new QLabel(tr("Samples:"), this);
     m_sampleLabel->setMaximumWidth(100);
     sampleLayout->addWidget(m_sampleLabel);
     sampleLayout->addWidget(m_sampleSlider);
@@ -57,7 +57,7 @@ audioController::audioController(QWidget *parent) :
 
     QHBoxLayout *fftWindowLayout = new QHBoxLayout();
     m_fftWindowBox = new QComboBox(this);
-    m_fftWindowLabel = new QLabel(tr("FFT Window:"));
+    m_fftWindowLabel = new QLabel(tr("FFT Window:"), this);
     m_fftWindowBox->addItem(tr("None"));
     m_fftWindowBox->addItem(tr("Hanning"));
     m_fftWindowBox->addItem(tr("Blackman"));
@@ -66,22 +66,22 @@ audioController::audioController(QWidget *parent) :
     fftWindowLayout->addWidget(m_fftWindowBox);
     settingsLayout->addLayout(fftWindowLayout);
 
-    m_manualTriggerButton = new QPushButton(tr("Trigger Manual"));
+    m_manualTriggerButton = new QPushButton(tr("Trigger Manual"), this);
     connect(m_manualTriggerButton, SIGNAL(clicked()), this, SLOT(triggerEffect()));
     settingsLayout->addWidget(m_manualTriggerButton);
     m_settingsBox->setLayout(settingsLayout);
     l1->addWidget(m_settingsBox);
 
-    m_effectBox = new QGroupBox(tr("Trigger Effect"));
+    m_effectBox = new QGroupBox(tr("Trigger Effect"), this);
     QVBoxLayout *effectLayout = new QVBoxLayout();
     m_effectGroup = new QButtonGroup(this);
     m_effectGroup->setExclusive(true);
-    m_noEffectButton = new QRadioButton(tr("None"));
-    m_randomSameButton = new QRadioButton(tr("Same random"));
+    m_noEffectButton = new QRadioButton(tr("None"), this);
+    m_randomSameButton = new QRadioButton(tr("Same random"), this);
     m_randomSameButton->setChecked(true);
-    m_randomAllButton = new QRadioButton(tr("Different random"));
-    m_fade10Button = new QRadioButton(tr("Fade +10"));
-    m_fade20Button = new QRadioButton(tr("Fade +20"));
+    m_randomAllButton = new QRadioButton(tr("Different random"), this);
+    m_fade10Button = new QRadioButton(tr("Fade +10"), this);
+    m_fade20Button = new QRadioButton(tr("Fade +20"), this);
     m_effectGroup->addButton(m_noEffectButton, EFFECT_NO);
     m_effectGroup->addButton(m_randomSameButton, EFFECT_RANDOM_SAME);
     m_effectGroup->addButton(m_randomAllButton, EFFECT_RANDOM_ALL);
@@ -99,7 +99,7 @@ audioController::audioController(QWidget *parent) :
 
     QVBoxLayout *l5 = new QVBoxLayout();
 
-    m_plot = new QCustomPlot();
+    m_plot = new QCustomPlot(this);
     m_plot->setToolTip(tr("Raw audio data view"));
     m_plot->setMinimumWidth(200);
     m_plot->addGraph();
@@ -119,7 +119,7 @@ audioController::audioController(QWidget *parent) :
 
     l5->addWidget(m_plot);
 
-    m_fft = new FFTDisplay(NULL);
+    m_fft = new FFTDisplay(NULL, this);
     m_fft->setToolTip(tr("FFT output: Volume bar (right), Triggers [Beat: yellow, Snare blue] (circles), Audio values (bottom), Triggers for each FFT band (above)"));
     l5->addWidget(m_fft);
 
@@ -139,7 +139,7 @@ audioController::audioController(QWidget *parent) :
 
 void audioController::createViewMenu()
 {
-    viewAudioMenu = new QMenu(tr("&Audio Controller"));
+    viewAudioMenu = new QMenu(tr("&Audio Controller"), this);
 
     viewAudioGraphAction = new QAction(tr("Audio &Graph"), this);
     viewAudioGraphAction->setCheckable(true);

@@ -20,7 +20,7 @@ class LightController : public QDockWidget
 
 public:
     /* Constructor. */
-    explicit LightController(QString title, QString ip, QWidget *parent = 0, bool dummy = 0);
+    explicit LightController(QString title, QString ip, bool dummy = 0, QWidget *parent = 0);
 
     /* Destructor. */
     ~LightController();

@@ -2,6 +2,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
+
 {
     /* Window Title */
     setWindowTitle(tr("Light Controller"));
@@ -25,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
      * Create Mastercontroller (zone -1)
      * Controls all zones on all bridges.
      */
-    master = new SingleController("Master", -1);
+    master = new SingleController("Master", -1, this);
     masterDockWidget = new QDockWidget(tr("Master Controller"), this);
     masterDockWidget->setWidget(master);
     masterDockWidget->setMaximumWidth(200);
@@ -53,6 +54,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setupToolBar();
     setupMenuBar();
     setupStatusBar();
+
+    delete d;
+
 }
 
 MainWindow::~MainWindow()
@@ -149,7 +153,7 @@ void MainWindow::setupStatusBar()
     statusBar()->showMessage(tr("LightController - Roy Bakker - 2015 - http://github.com/bakkerr/lightcontroller"), 0);
 }
 
-void MainWindow::setupControllers(QStringList devices){
+void MainWindow::setupControllers(const QStringList &devices){
 
 
     for(int i = 0; i < devices.length(); i++){
@@ -168,7 +172,7 @@ void MainWindow::setupControllers(QStringList devices){
 
         qDebug() << "Found device IP: " << split.at(0) << "ID: " << split.at(1) << "Dummy: " << dummy << endl;
 
-        LightController *lc = new LightController(tr("Controller %0").arg(QString::number(controllers.size() + 1)), split.at(0), this, dummy);
+        LightController *lc = new LightController(tr("Controller %0").arg(QString::number(controllers.size() + 1)), split.at(0), dummy, this);
 
         for(int j = 1; j <= 4; j++){
             connect(audio, SIGNAL(setRandomAll()), lc->zones[j], SLOT(setRandomExt()));
