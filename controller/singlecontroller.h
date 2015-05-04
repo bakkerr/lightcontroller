@@ -18,6 +18,8 @@
 
 #include <QTimer>
 
+#include <QInputDialog>
+
 #include <unistd.h>
 
 #include "default_values.h"
@@ -54,6 +56,8 @@ signals:
     void fadeEnabled();
 
 public slots:
+    void setName(QString name);
+
     /* Manipulate triggers for zone 0 from Master. */
     void setOnExt();
     void setOffExt();
@@ -79,6 +83,8 @@ public slots:
     void setPreset(PresetZone *p);
 
 private slots:
+    void setName();
+
     /* Toggle On/Off */
     void setState(bool state);
 

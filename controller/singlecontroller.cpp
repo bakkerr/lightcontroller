@@ -138,10 +138,13 @@ void SingleController::contextMenu(const QPoint &x)
     QPoint gp = m_groupBox->mapToGlobal(x);
 
     QMenu myMenu;
-    myMenu.addAction(tr("Change name"));
+    QAction *setNameAction = myMenu.addAction(tr("Change name"));
     myMenu.addAction(viewControllerAction);
 
-    QAction * selected = myMenu.exec(gp);
+    connect(setNameAction, SIGNAL(triggered()), this, SLOT(setName()));
+
+    //QAction * selected =
+    myMenu.exec(gp);
 }
 
 PresetZone * SingleController::getPreset()
@@ -157,6 +160,22 @@ void SingleController::setPreset(PresetZone *p)
     m_fixed = p->m_fixed;
     this->setEnabled(p->m_enabled);
     this->setColorExt(p->m_color);
+}
+
+void SingleController::setName()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Set name"), tr("Name:"), QLineEdit::Normal, m_name, &ok);
+    if(ok && !name.isEmpty()){
+        setName(name);
+    }
+}
+
+void SingleController::setName(QString name)
+{
+    m_name = name;
+    m_groupBox->setTitle(m_name);
+    viewControllerAction->setText(m_name);
 }
 
 void SingleController::setState(bool state)
