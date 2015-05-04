@@ -7,6 +7,7 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
     m_name = name;
     m_zone = z;
     m_fixed = false;
+    m_state = true;
 
     /* Setup the layout. */
     setupLayout();
@@ -59,8 +60,8 @@ void SingleController::setupLayout()
     m_brightSlider->setToolTip(tr("Set the Brightness for this zone"));
     m_brightSlider->setMinimumWidth(80);
     m_brightSlider->setMaximumWidth(80);
-    m_brightSlider->setMinimum(1);
-    m_brightSlider->setMaximum(19);
+    m_brightSlider->setMinimum(0);
+    m_brightSlider->setMaximum(18);
     m_brightSlider->setValue(BRIGHT_VALUE_DEFAULT);
     l2->addWidget(m_brightSlider, 0, Qt::AlignRight);
     connect(m_brightSlider, SIGNAL(valueChanged(int)), this, SLOT(setBright(int)));
@@ -141,6 +142,21 @@ void SingleController::contextMenu(const QPoint &x)
     myMenu.addAction(viewControllerAction);
 
     QAction * selected = myMenu.exec(gp);
+}
+
+PresetZone * SingleController::getPreset()
+{
+    return new PresetZone(this->isEnabled(), m_wheel->color(), m_fadeBox->isEnabled(), m_fadeSlider->value(), m_fixed, m_brightSlider->value(), this);
+}
+
+void SingleController::setPreset(PresetZone *p)
+{
+    m_brightSlider->setValue(p->m_brightness); qDebug() << p->m_brightness << endl;
+    setFadeTime(p->m_fadeTime);
+    m_fadeBox->setEnabled(p->m_fade);
+    m_fixed = p->m_fixed;
+    this->setEnabled(p->m_enabled);
+    this->setColorExt(p->m_color);
 }
 
 void SingleController::setState(bool state)

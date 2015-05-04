@@ -18,8 +18,11 @@
 
 #include <QTimer>
 
+#include <unistd.h>
+
 #include "default_values.h"
 #include "colorwheel.h"
+#include "preset.h"
 
 class SingleController : public QWidget
 {
@@ -36,6 +39,8 @@ public:
 
     /* Check if this zone is set fixed (it ignores external commands). */
     bool fixed() { return m_fixed; }
+
+    PresetZone * getPreset();
 
 signals:
     /* Signals to communicate with the lightcontroller to process the changes to the WiFi Bridge. */
@@ -70,6 +75,8 @@ public slots:
     /* Fading Slots. */
     void enableFade();
     void disableFade();
+
+    void setPreset(PresetZone *p);
 
 private slots:
     /* Toggle On/Off */
@@ -109,6 +116,7 @@ private:
     /* Private state variables */
     QString m_name;
     unsigned char m_zone;
+    bool m_state;
     bool m_fixed;
 
     /* Outer groupbox container. */

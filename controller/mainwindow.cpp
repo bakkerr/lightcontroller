@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* Set sticky places for dockwidgets */
     setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
-    setCorner(Qt::TopRightCorner, Qt::TopDockWidgetArea);
+    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 
@@ -40,6 +40,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(audio, SIGNAL(setRandomSame()), master, SLOT(setRandomExt()));
     connect(audio, SIGNAL(fade10()), master, SLOT(fade10Ext()));
     connect(audio, SIGNAL(fade20()), master, SLOT(fade20Ext()));
+
+    presetController = new PresetController(this);
+    addDockWidget(Qt::RightDockWidgetArea, presetController);
+    connect(presetController, SIGNAL(createPreset()), this, SLOT(getPreset()));
+    connect(this, SIGNAL(presetAvailable(Preset*)), presetController, SLOT(addPreset(Preset*)));
+    connect(presetController, SIGNAL(setPreset(Preset*)), this, SLOT(setPreset(Preset*)));
 
     /* Center the window. */
     QWidget *w = window();
@@ -100,6 +106,8 @@ void MainWindow::setupMenuBar()
     viewMenu->addAction(audio->toggleViewAction());
     viewMenu->addMenu(audio->viewAudioMenu);
 
+    viewMenu->addAction(presetController->toggleViewAction());
+
     viewMenu->addSeparator();
 
     QVectorIterator<LightController*> i(controllers);
@@ -133,6 +141,7 @@ void MainWindow::setupToolBar()
     toolBar->addSeparator();
     toolBar->addAction(masterDockWidget->toggleViewAction());
     toolBar->addAction(audio->toggleViewAction());
+    toolBar->addAction(presetController->toggleViewAction());
     toolBar->addSeparator();
 
     QVectorIterator<LightController*> i(controllers);
@@ -194,10 +203,42 @@ void MainWindow::setupControllers(const QStringList &devices){
 
 }
 
+void MainWindow::getPreset()
+{
+    Preset *p = new Preset(this);
+
+    QVectorIterator<LightController*> i(controllers);
+    while(i.hasNext()){
+        LightController *lc = i.next();
+        PresetLC * plc = lc->getPreset();
+        p->addController(plc);
+    }
+
+    emit presetAvailable(p);
+}
+
+void MainWindow::setPreset(Preset *p)
+{
+    int index = 0;
+
+    /* Need to do something with the mastercontroller... */
+
+    /* Set all controllers. */
+    QVectorIterator<PresetLC*> i(p->lcs);
+    while(i.hasNext()){
+        PresetLC * plc = i.next();
+        LightController * lc = controllers.at(index);
+        lc->setPreset(plc);
+        index++;
+    }
+
+}
+
 void MainWindow::dockAll()
 {
     masterDockWidget->setFloating(false);
     audio->setFloating(false);
+    presetController->setFloating(false);
 
     for(int i = 0; i < controllers.size(); i++){
         controllers.at(i)->setFloating(false);

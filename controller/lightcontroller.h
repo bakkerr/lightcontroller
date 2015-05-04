@@ -2,6 +2,7 @@
 #define LIGHTCONTROLLER_H
 
 #include <QMainWindow>
+#include <QDockWidget>
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -10,8 +11,7 @@
 
 #include "default_values.h"
 #include "singlecontroller.h"
-#include "audiocontroller.h"
-#include "specialbuttons.h"
+#include "preset.h"
 #include "milightupdsender.h"
 
 class LightController : public QDockWidget
@@ -25,6 +25,8 @@ public:
     /* Destructor. */
     ~LightController();
 
+    PresetLC *getPreset();
+
     /* Five zones for each contoller, the controller master and 4 zones. */
     SingleController *zones[5];
 
@@ -34,6 +36,7 @@ public:
 signals:
 
 public slots:
+    void setPreset(PresetLC *p);
 
 private slots:
     /* Process the commands to change state and pass then to the UDP Sender. */

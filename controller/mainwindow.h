@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QStyle>
 #include "lightcontroller.h"
+#include "audiocontroller.h"
+#include "presetcontroller.h"
 #include "discover.h"
 
 class MainWindow : public QMainWindow
@@ -14,11 +16,14 @@ public:
     ~MainWindow();
 
 signals:
+    void presetAvailable(Preset *p);
 
 public slots:
 
 private slots:
     void setupControllers(const QStringList &devices);
+    void getPreset();
+    void setPreset(Preset *p);
     void dockAll();
     void about();
 
@@ -35,6 +40,8 @@ private:
     QDockWidget *masterDockWidget;
 
     audioController *audio;
+
+    PresetController *presetController;
 
     QVector<LightController*> controllers;
 

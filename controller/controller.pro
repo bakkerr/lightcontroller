@@ -24,7 +24,9 @@ SOURCES += main.cpp\
     qcustomplot.cpp \
     mainwindow.cpp \
     discover.cpp \
-    fftdisplay.cpp
+    fftdisplay.cpp \
+    presetcontroller.cpp \
+    preset.cpp
 
 HEADERS  += lightcontroller.h \
     singlecontroller.h \
@@ -37,6 +39,8 @@ HEADERS  += lightcontroller.h \
     mainwindow.h \
     default_values.h \
     beatcontroller.h \
-    fftdisplay.h
+    fftdisplay.h \
+    presetcontroller.h \
+    preset.h
 
 LIBS += -L../libbeat/ -lbeat

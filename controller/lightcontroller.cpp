@@ -77,6 +77,22 @@ void LightController::contextMenu(const QPoint& x)
     viewControllerMenu->exec(m_mainWidget->mapToGlobal(x));
 }
 
+PresetLC *LightController::getPreset()
+{
+    PresetLC *plc = new PresetLC();
+    for(int i = 0; i < 5; i++){
+      plc->zones[i] = zones[i]->getPreset();
+    }
+    return plc;
+}
+
+void LightController::setPreset(PresetLC *p)
+{
+    /* Ignore Zone 0 for now.. */
+    for(int i = 1; i < 5; i++){
+      zones[i]->setPreset(p->zones[i]);
+    }
+}
 
 bool LightController::areSomeFixed()
 {
