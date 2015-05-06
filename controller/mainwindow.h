@@ -21,7 +21,7 @@ signals:
 public slots:
 
 private slots:
-    void setupControllers(const QStringList &devices);
+    void setupControllers(const QStringList &devices, bool setDefaults);
     void getPreset();
     void setPreset(Preset *p);
     void dockAll();

@@ -26,22 +26,23 @@ public:
     ~MiLightDiscover();
 
 signals:
-    void selectedDevices(const QStringList &devices);
+    void selectedDevices(const QStringList &devices, bool setDefaults);
 
 private slots:
     void discover();
     void userSelected();
 
 private:
-    QVBoxLayout  mainLayout;
-    QGroupBox    gb;
-    QVBoxLayout  gbLayout;
+    QGroupBox    m_gb;
+    QVBoxLayout  m_gbLayout;
 
-    QButtonGroup bg;
+    QButtonGroup m_bg;
 
-    QPushButton  ok;
-    QPushButton  rd;
-    QLabel       noDevicesFound;
+    QPushButton  m_okButton;
+    QPushButton  m_reDiscoverButton;
+    QLabel       m_noDevicesFoundLabel;
+
+    QCheckBox    m_setDefaultCheckBox;
 
     QStringList UDPdiscover();
 

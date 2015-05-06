@@ -5,29 +5,35 @@ MiLightDiscover::MiLightDiscover(QWidget *parent) :
 {
     setWindowTitle(tr("WiFi Bridge Detection"));
 
-    gb.setTitle(tr("Found Bridges:"));
-    gb.setVisible(false);
-    gb.setLayout(&gbLayout);
+    QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    bg.setExclusive(false);
+    m_gb.setTitle(tr("Found Bridges:"));
+    m_gb.setVisible(false);
+    m_gb.setLayout(&m_gbLayout);
 
-    ok.setText(tr("Done"));
-    rd.setText(tr("Re-discover"));
-    noDevicesFound.setText(tr("No bridges found :("));
-    noDevicesFound.setAlignment(Qt::AlignCenter);
-    noDevicesFound.setVisible(false);
+    m_bg.setExclusive(false);
 
-    mainLayout.addWidget(&rd);
-    mainLayout.addWidget(&noDevicesFound);
-    mainLayout.addWidget(&gb);
-    mainLayout.addWidget(&ok);
+    m_okButton.setText(tr("Done"));
+    m_reDiscoverButton.setText(tr("Re-discover"));
+    m_noDevicesFoundLabel.setText(tr("No bridges found :("));
+    m_noDevicesFoundLabel.setAlignment(Qt::AlignCenter);
+    m_noDevicesFoundLabel.setVisible(false);
 
-    connect(&rd, SIGNAL(clicked()), this, SLOT(discover()));
-    connect(&ok, SIGNAL(clicked()), this, SLOT(userSelected()));
+    m_setDefaultCheckBox.setText(tr("Enable all zones, Blue, max brightness"));
+    m_setDefaultCheckBox.setChecked(true);
 
-    setLayout(&mainLayout);
+    mainLayout->addWidget(&m_reDiscoverButton);
+    mainLayout->addWidget(&m_noDevicesFoundLabel);
+    mainLayout->addWidget(&m_gb);
+    mainLayout->addWidget(&m_setDefaultCheckBox);
+    mainLayout->addWidget(&m_okButton);
 
-    ok.setFocus();
+    connect(&m_reDiscoverButton, SIGNAL(clicked()), this, SLOT(discover()));
+    connect(&m_okButton, SIGNAL(clicked()), this, SLOT(userSelected()));
+
+    setLayout(mainLayout);
+
+    m_okButton.setFocus();
 
     discover();
 
@@ -35,9 +41,9 @@ MiLightDiscover::MiLightDiscover(QWidget *parent) :
 
 MiLightDiscover::~MiLightDiscover()
 {
-    QList<QAbstractButton *> b = bg.buttons();
+    QList<QAbstractButton *> b = m_bg.buttons();
     for(int i = 0; i < b.size(); i++){
-        bg.removeButton(b.at(i));
+        m_bg.removeButton(b.at(i));
         delete b.at(i);
     }
 }
@@ -46,7 +52,7 @@ void MiLightDiscover::userSelected()
 {
 
     QStringList selection;
-    QList<QAbstractButton*> x = bg.buttons();
+    QList<QAbstractButton*> x = m_bg.buttons();
     for(int i = 0; i < x.size(); i++){
         if(x.at(i)->isChecked()){
             selection.append(x.at(i)->text());
@@ -54,31 +60,31 @@ void MiLightDiscover::userSelected()
     }
 
     if(selection.size() > 0){
-        emit selectedDevices(selection);
+        emit selectedDevices(selection, m_setDefaultCheckBox.checkState());
         done(0);
     }
 }
 
 void MiLightDiscover::discover()
 {
-    QList<QAbstractButton *> b = bg.buttons();
+    QList<QAbstractButton *> b = m_bg.buttons();
     for(int i = 0; i < b.size(); i++){
-        bg.removeButton(b.at(i));
+        m_bg.removeButton(b.at(i));
         delete b.at(i);
     }
 
     QStringList devices = UDPdiscover();
 
     if(devices.length() == 0){
-        noDevicesFound.setVisible(true);
-        gb.setVisible(false);
+        m_noDevicesFoundLabel.setVisible(true);
+        m_gb.setVisible(false);
     }
     else{
-        noDevicesFound.setVisible(false);
+        m_noDevicesFoundLabel.setVisible(false);
     }
 
     if(devices.length() > 0){
-        gb.setVisible(true);
+        m_gb.setVisible(true);
         QStringListIterator i(devices);
         while(i.hasNext()){
             QString s = i.next();
@@ -86,20 +92,20 @@ void MiLightDiscover::discover()
             if(sl.size() >= 2){
                 QCheckBox *j = new QCheckBox(s);
                 j->setChecked(true);
-                bg.addButton(j);
-                gbLayout.addWidget(j);
+                m_bg.addButton(j);
+                m_gbLayout.addWidget(j);
             }
         }
     }
 
 #ifdef ADD_DUMMY_DEVICES
-    gbLayout.addSpacing(25);
-    gbLayout.addWidget(new QLabel(tr("Dummy devices:")));
+    m_gbLayout.addSpacing(25);
+    m_gbLayout.addWidget(new QLabel(tr("Dummy devices:")));
     QStringList dummys;
     dummys.append(QString("1.2.3.4,DUMMY01DUMMY,"));
     dummys.append(QString("4.3.2.1,DUMMY02DUMMY,"));
     if(dummys.length() > 0){
-        gb.setVisible(true);
+        m_gb.setVisible(true);
         QStringListIterator i(dummys);
         while(i.hasNext()){
             QString s = i.next();
@@ -107,8 +113,8 @@ void MiLightDiscover::discover()
             if(sl.size() >= 2){
                 QCheckBox *j = new QCheckBox(s);
                 j->setChecked(false);
-                bg.addButton(j);
-                gbLayout.addWidget(j);
+                m_bg.addButton(j);
+                m_gbLayout.addWidget(j);
             }
         }
     }

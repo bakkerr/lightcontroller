@@ -1,15 +1,30 @@
 #include "lightcontroller.h"
 
-LightController::LightController(QString title, QString ip, bool dummy, QWidget *parent) :
-    QDockWidget(title, parent)
+LightController::LightController(QString ip, QString id, int num, bool dummy, QWidget *parent) :
+    QDockWidget(id, parent)
 {
+    m_id = id;
+    m_ip = ip;
+    m_num = num;
+    m_name = tr("Controller ") + QString::number(m_num);
+
     /* Main Widget. */
     m_mainWidget = new QWidget();
     m_mainWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_mainWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu(QPoint)));
 
     /* Menu to show/hide the controller/zones. */
-    viewControllerMenu = new QMenu(title, this);
+    viewControllerMenu = new QMenu(m_name, this);
+    viewControllerMenu->addAction(toggleViewAction());
+    viewControllerMenu->addSeparator();
+    QAction *idAction = viewControllerMenu->addAction(tr("ID: ") + m_id);
+    idAction->setEnabled(false);
+    QAction *ipAction = viewControllerMenu->addAction(tr("IP: ") + m_ip);
+    ipAction->setEnabled(false);
+    viewControllerMenu->addSeparator();
+    QAction *setNameAction = viewControllerMenu->addAction(tr("Change name"));
+    connect(setNameAction, SIGNAL(triggered()), this, SLOT(setName()));
+    viewControllerMenu->addSeparator();
 
     /* Create a UDP Sender for non-dummy controllers. */
     if(!dummy){
@@ -62,6 +77,8 @@ LightController::LightController(QString title, QString ip, bool dummy, QWidget 
     /* Set the layout to the main Widget. */
     m_mainWidget->setLayout(m_mainLayout);
 
+    setName(m_name);
+
     /* Set the main Widget. */
     setWidget(m_mainWidget);
 
@@ -79,7 +96,7 @@ void LightController::contextMenu(const QPoint& x)
 
 PresetLC *LightController::getPreset()
 {
-    PresetLC *plc = new PresetLC();
+    PresetLC *plc = new PresetLC(m_id, this);
     for(int i = 0; i < 5; i++){
       plc->zones[i] = zones[i]->getPreset();
     }
@@ -97,6 +114,24 @@ void LightController::setPreset(PresetLC *p)
 bool LightController::areSomeFixed()
 {
     return (zones[1]->fixed() || zones[2]->fixed() || zones[3]->fixed() || zones[4]->fixed());
+}
+
+void LightController::setName()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Set name"), tr("New name:"), QLineEdit::Normal, m_name, &ok);
+    if(ok){
+        setName(name);
+    }
+}
+
+void LightController::setName(QString name)
+{
+    m_name = name;
+    QString displayName = tr("[LC") + QString::number(m_num) + tr("] ") + m_name;
+    this->setWindowTitle(displayName);
+    this->toggleViewAction()->setText(displayName);
+    viewControllerMenu->setTitle(displayName);
 }
 
 void LightController::setBright(unsigned char value, unsigned char zone)

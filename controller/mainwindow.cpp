@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* Create Bridge Discovery Dialog. */
     MiLightDiscover *d = new MiLightDiscover(this);
-    connect(d, SIGNAL(selectedDevices(QStringList)), this, SLOT(setupControllers(QStringList)));
+    connect(d, SIGNAL(selectedDevices(QStringList, bool)), this, SLOT(setupControllers(QStringList, bool)));
     d->exec();
 
     setupActions();
@@ -113,9 +113,7 @@ void MainWindow::setupMenuBar()
     QVectorIterator<LightController*> i(controllers);
     while(i.hasNext()){
         LightController * lc = i.next();
-        viewMenu->addAction(lc->toggleViewAction());
         viewMenu->addMenu(lc->viewControllerMenu);
-        viewMenu->addSeparator();
     }
 
     viewMenu->addSeparator();
@@ -162,7 +160,7 @@ void MainWindow::setupStatusBar()
     statusBar()->showMessage(tr("LightController - Roy Bakker - 2015 - http://github.com/bakkerr/lightcontroller"), 0);
 }
 
-void MainWindow::setupControllers(const QStringList &devices){
+void MainWindow::setupControllers(const QStringList &devices, bool setDefaults){
 
 
     for(int i = 0; i < devices.length(); i++){
@@ -177,11 +175,11 @@ void MainWindow::setupControllers(const QStringList &devices){
             continue;
         }
 
-        if(split.at(1).startsWith("DUMMY")) dummy = 1;
+        if(split.at(1).startsWith("DUMMY")) dummy = true;
 
         qDebug() << "Found device IP: " << split.at(0) << "ID: " << split.at(1) << "Dummy: " << dummy << endl;
 
-        LightController *lc = new LightController(tr("Controller %0").arg(QString::number(controllers.size() + 1)), split.at(0), dummy, this);
+        LightController *lc = new LightController(split.at(0), split.at(1), controllers.size() + 1, dummy, this);
 
         for(int j = 1; j <= 4; j++){
             connect(audio, SIGNAL(setRandomAll()), lc->zones[j], SLOT(setRandomExt()));
@@ -201,6 +199,13 @@ void MainWindow::setupControllers(const QStringList &devices){
 
     }
 
+    if(setDefaults){
+        master->setColorExt(Qt::blue);
+        usleep(100000);
+        master->setBrightExt(18);
+    }
+
+
 }
 
 void MainWindow::getPreset()
@@ -219,17 +224,22 @@ void MainWindow::getPreset()
 
 void MainWindow::setPreset(Preset *p)
 {
-    int index = 0;
 
     /* Need to do something with the mastercontroller... */
 
     /* Set all controllers. */
-    QVectorIterator<PresetLC*> i(p->lcs);
-    while(i.hasNext()){
-        PresetLC * plc = i.next();
-        LightController * lc = controllers.at(index);
-        lc->setPreset(plc);
-        index++;
+    QVectorIterator<PresetLC*> pi(p->lcs);
+    while(pi.hasNext()){
+        PresetLC * plc = pi.next();
+
+        QVectorIterator<LightController*> ci(controllers);
+        while (ci.hasNext()) {
+            LightController *lc = ci.next();
+            if(lc->id() == plc->m_id){
+                lc->setPreset(plc);
+            }
+        }
+
     }
 
 }

@@ -28,10 +28,11 @@ bool PresetZone::equals(PresetZone *a, PresetZone *b)
       (a->m_brightness == b->m_brightness) );
 }
 
-PresetLC::PresetLC(QObject *parent) :
+PresetLC::PresetLC(QString id, QObject *parent) :
     QObject(parent)
 
 {
+    m_id = id;
     //cout << "PLC" << endl;
 }
 

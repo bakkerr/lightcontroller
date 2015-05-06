@@ -9,6 +9,8 @@
 #include <QGroupBox>
 #include <QDebug>
 
+#include <QInputDialog>
+
 #include "default_values.h"
 #include "singlecontroller.h"
 #include "preset.h"
@@ -20,10 +22,12 @@ class LightController : public QDockWidget
 
 public:
     /* Constructor. */
-    explicit LightController(QString title, QString ip, bool dummy = 0, QWidget *parent = 0);
+    explicit LightController(QString ip, QString id, int num = -1, bool dummy = 0, QWidget *parent = 0);
 
     /* Destructor. */
     ~LightController();
+
+    QString id() { return m_id; }
 
     PresetLC *getPreset();
 
@@ -37,8 +41,11 @@ signals:
 
 public slots:
     void setPreset(PresetLC *p);
+    void setName(QString name);
 
 private slots:
+    void setName();
+
     /* Process the commands to change state and pass then to the UDP Sender. */
     void setBright(unsigned char value, unsigned char zone);
     void setColor(QColor c, unsigned char zone);
@@ -54,6 +61,11 @@ private:
      * and should not be changed externally.
      */
     bool areSomeFixed();
+
+    int m_num;
+    QString m_id;
+    QString m_ip;
+    QString m_name;
 
     QWidget *m_mainWidget;
 

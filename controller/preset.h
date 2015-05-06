@@ -32,9 +32,10 @@ class PresetLC : public QObject
     Q_OBJECT
 
 public:
-    explicit PresetLC(QObject *parent = 0);
+    explicit PresetLC(QString id, QObject *parent = 0);
 
     PresetZone *zones[5];
+    QString m_id;
 
 private:
 

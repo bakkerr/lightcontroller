@@ -3,8 +3,6 @@
 SingleController::SingleController(QString name, unsigned char z, QWidget *parent) :
     QWidget(parent)
 {
-    /* Set local state variables. */
-    m_name = name;
     m_zone = z;
     m_fixed = false;
     m_state = true;
@@ -13,10 +11,12 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
     setupLayout();
 
     /* Create Actions. */
-    viewControllerAction = new QAction(name, this);
+    viewControllerAction = new QAction(m_name, this);
     viewControllerAction->setCheckable(true);
     viewControllerAction->setChecked(true);
     connect(viewControllerAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
+
+    setName(name);
 
     /* Set the layout for this Widget. */
     this->setLayout(m_mainLayout);
@@ -138,8 +138,11 @@ void SingleController::contextMenu(const QPoint &x)
     QPoint gp = m_groupBox->mapToGlobal(x);
 
     QMenu myMenu;
-    QAction *setNameAction = myMenu.addAction(tr("Change name"));
+
     myMenu.addAction(viewControllerAction);
+    myMenu.addSeparator();
+    QAction *setNameAction = myMenu.addAction(tr("Change name"));
+
 
     connect(setNameAction, SIGNAL(triggered()), this, SLOT(setName()));
 
@@ -166,7 +169,7 @@ void SingleController::setName()
 {
     bool ok;
     QString name = QInputDialog::getText(this, tr("Set name"), tr("Name:"), QLineEdit::Normal, m_name, &ok);
-    if(ok && !name.isEmpty()){
+    if(ok){
         setName(name);
     }
 }
@@ -174,8 +177,16 @@ void SingleController::setName()
 void SingleController::setName(QString name)
 {
     m_name = name;
-    m_groupBox->setTitle(m_name);
-    viewControllerAction->setText(m_name);
+    QString displayName;
+
+    if(m_zone == 255){
+        displayName = tr("[M] ") + m_name;
+    }
+    else{
+        displayName = tr("[Z") + QString::number(m_zone) + tr("] ") + m_name;
+    }
+    m_groupBox->setTitle(displayName);
+    viewControllerAction->setText(displayName);
 }
 
 void SingleController::setState(bool state)
