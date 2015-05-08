@@ -67,7 +67,7 @@ void MiLightUPDsender::setOn(unsigned char zone)
     if(zone != currentzone){
       udpsend(ONcodes[zone], 0x00);
       currentzone = zone;
-      usleep(90000);
+      //usleep(90000);
     }
 }
 

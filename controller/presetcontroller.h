@@ -36,6 +36,7 @@ class PresetController : public QDockWidget
 public:
     PresetController(QWidget *parent = 0);
     ~PresetController();
+
 signals:
     void createPreset();
     void setPreset(Preset *p);
