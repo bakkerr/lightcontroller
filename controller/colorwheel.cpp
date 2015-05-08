@@ -24,7 +24,7 @@ ColorWheel::ColorWheel(QWidget *parent) :
 
 QColor ColorWheel::color()
 {
-    return current;
+    return innerColor;
 }
 
 void ColorWheel::setColor(const QColor &color)

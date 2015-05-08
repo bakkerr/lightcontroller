@@ -185,7 +185,12 @@ void SingleController::setPreset(PresetZone *p, bool set)
 
     if(set && p->m_enabled){
         setState(true);
-        this->setColorExt(p->m_color);
+        if(p->m_color == Qt::white){
+            setWhiteExt();
+        }
+        else{
+            this->setColorExt(p->m_color);
+        }
         setBrightExt(p->m_brightness);
         m_fadeBox->setEnabled(p->m_fade);
     }
