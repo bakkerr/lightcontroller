@@ -39,8 +39,11 @@ public:
     /* View controller to set this controller (in)visible. */
     QAction *viewControllerAction;
 
-    /* Check if this zone is set fixed (it ignores external commands). */
-    bool fixed() { return m_fixed; }
+    /* getMethods. */
+    bool   fixed()      { return m_fixed;                  }
+    bool   fadeTime()     { return m_fadeSlider->value();    }
+    QColor color()      { return m_wheel->color();         }
+    int    brightness() { return m_brightSlider->value();  }
 
     PresetZone * getPreset();
 
@@ -80,7 +83,7 @@ public slots:
     void enableFade();
     void disableFade();
 
-    void setPreset(PresetZone *p);
+    void setPreset(PresetZone *p, bool set);
 
 private slots:
     void setName();
@@ -98,9 +101,9 @@ private slots:
     void setRandom();
 
     /* Color Shortcuts */
-    void red()   { m_wheel->changeColor(Qt::red);   }
-    void green() { m_wheel->changeColor(Qt::green); }
-    void blue()  { m_wheel->changeColor(Qt::blue);  }
+    void red()   { if(m_wheel->color() != Qt::red)   m_wheel->changeColor(Qt::red);   }
+    void green() { if(m_wheel->color() != Qt::green) m_wheel->changeColor(Qt::green); }
+    void blue()  { if(m_wheel->color() != Qt::blue)  m_wheel->changeColor(Qt::blue);  }
 
     /* Fading. */
     void fade(int n);

@@ -105,10 +105,29 @@ PresetLC *LightController::getPreset()
 
 void LightController::setPreset(PresetLC *p)
 {
-    /* Ignore Zone 0 for now.. */
-    for(int i = 1; i < 5; i++){
-      zones[i]->setPreset(p->zones[i]);
+    bool setZone0 = true;
+
+    if(!p->zones[0]->m_fade){
+        for(int i = 1; i < 5; i++){
+            if(p->zones[0]->m_enabled    != p->zones[i]->m_enabled    ||
+               p->zones[0]->m_color      != p->zones[i]->m_color      ||
+               p->zones[0]->m_brightness != p->zones[i]->m_brightness ||
+               p->zones[1]->m_fixed      != p->zones[i]->m_fixed      ||
+               p->zones[1]->m_fade       != p->zones[i]->m_fade       ){
+                setZone0 = false;
+            }
+        }
     }
+
+    if(setZone0){
+        zones[0]->setPreset(p->zones[0], true);
+    }
+    else{
+        for(int i = 1; i < 5; i++){
+            zones[i]->setPreset(p->zones[i], true);
+        }
+    }
+
 }
 
 bool LightController::areSomeFixed()

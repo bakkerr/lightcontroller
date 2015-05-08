@@ -55,6 +55,7 @@ public:
     QDateTime m_date;
 
 //private:
+    PresetZone *master;
     QVector<PresetLC*> lcs;
 
 

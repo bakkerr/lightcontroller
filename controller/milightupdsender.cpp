@@ -34,7 +34,7 @@ void MiLightUPDsender::udpsend(unsigned char code, unsigned char param)
     if(bs <= 0) error("Error sending data!\n");
     bs = sendto(udpSocket, command, 3, 0, (const struct sockaddr*)&destSockAddr, sizeof(destSockAddr));
     if(bs <= 0) error("Error sending data!\n");
-    //usleep(10000);
+    usleep(10000);
 
 }
 
@@ -52,6 +52,8 @@ void MiLightUPDsender::setBright(unsigned char value, unsigned char zone)
                             0x0F, 0x10, 0x12, 0x13, 0x14,
                             0x15, 0x17, 0x18, 0x19};
 
+    //qDebug() << "B" << zone << ":" << value << endl;
+
     if(value < 19)
     {
         setOn(zone);
@@ -65,6 +67,7 @@ void MiLightUPDsender::setOn(unsigned char zone)
     if(zone != currentzone){
       udpsend(ONcodes[zone], 0x00);
       currentzone = zone;
+      usleep(90000);
     }
 }
 

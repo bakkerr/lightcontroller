@@ -212,6 +212,8 @@ void MainWindow::getPreset()
 {
     Preset *p = new Preset(this);
 
+    p->master = master->getPreset();
+
     QVectorIterator<LightController*> i(controllers);
     while(i.hasNext()){
         LightController *lc = i.next();

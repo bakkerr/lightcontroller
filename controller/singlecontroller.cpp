@@ -152,17 +152,33 @@ void SingleController::contextMenu(const QPoint &x)
 
 PresetZone * SingleController::getPreset()
 {
-    return new PresetZone(this->isEnabled(), m_wheel->color(), m_fadeBox->isEnabled(), m_fadeSlider->value(), m_fixed, m_brightSlider->value(), this);
+    return new PresetZone(m_groupBox->isChecked(), m_wheel->color(), m_fadeBox->isChecked(), m_fadeSlider->value(), m_fixed, m_brightSlider->value(), this);
 }
 
-void SingleController::setPreset(PresetZone *p)
+void SingleController::setPreset(PresetZone *p, bool set)
 {
-    m_brightSlider->setValue(p->m_brightness); qDebug() << p->m_brightness << endl;
-    setFadeTime(p->m_fadeTime);
-    m_fadeBox->setEnabled(p->m_fade);
+
     m_fixed = p->m_fixed;
-    this->setEnabled(p->m_enabled);
-    this->setColorExt(p->m_color);
+
+    m_fadeSlider->setValue(p->m_fadeTime);
+
+
+    if(set && p->m_enabled){
+        setState(true);
+        this->setColorExt(p->m_color);
+        setBrightExt(p->m_brightness);
+        m_fadeBox->setEnabled(p->m_fade);
+    }
+    else{
+        if(set) setState(false);
+        m_brightSlider->blockSignals(true);
+        m_brightSlider->setValue(p->m_brightness);
+        m_brightSlider->blockSignals(false);
+        m_fadeBox->blockSignals(true);
+        m_fadeBox->setEnabled(p->m_fade);
+        m_fadeBox->blockSignals(false);
+        m_wheel->setColor(p->m_color);
+    }
 }
 
 void SingleController::setName()
