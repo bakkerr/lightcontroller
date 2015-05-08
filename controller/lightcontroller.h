@@ -52,6 +52,9 @@ private slots:
     void setOn(unsigned char zone);
     void setOff(unsigned char zone);
     void setWhite(unsigned char zone);
+    void setBuildinEffect(unsigned char zone);
+    void setIncreaseSpeed(unsigned char zone);
+    void setDecreaseSpeed(unsigned char zone);
 
     void contextMenu(const QPoint& x);
 

@@ -46,12 +46,6 @@ void SingleController::setupLayout()
     m_wheel = new ColorWheel(this);
     connect(m_wheel, SIGNAL(colorChange(QColor)), this, SLOT(setColor(QColor)));
 
-    m_fixedBox = new QCheckBox(tr("Fixed"), this);
-    m_fixedBox->setToolTip(tr("If checked, this zone will ignore all external input. Less stable..."));
-    m_fixedBox->setChecked(false);
-    //if(m_zone <= 0 || m_zone > 4) m_fixedBox->setEnabled(false);
-    connect(m_fixedBox, SIGNAL(toggled(bool)), this, SLOT(setFixed(bool)));
-
     QHBoxLayout *l2 = new QHBoxLayout();
     m_brightLabel = new QLabel(tr("Brightness"), this);
     m_brightLabel->setToolTip(tr("Set the Brightness for this zone"));
@@ -88,43 +82,69 @@ void SingleController::setupLayout()
 
     QHBoxLayout *l4 = new QHBoxLayout();
 
+    m_fixedBox = new QCheckBox(tr("Fixed"), this);
+    m_fixedBox->setToolTip(tr("If checked, this zone will ignore all external input. Less stable..."));
+    m_fixedBox->setChecked(false);
+    //if(m_zone <= 0 || m_zone > 4) m_fixedBox->setEnabled(false);
+    connect(m_fixedBox, SIGNAL(toggled(bool)), this, SLOT(setFixed(bool)));
+    l4->addWidget(m_fixedBox);
+
+    m_decSpeedButton = new QPushButton(tr("-"), this);
+    m_decSpeedButton->setMaximumWidth(22);
+    m_decSpeedButton->setToolTip(tr("Decrease buildin effect speed. Provided because it is a feature of the bulbs, it is not persistent, state cannot be updated..."));
+    connect(m_decSpeedButton, SIGNAL(clicked()), this, SLOT(decreaseSpeed()));
+    l4->addWidget(m_decSpeedButton);
+    m_buildinEffectButton = new QPushButton(tr("M"), this);
+    m_buildinEffectButton->setMaximumWidth(28);
+    m_buildinEffectButton->setToolTip(tr("Set next buildin effect. Provided because it is a feature of the bulbs, it is not persistent, state cannot be updated..."));
+    connect(m_buildinEffectButton, SIGNAL(clicked()), this, SLOT(setBuildinEffect()));
+    l4->addWidget(m_buildinEffectButton);
+    m_incSpeedButton = new QPushButton(tr("+"), this);
+    m_incSpeedButton->setMaximumWidth(22);
+    m_incSpeedButton->setToolTip(tr("Increase buildin effect speed. Provided because it is a feature of the bulbs, it is not persistent, state cannot be updated..."));
+    connect(m_incSpeedButton, SIGNAL(clicked()), this, SLOT(increaseSpeed()));
+    l4->addWidget(m_incSpeedButton);
+
+
+    QHBoxLayout *l5 = new QHBoxLayout();
+
     m_randomButton = new QPushButton("Random", this);
     m_randomButton->setToolTip(tr("Set a random color"));
     connect(m_randomButton, SIGNAL(clicked()), this, SLOT(setRandom()));
-    l4->addWidget(m_randomButton);
+    l5->addWidget(m_randomButton);
 
     m_whiteButton = new QPushButton("White", this);
     m_whiteButton->setToolTip(tr("White"));
     m_whiteButton->setStyleSheet("QPushButton {background-color: #FFFFFF}");
     connect(m_whiteButton, SIGNAL(clicked()), this, SLOT(setWhite()));
-    l4->addWidget(m_whiteButton);
+    l5->addWidget(m_whiteButton);
 
-    QHBoxLayout *l5 = new QHBoxLayout();
+    QHBoxLayout *l6 = new QHBoxLayout();
 
     m_redButton = new QPushButton(tr("R"), this);
     m_redButton->setToolTip(tr("Red"));
     m_redButton->setStyleSheet("QPushButton {background-color: #FF0000}");
     connect(m_redButton, SIGNAL(clicked()), this, SLOT(red()));
-    l5->addWidget(m_redButton);
+    l6->addWidget(m_redButton);
 
     m_greenButton = new QPushButton(tr("G"), this);
     m_greenButton->setToolTip(tr("Green"));
     m_greenButton->setStyleSheet("QPushButton {background-color: #00FF00}");
     connect(m_greenButton, SIGNAL(clicked()), this, SLOT(green()));
-    l5->addWidget(m_greenButton);
+    l6->addWidget(m_greenButton);
 
     m_blueButton = new QPushButton(tr("B"), this);
     m_blueButton->setToolTip(tr("Blue"));
     m_blueButton->setStyleSheet("QPushButton {background-color: #0000FF}");
     connect(m_blueButton, SIGNAL(clicked()), this, SLOT(blue()));
-    l5->addWidget(m_blueButton);
+    l6->addWidget(m_blueButton);
 
     l1->addWidget(m_wheel);
     l1->addLayout(l2);
     l1->addLayout(l3);
-    l1->addWidget(m_fixedBox);
     l1->addLayout(l4);
     l1->addLayout(l5);
+    l1->addLayout(l6);
 
     m_groupBox->setLayout(l1);
     m_groupBox->setContextMenuPolicy(Qt::CustomContextMenu);

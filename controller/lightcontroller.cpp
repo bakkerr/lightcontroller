@@ -52,6 +52,9 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
             connect(zones[i], SIGNAL(doOn(unsigned char)), this, SLOT(setOn(unsigned char)));
             connect(zones[i], SIGNAL(doOff(unsigned char)), this, SLOT(setOff(unsigned char)));
             connect(zones[i], SIGNAL(doWhite(unsigned char)), this, SLOT(setWhite(unsigned char)));
+            connect(zones[i], SIGNAL(doBuildinEffect(unsigned char)), this, SLOT(setBuildinEffect(unsigned char)));
+            connect(zones[i], SIGNAL(doIncreaseSpeed(unsigned char)), this, SLOT(setIncreaseSpeed(unsigned char)));
+            connect(zones[i], SIGNAL(doDecreaseSpeed(unsigned char)), this, SLOT(setDecreaseSpeed(unsigned char)));
         }
 
         /* For all except the master connect to the Master. */
@@ -210,5 +213,41 @@ void LightController::setWhite(unsigned char zone)
     }
     else{
         m_udp->setWhite(zone);
+    }
+}
+
+void LightController::setBuildinEffect(unsigned char zone)
+{
+    if(zone == 0 && areSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!zones[i]->fixed()) m_udp->setBuildinEffect(i);
+        }
+    }
+    else{
+        m_udp->setBuildinEffect(zone);
+    }
+}
+
+void LightController::setIncreaseSpeed(unsigned char zone)
+{
+    if(zone == 0 && areSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!zones[i]->fixed()) m_udp->increaseSpeed(i);
+        }
+    }
+    else{
+        m_udp->increaseSpeed(zone);
+    }
+}
+
+void LightController::setDecreaseSpeed(unsigned char zone)
+{
+    if(zone == 0 && areSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!zones[i]->fixed()) m_udp->decreaseSpeed(i);
+        }
+    }
+    else{
+        m_udp->decreaseSpeed(zone);
     }
 }

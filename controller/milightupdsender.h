@@ -25,6 +25,9 @@ public slots:
     void setOn(unsigned char zone);
     void setOff(unsigned char zone);
     void setWhite(unsigned char zone);
+    void setBuildinEffect(unsigned char zone);
+    void increaseSpeed(unsigned char zone);
+    void decreaseSpeed(unsigned char zone);
 
 private:
     void error(const char *x);

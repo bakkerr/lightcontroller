@@ -54,6 +54,9 @@ signals:
     void doWhite(unsigned char zone);
     void doOn(unsigned char zone);
     void doOff(unsigned char zone);
+    void doBuildinEffect(unsigned char zone);
+    void doIncreaseSpeed(unsigned char zone);
+    void doDecreaseSpeed(unsigned char zone);
 
     /* Sync fade state between Master and Zones. */
     void fadeEnabled();
@@ -98,6 +101,9 @@ private slots:
     void setColor(const QColor c) { emit doColor(c, m_zone);                                 }
     void setBright(int value)     { emit doBright((unsigned char)value, m_zone);             }
     void setWhite()               { m_wheel->setInnerColor(Qt::white); emit doWhite(m_zone); }
+    void setBuildinEffect()       { emit doBuildinEffect(m_zone);                            }
+    void decreaseSpeed()          { emit doDecreaseSpeed(m_zone);                            }
+    void increaseSpeed()          { emit doIncreaseSpeed(m_zone);                            }
     void setRandom();
 
     /* Color Shortcuts */
@@ -145,6 +151,11 @@ private:
     QCheckBox *m_fadeBox;
     QSlider *m_fadeSlider;
     QTimer *m_fadeTimer;
+
+    /* Buildin Effect Buttons. */
+    QPushButton *m_buildinEffectButton;
+    QPushButton *m_incSpeedButton;
+    QPushButton *m_decSpeedButton;
 
     /* Shortcut buttons. */
     QPushButton *m_randomButton;

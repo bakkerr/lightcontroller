@@ -84,3 +84,21 @@ void MiLightUPDsender::setWhite(unsigned char zone)
     udpsend(WHITEcodes[zone], 0x00);
     currentzone = -1;
 }
+
+void MiLightUPDsender::setBuildinEffect(unsigned char zone)
+{
+    setOn(zone);
+    udpsend(0x4D, 0x00);
+}
+
+void MiLightUPDsender::increaseSpeed(unsigned char zone)
+{
+    setOn(zone);
+    udpsend(0x44, 0x00);
+}
+
+void MiLightUPDsender::decreaseSpeed(unsigned char zone)
+{
+    setOn(zone);
+    udpsend(0x43, 0x00);
+}
