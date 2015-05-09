@@ -178,7 +178,7 @@ PresetZone * SingleController::getPreset()
 void SingleController::setPreset(PresetZone *p, bool set)
 {
 
-    m_fixed = p->m_fixed;
+    m_fixedBox->setChecked(p->m_fixed);
 
     m_fadeSlider->setValue(p->m_fadeTime);
 
