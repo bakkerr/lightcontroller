@@ -20,7 +20,6 @@ SOURCES += main.cpp\
     milightupdsender.cpp \
     colorwheel.cpp \
     audiocontroller.cpp \
-    specialbuttons.cpp \
     qcustomplot.cpp \
     mainwindow.cpp \
     discover.cpp \
@@ -33,7 +32,6 @@ HEADERS  += lightcontroller.h \
     milightupdsender.h \
     colorwheel.h \
     audiocontroller.h \
-    specialbuttons.h \
     qcustomplot.h \
     discover.h \
     mainwindow.h \

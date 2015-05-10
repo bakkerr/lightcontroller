@@ -66,9 +66,6 @@ PresetController::PresetController(QWidget *parent) :
   connect(m_lv, SIGNAL(clicked(QModelIndex)), this, SLOT(cellClicked(QModelIndex)));
   connect(m_pm, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(dataChanged(QModelIndex,QModelIndex)));
 
-  mw->setMinimumWidth(210);
-  mw->setSizePolicy(QSizePolicy::Preferred);
-
   mw->setLayout(l1);
 
   setWidget(mw);
