@@ -133,6 +133,30 @@ void LightController::setPreset(PresetLC *p)
 
 }
 
+void LightController::loadSettings(QSettings *s)
+{
+    setName(s->value(tr("name"), tr("Controller ") + QString::number(m_num)).toString());
+
+    s->beginReadArray(tr("Zones"));
+    for(int i = 0; i < 5; i++){
+        s->setArrayIndex(i);
+        zones[i]->loadSettings(s);
+    }
+    s->endArray();
+}
+
+void LightController::saveSettings(QSettings *s)
+{
+    s->setValue(tr("id"), m_id);
+    s->setValue(tr("name"), m_name);
+    s->beginWriteArray(tr("Zones"));
+    for(int i = 0; i < 5; i++){
+        s->setArrayIndex(i);
+        zones[i]->saveSettings(s);
+    }
+    s->endArray();
+}
+
 bool LightController::areSomeFixed()
 {
     return (zones[1]->fixed() || zones[2]->fixed() || zones[3]->fixed() || zones[4]->fixed());

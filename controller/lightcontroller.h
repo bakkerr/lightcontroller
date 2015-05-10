@@ -30,6 +30,8 @@ public:
     QString id() { return m_id; }
 
     PresetLC *getPreset();
+    void loadSettings(QSettings *s);
+    void saveSettings(QSettings *s);
 
     /* Five zones for each contoller, the controller master and 4 zones. */
     SingleController *zones[5];

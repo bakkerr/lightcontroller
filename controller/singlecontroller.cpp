@@ -206,6 +206,16 @@ void SingleController::setPreset(PresetZone *p, bool set)
     }
 }
 
+void SingleController::loadSettings(QSettings *s)
+{
+    setName(s->value(tr("name"), tr("Zone ") + QString::number(m_zone)).toString());
+}
+
+void SingleController::saveSettings(QSettings *s)
+{
+    s->setValue(tr("name"), m_name);
+}
+
 void SingleController::setName()
 {
     bool ok;

@@ -34,6 +34,9 @@ PresetController::PresetController(QWidget *parent) :
     QDockWidget(tr("Preset Controller"), parent)
 {
 
+  qRegisterMetaType<Preset>("Preset");
+  qRegisterMetaTypeStreamOperators<Preset>("Preset");
+
   m_instanceNum = 0;
 
   QWidget *mw = new QWidget(this);
@@ -52,6 +55,7 @@ PresetController::PresetController(QWidget *parent) :
 
   m_lv = new QTableView(this);
   m_lv->setModel(m_pm);
+  m_lv->setColumnWidth(0, 115);
   m_lv->setColumnWidth(1, 38);
   m_lv->setColumnWidth(2, 38);
 
@@ -60,10 +64,43 @@ PresetController::PresetController(QWidget *parent) :
 
   connect(m_createPreset, SIGNAL(clicked()), this, SIGNAL(createPreset()));
   connect(m_lv, SIGNAL(clicked(QModelIndex)), this, SLOT(cellClicked(QModelIndex)));
+  connect(m_pm, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+
+  mw->setMinimumWidth(210);
+  mw->setSizePolicy(QSizePolicy::Preferred);
 
   mw->setLayout(l1);
+
   setWidget(mw);
 
+}
+
+void PresetController::loadSettings(QSettings *s)
+{
+    s->beginGroup(tr("Presets"));
+    int size = s->beginReadArray(tr("Presets"));
+
+    for(int i = 0; i < size; i++){
+        s->setArrayIndex(i);
+        addPreset(new Preset(s->value(tr("Preset")).value<Preset>()));
+    }
+
+    s->endArray();
+    s->endGroup();
+}
+
+void PresetController::saveSettings(QSettings *s)
+{
+    s->beginGroup(tr("Presets"));
+    s->beginWriteArray(tr("Presets"));
+
+    for(int i = 0; i < m_pList.size(); i++){
+        s->setArrayIndex(i);
+        s->setValue(tr("Preset"), QVariant::fromValue(*(m_pList.at(i))));
+    }
+
+    s->endArray();
+    s->endGroup();
 }
 
 void PresetController::addPreset(Preset *p){
@@ -75,7 +112,10 @@ void PresetController::addPreset(Preset *p){
     m_pList.append(p);
 
     QList<QStandardItem*> newRow;
-    p->m_name = tr("Preset ") + QString::number(m_instanceNum);
+
+    if(p->m_name == QString()){
+        p->m_name = tr("Preset ") + QString::number(m_instanceNum);
+    }
 
     QStandardItem *name = new QStandardItem(p->m_name);
     QStandardItem *set  = new QStandardItem(tr("set"));
@@ -91,6 +131,26 @@ void PresetController::addPreset(Preset *p){
     newRow.append(del);
 
     m_pm->appendRow(newRow);
+}
+
+void PresetController::dataChanged(const QModelIndex &tl, const QModelIndex &br)
+{
+    qDebug() << "Called..." << endl;
+
+    if(tl.row() != br.row() || tl.column() != tl.column()){
+        qDebug() << "Editing of multiple cells is not supported..." << endl;
+        return;
+    }
+
+    if(tl.column() != 0){
+        qDebug() << "Other column than column 0 changed??? Confused..." << endl;
+        return;
+    }
+
+    int row = tl.row();
+
+    m_pList.at(row)->setName(m_pm->data(tl).toString());
+
 }
 
 void PresetController::cellClicked(QModelIndex mi)

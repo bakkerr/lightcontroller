@@ -8,13 +8,15 @@
 #include <QColor>
 #include <QString>
 
+#include "default_values.h"
+
 class PresetZone : public QObject
 {
     Q_OBJECT
 
 public:
     //explicit PresetZone(QObject *parent = 0);
-    explicit PresetZone(bool enabled, QColor color, bool fade, int fadeTime, bool fixed, int brightness, QObject *parent = 0);
+    explicit PresetZone(bool enabled = true, QColor color = Qt::blue, bool fade = false, int fadeTime = FADE_VALUE_MS_DEFAULT, bool fixed = false, int brightness = BRIGHT_VALUE_DEFAULT, QObject *parent = 0);
     bool equals(PresetZone *a, PresetZone *b);
 
 //private:
@@ -32,7 +34,7 @@ class PresetLC : public QObject
     Q_OBJECT
 
 public:
-    explicit PresetLC(QString id, QObject *parent = 0);
+    explicit PresetLC(QString id = tr("foo"), QObject *parent = 0);
 
     PresetZone *zones[5];
     QString m_id;
@@ -48,8 +50,11 @@ class Preset : public QObject
 
 public:
     explicit Preset(QObject *parent = 0);
+    Preset(const Preset &p);
+    //~Preset() { }
 
     bool addController(PresetLC *plc);
+    void setName(const QString &name);
 
     QString m_name;
     QDateTime m_date;
@@ -60,5 +65,15 @@ public:
 
 
 };
+
+QDataStream &operator<<(QDataStream &out, const PresetZone &pz);
+QDataStream &operator>>(QDataStream &in, PresetZone &pz);
+QDataStream &operator<<(QDataStream &out, const PresetLC &plc);
+QDataStream &operator>>(QDataStream &in, PresetLC &plc);
+QDataStream &operator<<(QDataStream &out, const Preset &p);
+QDataStream &operator>>(QDataStream &in, Preset &p);
+
+Q_DECLARE_METATYPE(Preset)
+
 
 #endif // PRESET_H

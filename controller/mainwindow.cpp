@@ -5,7 +5,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 {
     /* Window Title */
-    setWindowTitle(tr("Light Controller"));
+    setWindowTitle(tr("LightController"));
 
     /*
      * "Fix" Groupbox layout
@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(audio, SIGNAL(fade20()), master, SLOT(fade20Ext()));
 
     presetController = new PresetController(this);
+    presetController->setMinimumWidth(230);
     addDockWidget(Qt::RightDockWidgetArea, presetController);
     connect(presetController, SIGNAL(createPreset()), this, SLOT(getPreset()));
     connect(this, SIGNAL(presetAvailable(Preset*)), presetController, SLOT(addPreset(Preset*)));
@@ -60,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setupToolBar();
     setupMenuBar();
     setupStatusBar();
+
+    loadSettings();
 
     delete d;
 
@@ -160,6 +163,58 @@ void MainWindow::setupStatusBar()
     statusBar()->showMessage(tr("LightController - Roy Bakker - 2015 - http://github.com/bakkerr/lightcontroller"), 0);
 }
 
+void MainWindow::loadSettings()
+{
+    QSettings *s = new QSettings(tr("roybakker.nl"), tr("LightController"), this);
+
+    s->beginGroup(tr("MainWindow"));
+
+    master->setName(s->value(tr("MasterControllerName"), tr("Master")).toString());
+
+    int size = s->beginReadArray(tr("LightControllers"));
+
+    for(int i = 0; i < controllers.size(); i++){
+        LightController *lc = controllers.at(i);
+        for(int j = 0; j < size; j++){
+            s->setArrayIndex(j);
+            if(s->value(tr("id"), tr("")).toString() == lc->id()){
+                lc->loadSettings(s);
+            }
+        }
+    }
+
+    s->endArray();
+
+    presetController->loadSettings(s);
+
+    s->endGroup();
+
+}
+
+void MainWindow::saveSettings()
+{
+    QSettings *s = new QSettings(tr("roybakker.nl"), tr("LightController"), this);
+    s->beginGroup(tr("MainWindow"));
+    s->setValue(tr("MasterControllerName"), master->name());
+    s->setValue(tr("MasterControllerVisible"), master->isVisible());
+
+
+    s->beginWriteArray(tr("LightControllers"));
+
+    for(int i = 0; i < controllers.size(); i++){
+        s->setArrayIndex(i);
+        controllers.at(i)->saveSettings(s);
+    }
+
+    s->endArray();
+
+    presetController->saveSettings(s);
+
+    s->endGroup();
+
+    s->sync();
+}
+
 void MainWindow::setupControllers(const QStringList &devices, bool setDefaults){
 
 
@@ -206,6 +261,24 @@ void MainWindow::setupControllers(const QStringList &devices, bool setDefaults){
     }
 
 
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QMessageBox::StandardButton mb = QMessageBox::question(this,
+                                                           tr("Close LightController?"),
+                                                           tr("Are you sure you want to close this lightcontroller?"),
+                                                           QMessageBox::Yes | QMessageBox::No,
+                                                           QMessageBox::No
+                                                           );
+
+    if(mb == QMessageBox::Yes){
+        saveSettings();
+        event->accept();
+    }
+    else{
+        event->ignore();
+    }
 }
 
 void MainWindow::getPreset()

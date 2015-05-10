@@ -36,6 +36,8 @@ class PresetController : public QDockWidget
 public:
     PresetController(QWidget *parent = 0);
     ~PresetController();
+    void loadSettings(QSettings *s);
+    void saveSettings(QSettings *s);
 
 signals:
     void createPreset();
@@ -43,7 +45,8 @@ signals:
 
 private slots:
     void addPreset(Preset *p);
-    void cellClicked(QModelIndex mi);
+    void dataChanged(const QModelIndex &tl, const QModelIndex &br);
+    void cellClicked(const QModelIndex mi);
 
 private:
     int m_instanceNum;

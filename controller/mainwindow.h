@@ -19,6 +19,7 @@ signals:
     void presetAvailable(Preset *p);
 
 public slots:
+    void closeEvent(QCloseEvent *event);
 
 private slots:
     void setupControllers(const QStringList &devices, bool setDefaults);
@@ -32,6 +33,8 @@ private:
     void setupMenuBar();
     void setupToolBar();
     void setupStatusBar();
+    void loadSettings();
+    void saveSettings();
 
     QVBoxLayout l0;
     QHBoxLayout l1;

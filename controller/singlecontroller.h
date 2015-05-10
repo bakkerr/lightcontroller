@@ -40,12 +40,15 @@ public:
     QAction *viewControllerAction;
 
     /* getMethods. */
-    bool   fixed()      { return m_fixed;                  }
-    bool   fadeTime()     { return m_fadeSlider->value();    }
-    QColor color()      { return m_wheel->color();         }
-    int    brightness() { return m_brightSlider->value();  }
+    QString name()       { return m_name;                   }
+    bool    fixed()      { return m_fixed;                  }
+    bool    fadeTime()   { return m_fadeSlider->value();    }
+    QColor  color()      { return m_wheel->color();         }
+    int     brightness() { return m_brightSlider->value();  }
 
     PresetZone * getPreset();
+    void loadSettings(QSettings *s);
+    void saveSettings(QSettings *s);
 
 signals:
     /* Signals to communicate with the lightcontroller to process the changes to the WiFi Bridge. */
