@@ -9,6 +9,7 @@
 #include <QString>
 
 #include "default_values.h"
+#include "settings.h"
 
 class PresetZone : public QObject
 {

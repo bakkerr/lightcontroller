@@ -5,16 +5,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 {
     /* Window Title */
-    setWindowTitle(tr("LightController"));
-
-    /*
-     * "Fix" Groupbox layout
-     *
-     *  FIXME: Make this an option.
-     */
-#ifdef LC_FIX_LAYOUT
-    setStyleSheet("QDockWidget::title {background: darkgray;} QGroupBox{border:1px solid gray;border-radius:5px;margin-top: 1ex;} QGroupBox::title{subcontrol-origin: margin;subcontrol-position:top center;padding:0 5px;}");
-#endif
+    setWindowTitle(tr(APPLICATION_NAME));
 
     /* Set sticky places for dockwidgets */
     setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
@@ -43,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     presetController = new PresetController(this);
     presetController->setMinimumWidth(230);
-    addDockWidget(Qt::RightDockWidgetArea, presetController);
+    addDockWidget(Qt::TopDockWidgetArea, presetController);
     connect(presetController, SIGNAL(createPreset()), this, SLOT(getPreset()));
     connect(this, SIGNAL(presetAvailable(Preset*)), presetController, SLOT(addPreset(Preset*)));
     connect(presetController, SIGNAL(setPreset(Preset*)), this, SLOT(setPreset(Preset*)));
@@ -83,10 +74,13 @@ void MainWindow::setupActions()
     viewStatusBarAction->setChecked(true);
     connect(viewStatusBarAction, SIGNAL(toggled(bool)), statusBar(), SLOT(setVisible(bool)));
 
+    settingsAction = new QAction(tr("&Settings"), this);
+    connect(settingsAction, SIGNAL(triggered()), this, SLOT(showSettingsDialog()));
+
     dockAllAction = new QAction(tr("&Dock All"), this);
     connect(dockAllAction, SIGNAL(triggered()), this, SLOT(dockAll()));
 
-    aboutAction = new QAction(tr("&About"), this);
+    aboutAction = new QAction(tr("&About ") + tr(APPLICATION_NAME), this);
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
     aboutQtAction = new QAction(tr("About &Qt"), this);
@@ -99,17 +93,23 @@ void MainWindow::setupMenuBar()
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(exitAction);
 
+    /* Edit Menu */
+    editMenu = menuBar()->addMenu(tr("&Edit"));
+    editMenu->addAction(settingsAction);
+
     /* View Menu */
     viewMenu = menuBar()->addMenu(tr("&View"));
 
     viewMenu->addAction(masterDockWidget->toggleViewAction());
+    //connect(masterDockWidget->toggleViewAction(), SIGNAL(changed()), this, SLOT(settingsChanged()));
 
     viewMenu->addSeparator();
 
-    viewMenu->addAction(audio->toggleViewAction());
     viewMenu->addMenu(audio->viewAudioMenu);
+    //connect(audio->toggleViewAction(), SIGNAL(toggled(bool)), this, SLOT(settingsChanged()));
 
     viewMenu->addAction(presetController->toggleViewAction());
+    //connect(presetController->toggleViewAction(), SIGNAL(toggled(bool)), this, SLOT(settingsChanged()));
 
     viewMenu->addSeparator();
 
@@ -160,12 +160,17 @@ void MainWindow::setupToolBar()
 void MainWindow::setupStatusBar()
 {
     statusBar()->show();
-    statusBar()->showMessage(tr("LightController - Roy Bakker - 2015 - http://github.com/bakkerr/lightcontroller"), 0);
+    statusBar()->showMessage(tr(APPLICATION_NAME)    + tr(" v")   +
+                             tr(APPLICATION_VERSION) + tr(" - ") +
+                             tr(APPLICATION_AUTHOR)  + tr(" - ") +
+                             tr(APPLICATION_YEAR)    + tr(" - ") +
+                             tr(APPLICATION_URL)
+                             , 0);
 }
 
 void MainWindow::loadSettings()
 {
-    QSettings *s = new QSettings(tr("roybakker.nl"), tr("LightController"), this);
+    QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
 
     s->beginGroup(tr("MainWindow"));
 
@@ -187,13 +192,17 @@ void MainWindow::loadSettings()
 
     presetController->loadSettings(s);
 
+    audio->loadSettings(s);
+
     s->endGroup();
+
+    GLOBAL_settingsChanged = false;
 
 }
 
 void MainWindow::saveSettings()
 {
-    QSettings *s = new QSettings(tr("roybakker.nl"), tr("LightController"), this);
+    QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
     s->beginGroup(tr("MainWindow"));
     s->setValue(tr("MasterControllerName"), master->name());
     s->setValue(tr("MasterControllerVisible"), master->isVisible());
@@ -210,9 +219,13 @@ void MainWindow::saveSettings()
 
     presetController->saveSettings(s);
 
+    audio->saveSettings(s);
+
     s->endGroup();
 
     s->sync();
+
+    GLOBAL_settingsChanged = false;
 }
 
 void MainWindow::setupControllers(const QStringList &devices, bool setDefaults){
@@ -256,29 +269,35 @@ void MainWindow::setupControllers(const QStringList &devices, bool setDefaults){
 
     if(setDefaults){
         master->setColorExt(Qt::blue);
-        usleep(100000);
+        usleep(150000);
         master->setBrightExt(18);
     }
+}
 
-
+void MainWindow::showSettingsDialog()
+{
+    settingsDialog *s = new settingsDialog(this);
+    s->exec();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QMessageBox::StandardButton mb = QMessageBox::question(this,
-                                                           tr("Close LightController?"),
-                                                           tr("Are you sure you want to close this lightcontroller?"),
+    if(GLOBAL_settingsChanged){
+        QMessageBox::StandardButton mb = QMessageBox::question(this,
+                                                           tr("Save settings before closing?"),
+                                                           tr("Some settings were modified. Do you want to save these settings?"),
                                                            QMessageBox::Yes | QMessageBox::No,
                                                            QMessageBox::No
                                                            );
 
-    if(mb == QMessageBox::Yes){
-        saveSettings();
-        event->accept();
+        if(mb == QMessageBox::Yes){
+            saveSettings();
+            //event->accept();
+        }
     }
-    else{
-        event->ignore();
-    }
+
+    event->accept();
+
 }
 
 void MainWindow::getPreset()
@@ -332,23 +351,30 @@ void MainWindow::dockAll()
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, tr("About Lightcontroller"),
+    QMessageBox::about(this, tr("About ") + tr(APPLICATION_NAME),
                        tr("A Lightcontroller for MiLight/LimitlessLed/etc WiFi Bridges"
                           "<br />"
                           "<br />"
                           "<b>Author:</b><br />"
-                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Roy Bakker (2015)<br>"
-                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"mailto:roy@roybakker.nl\">roy@roybakker.nl</a><br />"
-                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"http:/www.roybakker.nl>\">www.roybakker.nl</a><br />"
-                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"https:/github.com/bakkerr/lightcontroller>\">github.com/bakkerr/lightcontroller</a><br />"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") + tr(APPLICATION_AUTHOR) + tr(" (") + tr(APPLICATION_YEAR) + tr(")<br>"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"mailto:") + tr(APPLICATION_AUTHOR_EMAIL) + tr("\">") + tr(APPLICATION_AUTHOR_EMAIL) + tr("</a><br />"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"http://") + tr(APPLICATION_AUTHOR_URL) + tr(">\">") + tr(APPLICATION_AUTHOR_URL) + tr("</a><br />"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"http://") + tr(APPLICATION_URL) + tr(">\">") + tr(APPLICATION_URL) + tr("</a><br />"
                           "<br />"
                           "<br />"
                           "<b>Credits:</b><br />"
                           "&nbsp;&nbsp; This project makes use of:<br />"
+                          "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- UDP commandset as described on <a href=\"http://www.limitlessled.com/dev\">www.limitlessled.com/dev</a><br />"
                           "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- a modified version of <a href=\"https://github.com/mguentner/libbeat\">Libbeat</a> by Maximilian Güntner<br />"
                           "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- a modified version of <a href=\"https://github.com/liuyanghejerry/Qt-Plus/tree/master/develop/ColorWheel\">ColorWheel</a> by liuyanghejerry<br />"
                           "<br />"
                           "<br />"
-                          "<b>Note:</b> This project is in Alpha stage and will most probably contain several bugs and/or stability issues...<br />"
-                        ));
+                          "<b>Note:</b><br />"
+                          "This project is in Alpha stage and will most probably contain several bugs and/or stability issues...<br />"
+                          "<br /><br /><b>") + tr(APPLICATION_NAME) + tr(" v") + tr(APPLICATION_VERSION) + tr("</b>")
+#if defined(__DATE__) && defined(__TIME__)
+                          + tr(" (Build: ") + tr(__DATE__) + tr(" ") + tr(__TIME__) + tr(")")
+#endif
+
+                        );
 }

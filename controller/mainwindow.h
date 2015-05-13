@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QStyle>
+
+#include "default_values.h"
+#include "settings.h"
 #include "lightcontroller.h"
 #include "audiocontroller.h"
 #include "presetcontroller.h"
@@ -25,6 +28,8 @@ private slots:
     void setupControllers(const QStringList &devices, bool setDefaults);
     void getPreset();
     void setPreset(Preset *p);
+    void showSettingsDialog();
+    void settingsChanged() { GLOBAL_settingsChanged = true; }
     void dockAll();
     void about();
 
@@ -51,11 +56,14 @@ private:
     QToolBar *toolBar;
 
     QMenu *fileMenu;
+    QMenu *editMenu;
     QMenu *viewMenu;
     QMenu *helpMenu;
 
     QAction *viewStatusBarAction;
     QAction *dockAllAction;
+
+    QAction *settingsAction;
 
     QAction *aboutQtAction;
     QAction *aboutAction;

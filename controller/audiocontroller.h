@@ -15,10 +15,13 @@
 
 #include <QAudioInput>
 
+#include <QSettings>
+
 #include "../libbeat/beatcontroller.h"
 #include "../libbeat/soundbuffer.h"
 
 #include "default_values.h"
+#include "settings.h"
 #include "qcustomplot.h"
 #include "fftdisplay.h"
 
@@ -30,6 +33,11 @@ class audioController : public QDockWidget
 
 public:
     explicit audioController(QWidget *parent = 0);
+
+    void loadSettings(QSettings *s);
+    void saveSettings(QSettings *s);
+
+
     QMenu *viewAudioMenu;
     QAction *viewAudioGraphAction;
     QAction *viewAudioFFTAction;

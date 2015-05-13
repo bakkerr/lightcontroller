@@ -127,8 +127,8 @@ QStringList MiLightDiscover::UDPdiscover()
     QStringList sl;
 
     QUdpSocket *os = new QUdpSocket();
-    os->bind(48899, QUdpSocket::ShareAddress);
-    QByteArray msg = "Link_Wi-Fi";
+    os->bind(MILIGHT_PORT_DISCOVER, QUdpSocket::ShareAddress);
+    QByteArray msg = MILIGHT_MSG_DISCOVER;
 
     for(int i = 0; i < 5; i++){
         os->writeDatagram(msg.data(), msg.size(), QHostAddress::Broadcast, 48899);

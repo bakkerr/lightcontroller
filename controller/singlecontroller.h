@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 #include "default_values.h"
+#include "settings.h"
 #include "colorwheel.h"
 #include "preset.h"
 

@@ -17,7 +17,7 @@ class MiLightUPDsender : public QObject
     Q_OBJECT;
 
 public:
-    MiLightUPDsender(QObject *parent = 0, QString ip = QString(MILIGHT_IP_DEFAULT), int port = MILIGHT_PORT_DEFAULT);
+    MiLightUPDsender(QString ip, int port = MILIGHT_PORT_DEFAULT, QObject *parent = 0);
 
 public slots:
     void setColor(const QColor &c, unsigned char zone);

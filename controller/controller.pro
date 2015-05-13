@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     discover.cpp \
     fftdisplay.cpp \
     presetcontroller.cpp \
-    preset.cpp
+    preset.cpp \
+    settings.cpp
 
 HEADERS  += lightcontroller.h \
     singlecontroller.h \
@@ -39,6 +40,7 @@ HEADERS  += lightcontroller.h \
     beatcontroller.h \
     fftdisplay.h \
     presetcontroller.h \
-    preset.h
+    preset.h \
+    settings.h
 
 LIBS += -L../libbeat/ -lbeat

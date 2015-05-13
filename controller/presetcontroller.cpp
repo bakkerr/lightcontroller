@@ -55,9 +55,9 @@ PresetController::PresetController(QWidget *parent) :
 
   m_lv = new QTableView(this);
   m_lv->setModel(m_pm);
-  m_lv->setColumnWidth(0, 115);
-  m_lv->setColumnWidth(1, 38);
-  m_lv->setColumnWidth(2, 38);
+  m_lv->setColumnWidth(0, 120);
+  m_lv->setColumnWidth(1, 36);
+  m_lv->setColumnWidth(2, 36);
 
   l1->addWidget(m_createPreset);
   l1->addWidget(m_lv);
@@ -69,6 +69,9 @@ PresetController::PresetController(QWidget *parent) :
   mw->setLayout(l1);
 
   setWidget(mw);
+
+  setMinimumWidth(200);
+  setMaximumWidth(200);
 
 }
 
@@ -128,6 +131,8 @@ void PresetController::addPreset(Preset *p){
     newRow.append(del);
 
     m_pm->appendRow(newRow);
+
+    GLOBAL_settingsChanged = true;
 }
 
 void PresetController::dataChanged(const QModelIndex &tl, const QModelIndex &br)
@@ -173,6 +178,7 @@ void PresetController::cellClicked(QModelIndex mi)
         if(mb == QMessageBox::Yes){
             m_pList.removeAt(row);
             m_pm->removeRow(row);
+            GLOBAL_settingsChanged = true;
         }
         break;
       }

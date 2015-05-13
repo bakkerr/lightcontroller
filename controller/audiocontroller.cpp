@@ -121,6 +121,7 @@ audioController::audioController(QWidget *parent) :
 
     m_fft = new FFTDisplay(NULL, this);
     m_fft->setToolTip(tr("FFT output: Volume bar (right), Triggers [Beat: yellow, Snare blue] (circles), Audio values (bottom), Triggers for each FFT band (above)"));
+    m_fft->setMinimumWidth(200);
     l5->addWidget(m_fft);
 
     l4->addLayout(l5);
@@ -140,6 +141,8 @@ audioController::audioController(QWidget *parent) :
 void audioController::createViewMenu()
 {
     viewAudioMenu = new QMenu(tr("&Audio Controller"), this);
+    viewAudioMenu->addAction(toggleViewAction());
+    viewAudioMenu->addSeparator();
 
     viewAudioGraphAction = new QAction(tr("Audio &Graph"), this);
     viewAudioGraphAction->setCheckable(true);
@@ -153,6 +156,24 @@ void audioController::createViewMenu()
     connect(viewAudioFFTAction, SIGNAL(toggled(bool)), this, SLOT(showFFT(bool)));
     viewAudioMenu->addAction(viewAudioFFTAction);
 
+}
+
+void audioController::loadSettings(QSettings *s)
+{
+    s->beginGroup("AudioController");
+    toggleViewAction()->setChecked(s->value(tr("Visible"), tr("true")).toBool());
+    viewAudioGraphAction->setChecked(s->value(tr("AudioGraphVisible"), tr("true")).toBool());
+    viewAudioFFTAction->setChecked(s->value(tr("FFTDisplayVisible"), tr("true")).toBool());
+    s->endGroup();
+}
+
+void audioController::saveSettings(QSettings *s)
+{
+    s->beginGroup("AudioController");
+    s->setValue(tr("Visible"), toggleViewAction()->isChecked());
+    s->setValue(tr("AudioGraphVisible"), viewAudioGraphAction->isChecked());
+    s->setValue(tr("FFTDisplayVisible"), viewAudioFFTAction->isChecked());
+    s->endGroup();
 }
 
 void audioController::stateChange(bool s)
@@ -193,11 +214,13 @@ void audioController::stopAudio()
 void audioController::showGraph(bool s)
 {
     m_plot->setVisible(s);
+    GLOBAL_settingsChanged = true;
 }
 
 void audioController::showFFT(bool s)
 {
     m_fft->setVisible(s);
+    GLOBAL_settingsChanged = true;
 }
 
 void audioController::doReplot()

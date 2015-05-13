@@ -1,6 +1,6 @@
 #include "milightupdsender.h"
 
-MiLightUPDsender::MiLightUPDsender(QObject *parent, QString ip, int port) :
+MiLightUPDsender::MiLightUPDsender(QString ip, int port, QObject *parent) :
     QObject(parent)
 {
     QByteArray ba = ip.toLocal8Bit();

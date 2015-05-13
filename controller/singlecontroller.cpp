@@ -227,6 +227,8 @@ void SingleController::setName()
 
 void SingleController::setName(QString name)
 {
+    if(m_name == name) return;
+
     m_name = name;
     QString displayName;
 
@@ -238,6 +240,9 @@ void SingleController::setName(QString name)
     }
     m_groupBox->setTitle(displayName);
     viewControllerAction->setText(displayName);
+
+    GLOBAL_settingsChanged = true;
+
 }
 
 void SingleController::setState(bool state)

@@ -11,6 +11,8 @@
 
 #include <QMessageBox>
 
+#include "default_values.h"
+#include "settings.h"
 #include "preset.h"
 
 /*class PresetModel : public QStandardItemModel

@@ -12,6 +12,7 @@
 #include <QInputDialog>
 
 #include "default_values.h"
+#include "settings.h"
 #include "singlecontroller.h"
 #include "preset.h"
 #include "milightupdsender.h"

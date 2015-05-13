@@ -6,7 +6,7 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
     m_id = id;
     m_ip = ip;
     m_num = num;
-    m_name = tr("Controller ") + QString::number(m_num);
+    m_name = tr("[LC") + QString::number(m_num) + tr("] Controller ") + QString::number(m_num);
 
     /* Main Widget. */
     m_mainWidget = new QWidget();
@@ -28,7 +28,7 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
 
     /* Create a UDP Sender for non-dummy controllers. */
     if(!dummy){
-        m_udp = new MiLightUPDsender(this, ip);
+        m_udp = new MiLightUPDsender(ip, MILIGHT_PORT_DEFAULT, this);
     }
 
     /* The main layout, which contains all zone controllers. */
@@ -80,7 +80,7 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
     /* Set the layout to the main Widget. */
     m_mainWidget->setLayout(m_mainLayout);
 
-    setName(m_name);
+    setWindowTitle(m_name);
 
     /* Set the main Widget. */
     setWidget(m_mainWidget);
@@ -173,11 +173,15 @@ void LightController::setName()
 
 void LightController::setName(QString name)
 {
+    if(m_name == name) return;
+
     m_name = name;
     QString displayName = tr("[LC") + QString::number(m_num) + tr("] ") + m_name;
     this->setWindowTitle(displayName);
     this->toggleViewAction()->setText(displayName);
     viewControllerMenu->setTitle(displayName);
+
+    GLOBAL_settingsChanged = true;
 }
 
 void LightController::setBright(unsigned char value, unsigned char zone)

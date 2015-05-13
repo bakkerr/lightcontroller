@@ -63,7 +63,11 @@ bool Preset::addController(PresetLC *plc)
 
 void Preset::setName(const QString &name)
 {
+    if(m_name == name) return;
+
     m_name = name;
+
+    GLOBAL_settingsChanged = true;
 }
 
 QDataStream &operator<<(QDataStream &out, const PresetZone &pz)
@@ -114,8 +118,6 @@ QDataStream &operator>>(QDataStream &in, PresetLC &plc)
 
 QDataStream &operator<<(QDataStream &out, const Preset &p)
 {
-    qDebug() << "testout" << endl;
-
     out << p.m_name;
     out << p.m_date;
     out << *(p.master);
@@ -123,13 +125,13 @@ QDataStream &operator<<(QDataStream &out, const Preset &p)
     for(int i = 0; i < p.lcs.size(); i++){
         out << *(p.lcs.at(i));
     }
-    qDebug() << "endout" << endl;
+
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, Preset &p){
     int size = 0;
-qDebug() << "testin" << endl;
+
     in >> p.m_name;
     in >> p.m_date;
     PresetZone *pz = new PresetZone();

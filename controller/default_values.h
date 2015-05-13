@@ -1,11 +1,19 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define STR_(x) #x
-#define STR(x) STR_(x)
+#define APPLICATION_VERSION       "0.1"
+#define APPLICATION_NAME          "LightController"
+#define APPLICATION_AUTHOR        "Roy Bakker"
+#define APPLICATION_AUTHOR_EMAIL  "roy@roybakker.nl"
+#define APPLICATION_AUTHOR_URL    "www.roybakker.nl"
+#define APPLICATION_COMPANY       "roybakker.nl"
+#define APPLICATION_YEAR          "2015"
+#define APPLICATION_URL           "http://github.com/bakkerr/lightcontroller"
 
-#define MILIGHT_IP_DEFAULT              "192.168.1.16"
+
 #define MILIGHT_PORT_DEFAULT            8899
+#define MILIGHT_PORT_DISCOVER          48899
+#define MILIGHT_MSG_DISCOVER    "Link_Wi-Fi"
 
 #define BRIGHT_VALUE_DEFAULT              19
 
@@ -26,7 +34,6 @@
 
 /* Debug values */
 #define ADD_DUMMY_DEVICES
-
 
 
 #endif // CONFIG_H

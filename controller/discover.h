@@ -16,6 +16,7 @@
 #include <unistd.h>
 
 #include "default_values.h"
+#include "settings.h"
 
 class MiLightDiscover : public QDialog
 {
