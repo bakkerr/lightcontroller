@@ -19,8 +19,8 @@
 
 #include <QSettings>
 
-#include "../libbeat/beatcontroller.h"
-#include "../libbeat/soundbuffer.h"
+#include "beatcontroller.h"
+#include "soundbuffer.h"
 
 #include "default_values.h"
 #include "settings.h"
