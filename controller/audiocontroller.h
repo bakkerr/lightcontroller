@@ -10,6 +10,8 @@
 #include <QButtonGroup>
 #include <QLabel>
 
+#include <QMenu>
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 

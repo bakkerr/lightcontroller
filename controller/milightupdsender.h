@@ -2,13 +2,7 @@
 #define MILIGHTUPDSENDER_H
 
 #include <QtGui>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#include <unistd.h>
+#include <QUdpSocket>
 
 #include "default_values.h"
 
@@ -33,8 +27,10 @@ private:
     void error(const char *x);
     void udpsend(unsigned char code, unsigned char param);
 
-    int udpSocket;
-    struct sockaddr_in destSockAddr;
+    QUdpSocket *m_udpSocket;
+    QHostAddress m_addr;
+    quint16 m_port;
+
     int currentzone;
 };
 

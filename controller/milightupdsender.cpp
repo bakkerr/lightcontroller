@@ -3,19 +3,15 @@
 MiLightUPDsender::MiLightUPDsender(QString ip, int port, QObject *parent) :
     QObject(parent)
 {
-    QByteArray ba = ip.toLocal8Bit();
-    char *c_ip = ba.data();
+    m_addr = QHostAddress(ip);
 
-    qDebug() << port << ip << endl;
+    if(m_addr.isNull()){
+        error("Hostaddress (ip) is invalid");
+        exit(EXIT_FAILURE);
+    }
 
-    udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
-    if(udpSocket < 0) error("Couldn't open socket\n");
-
-    memset(&destSockAddr, 0, sizeof(destSockAddr));
-
-    destSockAddr.sin_family = AF_INET;
-    destSockAddr.sin_port = htons(port);
-    destSockAddr.sin_addr.s_addr = inet_addr(c_ip);
+    m_udpSocket = new QUdpSocket(this);
+    m_port = (quint16)port;
 
     currentzone = -1;
 
@@ -29,13 +25,14 @@ void MiLightUPDsender::udpsend(unsigned char code, unsigned char param)
 {
     //qDebug() << "Command: " << code << " Param: " << param << endl;
 
-    unsigned char command[3] = {code, param, 0x55};
-    int bs = sendto(udpSocket, command, 3, 0, (const struct sockaddr*)&destSockAddr, sizeof(destSockAddr));
-    if(bs <= 0) error("Error sending data!\n");
-    bs = sendto(udpSocket, command, 3, 0, (const struct sockaddr*)&destSockAddr, sizeof(destSockAddr));
-    if(bs <= 0) error("Error sending data!\n");
-    usleep(10000);
+    const char command[3] = {(char)code, (char)param, (char)0x55};
 
+    for(int i = 0; i < 2; i++){
+        qint64 bs = m_udpSocket->writeDatagram(command, 3, m_addr, m_port);
+        if(bs <= 0) error("Error sending data!\n");
+    }
+
+    this->thread()->usleep(10000);
 }
 
 void MiLightUPDsender::setColor(const QColor &c, unsigned char zone)
@@ -65,9 +62,9 @@ void MiLightUPDsender::setOn(unsigned char zone)
 {
     unsigned char ONcodes[5] = {0x42, 0x45, 0x47, 0x49, 0x4B};
     if(zone != currentzone){
-      udpsend(ONcodes[zone], 0x00);
-      currentzone = zone;
-      //usleep(90000);
+        udpsend(ONcodes[zone], 0x00);
+        currentzone = zone;
+        //this->thread()->usleep(10000);
     }
 }
 
