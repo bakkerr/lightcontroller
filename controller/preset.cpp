@@ -30,6 +30,24 @@ PresetZone::PresetZone(const PresetZone &pz) :
     m_brightness = pz.m_brightness;
 }
 
+void PresetZone::loadSettings(QSettings *s){
+    m_enabled = s->value(tr("enabled"), tr("true")).toBool();
+    m_color = s->value(tr("color"), QVariant(Qt::blue)).value<QColor>();
+    m_fade = s->value(tr("fade"), tr("false")).toBool();
+    m_fadeTime = s->value(tr("fadeTime"), tr("10000")).toInt();
+    m_fixed = s->value(tr("fixed"), tr("false")).toBool();
+    m_brightness = s->value(tr("brightness"), tr("18")).toInt();
+}
+
+void PresetZone::saveSettings(QSettings *s)
+{
+    s->setValue(tr("enabled"), m_enabled);
+    s->setValue(tr("color"), m_color);
+    s->setValue(tr("fade"), m_fade);
+    s->setValue(tr("fadeTime"), m_fadeTime);
+    s->setValue(tr("fixed"), m_fixed);
+    s->setValue(tr("brightness"), m_brightness);
+}
 
 bool PresetZone::equals(PresetZone *a, PresetZone *b)
 {
@@ -60,6 +78,29 @@ PresetLC::PresetLC(const PresetLC &plc) :
     }
 }
 
+void PresetLC::loadSettings(QSettings *s)
+{
+    m_id = s->value(tr("id"), tr("ABCD")).toString();
+    int size = s->beginReadArray(tr("zones"));
+    if(size != 5) abort();
+    for(int i = 0; i < 5; i++){
+        zones[i] = new PresetZone(this);
+        zones[i]->loadSettings(s);
+    }
+    s->endArray();
+}
+
+void PresetLC::saveSettings(QSettings *s)
+{
+    s->setValue(tr("id"), m_id);
+    s->beginWriteArray(tr("zones"));
+    for(int i = 0; i < 5; i++){
+        s->setArrayIndex(i);
+        zones[i]->saveSettings(s);
+    }
+    s->endArray();
+}
+
 Preset::Preset(QObject *parent) :
     QObject(parent)
 {qDebug() << "Construct p" << (quint64)(this) << endl;
@@ -85,6 +126,32 @@ bool Preset::addController(PresetLC *plc)
     return true;
 }
 
+void Preset::loadSettings(QSettings *s)
+{
+    m_name = s->value(tr("name"), tr("ABCD")).toString();
+    m_date = s->value(tr("date"), QVariant(QDateTime::currentDateTime())).value<QDateTime>();
+    int size = s->beginReadArray(tr("lightcontrollers"));
+    for(int i = 0; i < size; i++){
+        s->setArrayIndex(i);
+        PresetLC *plc = new PresetLC(tr("ABCD"), this);
+        plc->loadSettings(s);
+        addController(plc);
+    }
+    s->endArray();
+}
+
+void Preset::saveSettings(QSettings *s)
+{
+    s->setValue(tr("name"), m_name);
+    s->setValue(tr("date"), m_date);
+    s->beginWriteArray(tr("lightcontrollers"));
+    for(int i = 0; i < lcs.size(); i++){
+        s->setArrayIndex(i);
+        lcs.at(i)->saveSettings(s);
+    }
+    s->endArray();
+}
+
 void Preset::setName(const QString &name)
 {
     if(m_name == name) return;
@@ -93,96 +160,3 @@ void Preset::setName(const QString &name)
 
     GLOBAL_settingsChanged = true;
 }
-
-QDataStream &operator<<(QDataStream &out, const PresetZone *pz)
-{
-    out << pz->m_enabled;
-    out << pz->m_color;
-    out << pz->m_fade;
-    out << pz->m_fadeTime;
-    out << pz->m_fixed;
-    out << pz->m_brightness;
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, PresetZone *pz)
-{
-    in >> pz->m_enabled;
-    in >> pz->m_color;
-    in >> pz->m_fade;
-    in >> pz->m_fadeTime;
-    in >> pz->m_fixed;
-    in >> pz->m_brightness;
-
-    return in;
-}
-
-QDataStream &operator<<(QDataStream &out, const PresetLC *plc)
-{
-    out << plc->m_id;
-    for(int i = 0; i < 5; i++){
-        out << plc->zones[i];
-    }
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, PresetLC *plc)
-{
-    in >> plc->m_id;
-    for(int i = 0; i < 5; i++){
-        PresetZone *pz = new PresetZone();
-        in >> pz;
-        plc->zones[i] = pz;
-    }
-
-    return in;
-}
-
-
-
-QDataStream &operator>>(QDataStream &in, Preset *p){
-    int size = 0;
-
-    in >> p->m_name;
-    in >> p->m_date;
-    PresetZone *pz = new PresetZone();
-    in >> pz;
-    p->master = pz;
-    in >> size;
-    for(int i = 0; i < size; i++){
-        PresetLC *plc = new PresetLC();
-        in >> plc;
-        p->addController(plc);
-    }
-
-    return in;
-}
-
-QDataStream &operator<<(QDataStream &out, const Preset *p)
-{
-    out << p->m_name;
-    out << p->m_date;
-    out << p->master;
-    out << p->lcs.size();
-    for(int i = 0; i < p->lcs.size(); i++){
-        out << p->lcs.at(i);
-    }
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, Preset **p){
-    *p = new Preset();
-    in >> p;
-
-    return in;
-}
-
-
-QDataStream &operator<<(QDataStream &out, const Preset **p)
-{
-    return out;
-}
-

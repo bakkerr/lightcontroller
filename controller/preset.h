@@ -20,6 +20,10 @@ public:
     explicit PresetZone(bool enabled = true, QColor color = Qt::blue, bool fade = false, int fadeTime = FADE_VALUE_MS_DEFAULT, bool fixed = false, int brightness = BRIGHT_VALUE_DEFAULT, QObject *parent = 0);
     PresetZone(const PresetZone &pz);
     ~PresetZone() { qDebug() << "destruct PZ?" << endl;}
+
+    void loadSettings(QSettings *s);
+    void saveSettings(QSettings *s);
+
     bool equals(PresetZone *a, PresetZone *b);
 
 //private:
@@ -41,6 +45,9 @@ public:
     PresetLC(const PresetLC &plc);
     ~PresetLC() {qDebug() << "destruct PLC?" << (quint64)(this) << endl;}
 
+    void loadSettings(QSettings *s);
+    void saveSettings(QSettings *s);
+
     PresetZone *zones[5];
     QString m_id;
 
@@ -58,6 +65,9 @@ public:
     Preset(const Preset &p);
     ~Preset() { qDebug() << "destruct P?" << (quint64)(this) << endl;}
 
+    void loadSettings(QSettings *s);
+    void saveSettings(QSettings *s);
+
     bool addController(PresetLC *plc);
     void setName(const QString &name);
 
@@ -70,17 +80,5 @@ public:
 
 
 };
-
-QDataStream &operator<<(QDataStream &out, const PresetZone *z);
-QDataStream &operator>>(QDataStream &in, PresetZone *pz);
-QDataStream &operator<<(QDataStream &out, const PresetLC *plc);
-QDataStream &operator>>(QDataStream &in, PresetLC *plc);
-QDataStream &operator<<(QDataStream &out, const Preset *p);
-QDataStream &operator>>(QDataStream &in, Preset *p);
-QDataStream &operator<<(QDataStream &out, const Preset **p);
-QDataStream &operator>>(QDataStream &in, Preset **p);
-
-Q_DECLARE_METATYPE(Preset)
-
 
 #endif // PRESET_H
