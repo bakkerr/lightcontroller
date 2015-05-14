@@ -18,15 +18,17 @@ class PresetZone : public QObject
 public:
     //explicit PresetZone(QObject *parent = 0);
     explicit PresetZone(bool enabled = true, QColor color = Qt::blue, bool fade = false, int fadeTime = FADE_VALUE_MS_DEFAULT, bool fixed = false, int brightness = BRIGHT_VALUE_DEFAULT, QObject *parent = 0);
+    PresetZone(const PresetZone &pz);
+    ~PresetZone() { qDebug() << "destruct PZ?" << endl;}
     bool equals(PresetZone *a, PresetZone *b);
 
 //private:
     bool m_enabled;
     QColor m_color;
     bool m_fade;
-    int m_fadeTime;
+    qint64 m_fadeTime;
     bool m_fixed;
-    int m_brightness;
+    qint64 m_brightness;
 
 };
 
@@ -36,6 +38,8 @@ class PresetLC : public QObject
 
 public:
     explicit PresetLC(QString id = tr("foo"), QObject *parent = 0);
+    PresetLC(const PresetLC &plc);
+    ~PresetLC() {qDebug() << "destruct PLC?" << (quint64)(this) << endl;}
 
     PresetZone *zones[5];
     QString m_id;
@@ -52,7 +56,7 @@ class Preset : public QObject
 public:
     explicit Preset(QObject *parent = 0);
     Preset(const Preset &p);
-    //~Preset() { }
+    ~Preset() { qDebug() << "destruct P?" << (quint64)(this) << endl;}
 
     bool addController(PresetLC *plc);
     void setName(const QString &name);

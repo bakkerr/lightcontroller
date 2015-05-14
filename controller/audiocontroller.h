@@ -39,7 +39,6 @@ public:
     void loadSettings(QSettings *s);
     void saveSettings(QSettings *s);
 
-
     QMenu *viewAudioMenu;
     QAction *viewAudioGraphAction;
     QAction *viewAudioFFTAction;

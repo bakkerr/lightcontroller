@@ -9,6 +9,7 @@
 PresetZone::PresetZone(bool enabled, QColor color, bool fade, int fadeTime, bool fixed, int brightness, QObject *parent) :
     QObject(parent)
 {
+    qDebug() << "Construct pz" << (quint64)(this) << endl;
     m_enabled = enabled;
     m_color = color;
     m_fade = fade;
@@ -16,6 +17,18 @@ PresetZone::PresetZone(bool enabled, QColor color, bool fade, int fadeTime, bool
     m_fixed = fixed;
     m_brightness = brightness;
 }
+
+PresetZone::PresetZone(const PresetZone &pz)
+{
+    qDebug() << "Construct pz(c)" << (quint64)(this) << endl;
+    m_enabled = pz.m_enabled;
+    m_color = pz.m_color;
+    m_fade = pz.m_fade;
+    m_fadeTime = pz.m_fadeTime;
+    m_fixed = pz.m_fixed;
+    m_brightness = pz.m_brightness;
+}
+
 
 bool PresetZone::equals(PresetZone *a, PresetZone *b)
 {
@@ -30,15 +43,25 @@ bool PresetZone::equals(PresetZone *a, PresetZone *b)
 
 PresetLC::PresetLC(QString id, QObject *parent) :
     QObject(parent)
-
 {
+    qDebug() << "Construct plc" << (quint64)(this) << endl;
     m_id = id;
     //cout << "PLC" << endl;
 }
 
+PresetLC::PresetLC(const PresetLC &plc) :
+    QObject()
+{
+    qDebug() << "Construct plc(c)" << (quint64)(this) << endl;
+    m_id = plc.m_id;
+    for(int i = 0; i < 5; i++){
+        zones[i] = new PresetZone(plc.zones[i]);
+    }
+}
+
 Preset::Preset(QObject *parent) :
     QObject(parent)
-{
+{qDebug() << "Construct p" << (quint64)(this) << endl;
     m_name = QString();
     m_date = QDateTime::currentDateTime();
     //cout << "Preset" << endl;
@@ -46,7 +69,7 @@ Preset::Preset(QObject *parent) :
 
 Preset::Preset(const Preset &p) :
     QObject()
-{
+{ qDebug() << "Construct p(c)" << (quint64)(this) << endl;
     m_date = p.m_date;
     m_name = p.m_name;
     master = p.master;
@@ -123,7 +146,7 @@ QDataStream &operator<<(QDataStream &out, const Preset &p)
     out << *(p.master);
     out << p.lcs.size();
     for(int i = 0; i < p.lcs.size(); i++){
-        out << *(p.lcs.at(i));
+        out << PresetLC(*(p.lcs.at(i)));
     }
 
     return out;

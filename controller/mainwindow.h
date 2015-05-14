@@ -26,10 +26,13 @@ public slots:
 
 private slots:
     void setupControllers(const QStringList &devices, bool setDefaults);
+    void loadSettings();
+    void saveSettings();
+    void clearSettings();
     void getPreset();
     void setPreset(Preset *p);
     void showSettingsDialog();
-    void settingsChanged() { GLOBAL_settingsChanged = true; }
+    void settingsChanged() { qDebug() << "Called" << endl; GLOBAL_settingsChanged = true; }
     void dockAll();
     void about();
 
@@ -38,8 +41,6 @@ private:
     void setupMenuBar();
     void setupToolBar();
     void setupStatusBar();
-    void loadSettings();
-    void saveSettings();
 
     QVBoxLayout l0;
     QHBoxLayout l1;
@@ -59,6 +60,9 @@ private:
     QMenu *editMenu;
     QMenu *viewMenu;
     QMenu *helpMenu;
+
+    QAction *saveSettingsAction;
+    QAction *clearSettingsAction;
 
     QAction *viewStatusBarAction;
     QAction *dockAllAction;

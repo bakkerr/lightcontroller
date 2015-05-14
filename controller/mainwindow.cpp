@@ -66,6 +66,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupActions()
 {
+    saveSettingsAction = new QAction(tr("&Save Settings"), this);
+    connect(saveSettingsAction, SIGNAL(triggered()), this, SLOT(saveSettings()));
+
+    clearSettingsAction = new QAction(tr("&Clear Settings"), this);
+    connect(clearSettingsAction, SIGNAL(triggered()), this, SLOT(clearSettings()));
+
     exitAction = new QAction(tr("E&xit"), this);
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
@@ -91,6 +97,9 @@ void MainWindow::setupMenuBar()
 {
     /* File Menu */
     fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(saveSettingsAction);
+    fileMenu->addAction(clearSettingsAction);
+    fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
 
     /* Edit Menu */
@@ -101,15 +110,12 @@ void MainWindow::setupMenuBar()
     viewMenu = menuBar()->addMenu(tr("&View"));
 
     viewMenu->addAction(masterDockWidget->toggleViewAction());
-    //connect(masterDockWidget->toggleViewAction(), SIGNAL(changed()), this, SLOT(settingsChanged()));
 
     viewMenu->addSeparator();
 
     viewMenu->addMenu(audio->viewAudioMenu);
-    //connect(audio->toggleViewAction(), SIGNAL(toggled(bool)), this, SLOT(settingsChanged()));
 
     viewMenu->addAction(presetController->toggleViewAction());
-    //connect(presetController->toggleViewAction(), SIGNAL(toggled(bool)), this, SLOT(settingsChanged()));
 
     viewMenu->addSeparator();
 
@@ -198,6 +204,8 @@ void MainWindow::loadSettings()
 
     GLOBAL_settingsChanged = false;
 
+    s->sync();
+
 }
 
 void MainWindow::saveSettings()
@@ -226,6 +234,24 @@ void MainWindow::saveSettings()
     s->sync();
 
     GLOBAL_settingsChanged = false;
+}
+
+void MainWindow::clearSettings()
+{
+    QMessageBox::StandardButton mb = QMessageBox::question(this,
+                                                       tr("Clear all settings?"),
+                                                       tr("Do you really want to clear all settings?"),
+                                                       QMessageBox::Yes | QMessageBox::No,
+                                                       QMessageBox::No
+                                                       );
+
+    if(mb == QMessageBox::Yes){
+        QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
+        s->clear();
+        s->sync();
+        GLOBAL_settingsChanged = false;
+    }
+
 }
 
 void MainWindow::setupControllers(const QStringList &devices, bool setDefaults){
@@ -292,7 +318,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
         if(mb == QMessageBox::Yes){
             saveSettings();
-            //event->accept();
         }
     }
 

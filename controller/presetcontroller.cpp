@@ -78,6 +78,8 @@ PresetController::PresetController(QWidget *parent) :
 void PresetController::loadSettings(QSettings *s)
 {
     s->beginGroup(tr("Presets"));
+    setVisible(s->value(tr("Visible"), tr("true")).toBool());
+
     int size = s->beginReadArray(tr("Presets"));
 
     for(int i = 0; i < size; i++){
@@ -92,6 +94,7 @@ void PresetController::loadSettings(QSettings *s)
 void PresetController::saveSettings(QSettings *s)
 {
     s->beginGroup(tr("Presets"));
+    s->setValue(tr("Visible"), isVisible());
     s->beginWriteArray(tr("Presets"));
 
     for(int i = 0; i < m_pList.size(); i++){
