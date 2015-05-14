@@ -71,12 +71,14 @@ public:
 
 };
 
-QDataStream &operator<<(QDataStream &out, const PresetZone &pz);
-QDataStream &operator>>(QDataStream &in, PresetZone &pz);
-QDataStream &operator<<(QDataStream &out, const PresetLC &plc);
-QDataStream &operator>>(QDataStream &in, PresetLC &plc);
-QDataStream &operator<<(QDataStream &out, const Preset &p);
-QDataStream &operator>>(QDataStream &in, Preset &p);
+QDataStream &operator<<(QDataStream &out, const PresetZone *z);
+QDataStream &operator>>(QDataStream &in, PresetZone *pz);
+QDataStream &operator<<(QDataStream &out, const PresetLC *plc);
+QDataStream &operator>>(QDataStream &in, PresetLC *plc);
+QDataStream &operator<<(QDataStream &out, const Preset *p);
+QDataStream &operator>>(QDataStream &in, Preset *p);
+QDataStream &operator<<(QDataStream &out, const Preset **p);
+QDataStream &operator>>(QDataStream &in, Preset **p);
 
 Q_DECLARE_METATYPE(Preset)
 

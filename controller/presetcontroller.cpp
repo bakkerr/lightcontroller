@@ -34,8 +34,10 @@ PresetController::PresetController(QWidget *parent) :
     QDockWidget(tr("Preset Controller"), parent)
 {
 
-  qRegisterMetaType<Preset>("Preset");
-  qRegisterMetaTypeStreamOperators<Preset>("Preset");
+    qRegisterMetaType<Preset*>("Preset*");
+    //qRegisterMetaType<Preset**>("Preset**");
+    qRegisterMetaTypeStreamOperators<Preset*>("Preset*");
+    //qRegisterMetaTypeStreamOperators<Preset**>("Preset**");
 
   m_instanceNum = 0;
 
@@ -84,7 +86,8 @@ void PresetController::loadSettings(QSettings *s)
 
     for(int i = 0; i < size; i++){
         s->setArrayIndex(i);
-        addPreset(new Preset(s->value(tr("Preset")).value<Preset>()));
+        Preset *p = s->value(tr("Preset")).value<Preset*>();
+        addPreset(p);
     }
 
     s->endArray();
@@ -99,7 +102,7 @@ void PresetController::saveSettings(QSettings *s)
 
     for(int i = 0; i < m_pList.size(); i++){
         s->setArrayIndex(i);
-        s->setValue(tr("Preset"), QVariant::fromValue(*(m_pList.at(i))));
+        s->setValue(tr("Preset"), QVariant::fromValue(m_pList.at(i)));
     }
 
     s->endArray();
