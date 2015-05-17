@@ -163,10 +163,8 @@ void SingleController::contextMenu(const QPoint &x)
     myMenu.addSeparator();
     QAction *setNameAction = myMenu.addAction(tr("Change name"));
 
-
     connect(setNameAction, SIGNAL(triggered()), this, SLOT(setName()));
 
-    //QAction * selected =
     myMenu.exec(gp);
 }
 
@@ -209,11 +207,13 @@ void SingleController::setPreset(PresetZone *p, bool set)
 void SingleController::loadSettings(QSettings *s)
 {
     setName(s->value(tr("name"), tr("Zone ") + QString::number(m_zone)).toString());
+    viewControllerAction->setChecked(s->value(tr("visible"), tr("true")).toBool());
 }
 
 void SingleController::saveSettings(QSettings *s)
 {
     s->setValue(tr("name"), m_name);
+    s->setValue(tr("visible"), isVisible());
 }
 
 void SingleController::setName()
@@ -233,10 +233,10 @@ void SingleController::setName(QString name)
     QString displayName;
 
     if(m_zone == 255){
-        displayName = tr("[M] ") + m_name;
+        displayName = tr("[") + tr(LC_RGB_ZONE_PREFIX) + tr("0] ") + m_name;
     }
     else{
-        displayName = tr("[Z") + QString::number(m_zone) + tr("] ") + m_name;
+        displayName = tr("[") + tr(LC_RGB_ZONE_PREFIX) + QString::number(m_zone) + tr("] ") + m_name;
     }
     m_groupBox->setTitle(displayName);
     viewControllerAction->setText(displayName);

@@ -70,6 +70,10 @@ Preset::Preset(QObject *parent) :
 bool Preset::addController(PresetLC *plc)
 {
     plc->setParent(this);
+    for(int i = 0; i < 5; i++){
+        plc->zones[i]->setParent(plc);
+    }
+
     lcs.append(plc);
 
     return true;

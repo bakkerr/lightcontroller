@@ -66,8 +66,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupActions()
 {
-    saveSettingsAction = new QAction(tr("&Save Settings"), this);
+    saveSettingsAction = new QAction(tr("&Save Settings as \"") + tr(DEFAULT_SAVE_NAME) + tr("\""), this);
     connect(saveSettingsAction, SIGNAL(triggered()), this, SLOT(saveSettings()));
+
+    saveSettingsAsAction = new QAction(tr("&Save Settings as..."), this);
+    connect(saveSettingsAsAction, SIGNAL(triggered()), this, SLOT(saveSettingsAs()));
 
     clearSettingsAction = new QAction(tr("&Clear Settings"), this);
     connect(clearSettingsAction, SIGNAL(triggered()), this, SLOT(clearSettings()));
@@ -98,6 +101,7 @@ void MainWindow::setupMenuBar()
     /* File Menu */
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(saveSettingsAction);
+    fileMenu->addAction(saveSettingsAsAction);
     fileMenu->addAction(clearSettingsAction);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
@@ -174,13 +178,16 @@ void MainWindow::setupStatusBar()
                              , 0);
 }
 
-void MainWindow::loadSettings()
+void MainWindow::loadSettings(QString settingsName)
 {
     QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
 
-    s->beginGroup(tr("MainWindow"));
+    s->beginGroup(settingsName);
 
-    master->setName(s->value(tr("MasterControllerName"), tr("Master")).toString());
+    s->beginGroup(tr("MasterController"));
+    master->setName(s->value(tr("name"), tr("Master")).toString());
+    master->setVisible(s->value(tr("visible"), tr("true")).toBool());
+    s->endGroup();
 
     int size = s->beginReadArray(tr("LightControllers"));
 
@@ -208,13 +215,23 @@ void MainWindow::loadSettings()
 
 }
 
-void MainWindow::saveSettings()
+void MainWindow::saveSettings(QString settingsName)
 {
     QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
-    s->beginGroup(tr("MainWindow"));
-    s->setValue(tr("MasterControllerName"), master->name());
-    s->setValue(tr("MasterControllerVisible"), master->isVisible());
+    s->beginGroup(settingsName);
 
+    s->beginGroup(tr("Info"));
+    s->setValue(tr("version"), tr(APPLICATION_VERSION));
+#if defined(__DATE__) && defined(__TIME__)
+    s->setValue(tr("build_date"), tr(__DATE__) + tr(" ") + tr(__TIME__));
+#endif
+    s->setValue(tr("saved"), QDateTime::currentDateTime());
+    s->endGroup();
+
+    s->beginGroup(tr("MasterController"));
+    s->setValue(tr("name"), master->name());
+    s->setValue(tr("visible"), master->isVisible());
+    s->endGroup();
 
     s->beginWriteArray(tr("LightControllers"));
 
@@ -229,6 +246,12 @@ void MainWindow::saveSettings()
 
     audio->saveSettings(s);
 
+    //s->beginGroup(tr("Preset"));
+    //Preset *p = getPreset();
+    //p->saveSettings(s);
+    //s->endGroup();
+
+    /* End settings and sync */
     s->endGroup();
 
     s->sync();
@@ -236,14 +259,38 @@ void MainWindow::saveSettings()
     GLOBAL_settingsChanged = false;
 }
 
+void MainWindow::saveSettingsAs()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Set name"), tr("Name:"), QLineEdit::Normal, tr(""), &ok);
+    if(ok){
+        if(name.isEmpty()){
+            saveSettingsAs();
+            return;
+        }
+        QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
+        if(s->childGroups().contains(name)){
+            QMessageBox::StandardButton mb = QMessageBox::question(this,
+                tr("Overwrite settings?"),
+                tr("Settings with the name \"") + name + tr("\" already exist. Do you want to overwrite them?"),
+                QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::No);
+            if(mb == QMessageBox::No){
+                return;
+            }
+        }
+
+        saveSettings(name);
+    }
+}
+
 void MainWindow::clearSettings()
 {
     QMessageBox::StandardButton mb = QMessageBox::question(this,
-                                                       tr("Clear all settings?"),
-                                                       tr("Do you really want to clear all settings?"),
-                                                       QMessageBox::Yes | QMessageBox::No,
-                                                       QMessageBox::No
-                                                       );
+        tr("Clear all settings?"),
+        tr("Do you really want to clear all settings?"),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No);
 
     if(mb == QMessageBox::Yes){
         QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
@@ -311,7 +358,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if(GLOBAL_settingsChanged){
         QMessageBox::StandardButton mb = QMessageBox::question(this,
                                                            tr("Save settings before closing?"),
-                                                           tr("Some settings were modified. Do you want to save these settings?"),
+                                                           tr("Some settings were modified. Do you want to save these settings to \"") + tr(DEFAULT_SAVE_NAME) + tr("\"?"),
                                                            QMessageBox::Yes | QMessageBox::No,
                                                            QMessageBox::No
                                                            );

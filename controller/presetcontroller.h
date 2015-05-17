@@ -21,7 +21,7 @@ class PresetController : public QDockWidget
 
 public:
     PresetController(QWidget *parent = 0);
-    ~PresetController();
+
     void loadSettings(QSettings *s);
     void saveSettings(QSettings *s);
 

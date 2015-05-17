@@ -6,7 +6,7 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
     m_id = id;
     m_ip = ip;
     m_num = num;
-    m_name = tr("[LC") + QString::number(m_num) + tr("] Controller ") + QString::number(m_num);
+    m_name = tr(LC_DEFAULT_NAME) + tr(" ") + QString::number(m_num);
 
     /* Main Widget. */
     m_mainWidget = new QWidget();
@@ -39,10 +39,10 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
 
         /* Create controller, set title to Master / Zone. */
         if(i == 0){
-            zones[i] = new SingleController(tr("Controller Master"), i, this);
+            zones[i] = new SingleController(tr(LC_RGB_MASTER_NAME), i, this);
         }
         else{
-            zones[i] = new SingleController(tr("Zone %0").arg(QString::number(i)), i, this);
+            zones[i] = new SingleController(tr(LC_RGB_ZONE_NAME) + tr(" ") + QString::number(i), i, this);
         }
 
         /* Connect signals to UPD Sender if it is not a Dummy. */
@@ -80,7 +80,7 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
     /* Set the layout to the main Widget. */
     m_mainWidget->setLayout(m_mainLayout);
 
-    setWindowTitle(m_name);
+    setName(m_name);
 
     /* Set the main Widget. */
     setWidget(m_mainWidget);
@@ -173,10 +173,8 @@ void LightController::setName()
 
 void LightController::setName(QString name)
 {
-    if(m_name == name) return;
-
     m_name = name;
-    QString displayName = tr("[LC") + QString::number(m_num) + tr("] ") + m_name;
+    QString displayName = tr("[") + tr(LC_PREFIX) + QString::number(m_num) + tr("] ") + m_name;
     this->setWindowTitle(displayName);
     this->toggleViewAction()->setText(displayName);
     viewControllerMenu->setTitle(displayName);

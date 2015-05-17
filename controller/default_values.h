@@ -10,6 +10,9 @@
 #define APPLICATION_YEAR          "2015"
 #define APPLICATION_URL           "http://github.com/bakkerr/lightcontroller"
 
+#define DEFAULT_SAVE_NAME         "default"
+
+
 
 #define MILIGHT_PORT_DEFAULT            8899
 #define MILIGHT_PORT_DISCOVER          48899
@@ -17,6 +20,17 @@
 
 #define BRIGHT_VALUE_DEFAULT              19
 
+#define MASTER_CONTROLLER_NAME    "Master Controller"
+#define MASTER_CONTROLLER_PREFIX  "M"
+#define PRESET_CONTROLLER_NAME    "Preset Controller"
+
+#define LC_DEFAULT_NAME           "Light Controller"
+#define LC_PREFIX                 "LC"
+#define LC_RGB_MASTER_NAME        "Controller Master"
+#define LC_RGB_ZONE_NAME          "Zone"
+#define LC_RGB_ZONE_PREFIX        "Z"
+
+#define AUDIO_CONTROLLER_NAME   "Audio Controller"
 #define AUDIO_THRESHOLD_DEFAULT           80
 #define AUDIO_THRESHOLD_MAX              128
 #define AUDIO_THRESHOLD_MIN                0

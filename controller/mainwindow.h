@@ -26,8 +26,9 @@ public slots:
 
 private slots:
     void setupControllers(const QStringList &devices, bool setDefaults);
-    void loadSettings();
-    void saveSettings();
+    void loadSettings(QString settingsName = tr(DEFAULT_SAVE_NAME));
+    void saveSettings(QString settingsName = tr(DEFAULT_SAVE_NAME));
+    void saveSettingsAs();
     void clearSettings();
     void getPreset();
     void setPreset(Preset *p);
@@ -62,6 +63,7 @@ private:
     QMenu *helpMenu;
 
     QAction *saveSettingsAction;
+    QAction *saveSettingsAsAction;
     QAction *clearSettingsAction;
 
     QAction *viewStatusBarAction;

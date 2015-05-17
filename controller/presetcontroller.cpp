@@ -41,14 +41,14 @@ PresetController::PresetController(QWidget *parent) :
 
 void PresetController::loadSettings(QSettings *s)
 {
-    s->beginGroup(tr("Presets"));
-    setVisible(s->value(tr("Visible"), tr("true")).toBool());
+    s->beginGroup(tr("PresetController"));
+    setVisible(s->value(tr("visible"), tr("true")).toBool());
 
     int size = s->beginReadArray(tr("Presets"));
 
     for(int i = 0; i < size; i++){
         s->setArrayIndex(i);
-        Preset *p = new Preset();
+        Preset *p = new Preset(this);
         p->loadSettings(s);
         addPreset(p);
     }
@@ -59,8 +59,8 @@ void PresetController::loadSettings(QSettings *s)
 
 void PresetController::saveSettings(QSettings *s)
 {
-    s->beginGroup(tr("Presets"));
-    s->setValue(tr("Visible"), isVisible());
+    s->beginGroup(tr("PresetController"));
+    s->setValue(tr("visible"), isVisible());
     s->beginWriteArray(tr("Presets"));
 
     for(int i = 0; i < m_pList.size(); i++){
@@ -138,9 +138,3 @@ void PresetController::cellClicked(int row, int column)
         break;
     }
 }
-
-PresetController::~PresetController()
-{
-
-}
-

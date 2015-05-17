@@ -161,18 +161,18 @@ void audioController::createViewMenu()
 void audioController::loadSettings(QSettings *s)
 {
     s->beginGroup("AudioController");
-    setVisible(s->value(tr("Visible"), tr("true")).toBool());
-    viewAudioGraphAction->setChecked(s->value(tr("AudioGraphVisible"), tr("true")).toBool());
-    viewAudioFFTAction->setChecked(s->value(tr("FFTDisplayVisible"), tr("true")).toBool());
+    setVisible(s->value(tr("visible"), tr("true")).toBool());
+    viewAudioGraphAction->setChecked(s->value(tr("displayGraph"), tr("true")).toBool());
+    viewAudioFFTAction->setChecked(s->value(tr("displayFFT"), tr("true")).toBool());
     s->endGroup();
 }
 
 void audioController::saveSettings(QSettings *s)
 {
     s->beginGroup("AudioController");
-    s->setValue(tr("Visible"), isVisible());
-    s->setValue(tr("AudioGraphVisible"), viewAudioGraphAction->isChecked());
-    s->setValue(tr("FFTDisplayVisible"), viewAudioFFTAction->isChecked());
+    s->setValue(tr("visible"), isVisible());
+    s->setValue(tr("displayGraph"), viewAudioGraphAction->isChecked());
+    s->setValue(tr("displayFFT"), viewAudioFFTAction->isChecked());
     s->endGroup();
 }
 
