@@ -7,29 +7,13 @@
 #include <QPushButton>
 #include <QDockWidget>
 #include <QAbstractTableModel>
-#include <QTableView>
+#include <QTableWidget>
 
 #include <QMessageBox>
 
 #include "default_values.h"
 #include "settings.h"
 #include "preset.h"
-
-/*class PresetModel : public QStandardItemModel
-{
-    Q_OBJECT
-
-public:
-    PresetModel(QObject *parent = 0);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-
-private:
-    int m_numRows;
-
-
-};*/
 
 class PresetController : public QDockWidget
 {
@@ -47,13 +31,12 @@ signals:
 
 private slots:
     void addPreset(Preset *p);
-    void dataChanged(const QModelIndex &tl, const QModelIndex &br);
-    void cellClicked(const QModelIndex mi);
+    void cellChanged(int row, int column);
+    void cellClicked(int row, int column);
 
 private:
     int m_instanceNum;
-    QStandardItemModel *m_pm;
-    QTableView *m_lv;
+    QTableWidget *m_tw;
 
     QList<Preset*> m_pList;
 

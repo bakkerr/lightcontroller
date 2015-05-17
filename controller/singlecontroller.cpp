@@ -192,14 +192,14 @@ void SingleController::setPreset(PresetZone *p, bool set)
             this->setColorExt(p->m_color);
         }
         setBrightExt(p->m_brightness);
-        m_fadeBox->setEnabled(p->m_fade);
+        m_fadeBox->setChecked(p->m_fade);
     }
     else{
         m_brightSlider->blockSignals(true);
         m_brightSlider->setValue(p->m_brightness);
         m_brightSlider->blockSignals(false);
         m_fadeBox->blockSignals(true);
-        m_fadeBox->setEnabled(p->m_fade);
+        m_fadeBox->setChecked(p->m_fade);
         m_fadeBox->blockSignals(false);
         m_wheel->setColor(p->m_color);
         if(set) setState(false);

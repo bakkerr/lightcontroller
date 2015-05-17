@@ -1,35 +1,5 @@
 #include "presetcontroller.h"
 
-/*
-PresetModel::PresetModel(QObject *parent) :
-    QStandardItemModel(parent)
-{
-  m_numRows = 0;
-}
-
-int PresetModel::rowCount(const QModelIndex &) const
-{
-   return m_numRows;
-}
-
-int PresetModel::columnCount(const QModelIndex &) const
-{
-    return 3;
-}
-
-QVariant PresetModel::data(const QModelIndex &index, int role) const
-{
-    if (role == Qt::DisplayRole)
-    {
-       return QString("Row%1, Column%2")
-                   .arg(index.row() + 1)
-                   .arg(index.column() +1);
-    }
-    return QVariant();
-}
-*/
-
-
 PresetController::PresetController(QWidget *parent) :
     QDockWidget(tr("Preset Controller"), parent)
 {
@@ -41,26 +11,24 @@ PresetController::PresetController(QWidget *parent) :
 
   m_createPreset = new QPushButton(tr("Create"), this);
 
-  m_pm = new QStandardItemModel(0, 3, this);
+  m_tw = new QTableWidget(0, 3, this);
 
   QStringList header;
   header.append(tr("Name"));
   header.append(tr("SET"));
   header.append(tr("DEL"));
-  m_pm->setHorizontalHeaderLabels(header);
+  m_tw->setHorizontalHeaderLabels(header);
 
-  m_lv = new QTableView(this);
-  m_lv->setModel(m_pm);
-  m_lv->setColumnWidth(0, 120);
-  m_lv->setColumnWidth(1, 36);
-  m_lv->setColumnWidth(2, 36);
+  m_tw->setColumnWidth(0, 120);
+  m_tw->setColumnWidth(1, 36);
+  m_tw->setColumnWidth(2, 36);
 
   l1->addWidget(m_createPreset);
-  l1->addWidget(m_lv);
+  l1->addWidget(m_tw);
 
   connect(m_createPreset, SIGNAL(clicked()), this, SIGNAL(createPreset()));
-  connect(m_lv, SIGNAL(clicked(QModelIndex)), this, SLOT(cellClicked(QModelIndex)));
-  connect(m_pm, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+  connect(m_tw, SIGNAL(cellClicked(int, int)), this, SLOT(cellClicked(int, int)));
+  connect(m_tw, SIGNAL(cellChanged(int, int)), this, SLOT(cellChanged(int, int)));
 
   mw->setLayout(l1);
 
@@ -112,56 +80,44 @@ void PresetController::addPreset(Preset *p){
 
     m_pList.append(p);
 
-    QList<QStandardItem*> newRow;
-
     if(p->m_name == QString()){
         p->m_name = tr("Preset ") + QString::number(m_instanceNum);
     }
 
-    QStandardItem *name = new QStandardItem(p->m_name);
-    QStandardItem *set  = new QStandardItem(tr("set"));
-    QStandardItem *del  = new QStandardItem(tr("del"));
+    QTableWidgetItem *name = new QTableWidgetItem(p->m_name);
+    QTableWidgetItem *set  = new QTableWidgetItem(tr("set"));
+    QTableWidgetItem *del  = new QTableWidgetItem(tr("del"));
     name->setToolTip(tr("Preset saved on ") + p->m_date.toString(tr("dd-MM-yyyy hh:mm:ss")));
-    set->setEditable(false);
+    set->setFlags(set->flags() & ~Qt::ItemIsEditable);
     set->setTextAlignment(Qt::AlignCenter);
-    del->setEditable(false);
+    del->setFlags(del->flags() & ~Qt::ItemIsEditable);
     del->setTextAlignment(Qt::AlignCenter);
 
-    newRow.append(name);
-    newRow.append(set);
-    newRow.append(del);
-
-    m_pm->appendRow(newRow);
+    int row = m_tw->rowCount();
+    m_tw->insertRow(row);
+    m_tw->setItem(row, 0, name);
+    m_tw->setItem(row, 1, set);
+    m_tw->setItem(row, 2, del);
 
     GLOBAL_settingsChanged = true;
 }
 
-void PresetController::dataChanged(const QModelIndex &tl, const QModelIndex &br)
+void PresetController::cellChanged(int row, int column)
 {
-    qDebug() << "Called..." << endl;
 
-    if(tl.row() != br.row() || tl.column() != tl.column()){
-        qDebug() << "Editing of multiple cells is not supported..." << endl;
-        return;
-    }
-
-    if(tl.column() != 0){
+    if(column != 0){
         qDebug() << "Other column than column 0 changed??? Confused..." << endl;
         return;
     }
 
-    int row = tl.row();
-
-    m_pList.at(row)->setName(m_pm->data(tl).toString());
+    m_pList.at(row)->setName(m_tw->item(row, column)->text());
 
 }
 
-void PresetController::cellClicked(QModelIndex mi)
+void PresetController::cellClicked(int row, int column)
 {
-    int col = mi.column();
-    int row = mi.row();
 
-    switch(col){
+    switch(column){
       case 0:
         break;
       case 1:
@@ -178,7 +134,7 @@ void PresetController::cellClicked(QModelIndex mi)
 
         if(mb == QMessageBox::Yes){
             m_pList.removeAt(row);
-            m_pm->removeRow(row);
+            m_tw->removeRow(row);
             GLOBAL_settingsChanged = true;
         }
         break;

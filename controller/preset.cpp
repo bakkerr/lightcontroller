@@ -24,7 +24,7 @@ PresetZone::PresetZone(const PresetZone &pz) :
 
 void PresetZone::loadSettings(QSettings *s){
     m_enabled = s->value(tr("enabled"), tr("true")).toBool();
-    m_color = s->value(tr("color"), QVariant(QColor(Qt::blue))).value<QColor>();
+    m_color = s->value(tr("color"), QColor(Qt::blue)).value<QColor>();
     m_fade = s->value(tr("fade"), tr("false")).toBool();
     m_fadeTime = s->value(tr("fadeTime"), tr("10000")).toInt();
     m_fixed = s->value(tr("fixed"), tr("false")).toBool();
@@ -62,6 +62,7 @@ void PresetLC::loadSettings(QSettings *s)
     int size = s->beginReadArray(tr("zones"));
     if(size != 5) abort();
     for(int i = 0; i < 5; i++){
+        s->setArrayIndex(i);
         zones[i] = new PresetZone(this);
         zones[i]->loadSettings(s);
     }
