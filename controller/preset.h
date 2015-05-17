@@ -16,9 +16,7 @@ class PresetZone : public QObject
     Q_OBJECT
 
 public:
-    //explicit PresetZone(QObject *parent = 0);
     explicit PresetZone(bool enabled = true, QColor color = Qt::blue, bool fade = false, int fadeTime = FADE_VALUE_MS_DEFAULT, bool fixed = false, int brightness = BRIGHT_VALUE_DEFAULT, QObject *parent = 0);
-    PresetZone(const PresetZone &pz);
 
     void loadSettings(QSettings *s);
     void saveSettings(QSettings *s);
@@ -41,7 +39,6 @@ class PresetLC : public QObject
 
 public:
     explicit PresetLC(QString id = tr("foo"), QObject *parent = 0);
-    PresetLC(const PresetLC &plc);
 
     void loadSettings(QSettings *s);
     void saveSettings(QSettings *s);
@@ -60,7 +57,6 @@ class Preset : public QObject
 
 public:
     explicit Preset(QObject *parent = 0);
-    Preset(const Preset &p);
 
     void loadSettings(QSettings *s);
     void saveSettings(QSettings *s);
@@ -74,7 +70,6 @@ public:
 //private:
     PresetZone *master;
     QVector<PresetLC*> lcs;
-
 
 };
 

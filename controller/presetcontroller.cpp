@@ -104,14 +104,9 @@ void PresetController::addPreset(Preset *p){
 
 void PresetController::cellChanged(int row, int column)
 {
-
-    if(column != 0){
-        qDebug() << "Other column than column 0 changed??? Confused..." << endl;
-        return;
+    if(column == 0){
+        m_pList.at(row)->setName(m_tw->item(row, column)->text());
     }
-
-    m_pList.at(row)->setName(m_tw->item(row, column)->text());
-
 }
 
 void PresetController::cellClicked(int row, int column)
@@ -139,7 +134,7 @@ void PresetController::cellClicked(int row, int column)
         }
         break;
       }
-      case 3:
+      default:
         break;
     }
 }
