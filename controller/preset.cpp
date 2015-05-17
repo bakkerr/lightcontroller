@@ -1,15 +1,8 @@
 #include "preset.h"
 
-/*PresetZone::PresetZone(QObject *parent)
-
-{
-   m_enabled = false;
-}*/
-
 PresetZone::PresetZone(bool enabled, QColor color, bool fade, int fadeTime, bool fixed, int brightness, QObject *parent) :
     QObject(parent)
 {
-    qDebug() << "Construct pz" << (quint64)(this) << endl;
     m_enabled = enabled;
     m_color = color;
     m_fade = fade;
@@ -21,7 +14,6 @@ PresetZone::PresetZone(bool enabled, QColor color, bool fade, int fadeTime, bool
 PresetZone::PresetZone(const PresetZone &pz) :
     QObject()
 {
-    qDebug() << "Construct pz(c)" << (quint64)(this) << endl;
     m_enabled = pz.m_enabled;
     m_color = pz.m_color;
     m_fade = pz.m_fade;
@@ -32,7 +24,7 @@ PresetZone::PresetZone(const PresetZone &pz) :
 
 void PresetZone::loadSettings(QSettings *s){
     m_enabled = s->value(tr("enabled"), tr("true")).toBool();
-    m_color = s->value(tr("color"), QVariant(Qt::blue)).value<QColor>();
+    m_color = s->value(tr("color"), QVariant(QColor(Qt::blue))).value<QColor>();
     m_fade = s->value(tr("fade"), tr("false")).toBool();
     m_fadeTime = s->value(tr("fadeTime"), tr("10000")).toInt();
     m_fixed = s->value(tr("fixed"), tr("false")).toBool();
@@ -49,29 +41,15 @@ void PresetZone::saveSettings(QSettings *s)
     s->setValue(tr("brightness"), m_brightness);
 }
 
-bool PresetZone::equals(PresetZone *a, PresetZone *b)
-{
-    return(
-      (a->m_enabled    == b->m_enabled)    &&
-      (a->m_color      == b->m_color)      &&
-      (a->m_fade       == b->m_fade)       &&
-      (a->m_fadeTime   == b->m_fadeTime)   &&
-      (a->m_fixed      == b->m_fixed)      &&
-      (a->m_brightness == b->m_brightness) );
-}
-
 PresetLC::PresetLC(QString id, QObject *parent) :
     QObject(parent)
-{
-    qDebug() << "Construct plc" << (quint64)(this) << endl;
+{   
     m_id = id;
-    //cout << "PLC" << endl;
 }
 
 PresetLC::PresetLC(const PresetLC &plc) :
     QObject()
 {
-    qDebug() << "Construct plc(c)" << (quint64)(this) << endl;
     m_id = plc.m_id;
     for(int i = 0; i < 5; i++){
         zones[i] = new PresetZone(plc.zones[i]);
@@ -103,15 +81,14 @@ void PresetLC::saveSettings(QSettings *s)
 
 Preset::Preset(QObject *parent) :
     QObject(parent)
-{qDebug() << "Construct p" << (quint64)(this) << endl;
+{
     m_name = QString();
     m_date = QDateTime::currentDateTime();
-    //cout << "Preset" << endl;
 }
 
 Preset::Preset(const Preset &p) :
     QObject()
-{ qDebug() << "Construct p(c)" << (quint64)(this) << endl;
+{
     m_date = p.m_date;
     m_name = p.m_name;
     master = p.master;
