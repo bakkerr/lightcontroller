@@ -43,7 +43,7 @@ public:
     void loadSettings(QSettings *s);
     void saveSettings(QSettings *s);
 
-    PresetZone *zones[5];
+    PresetZone *RGBzones[5];
     QString m_id;
 
 private:

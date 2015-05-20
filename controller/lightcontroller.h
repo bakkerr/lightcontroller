@@ -13,7 +13,8 @@
 
 #include "default_values.h"
 #include "settings.h"
-#include "singlecontroller.h"
+#include "rgbcontroller.h"
+#include "whitecontroller.h"
 #include "preset.h"
 #include "milightupdsender.h"
 
@@ -35,7 +36,8 @@ public:
     void saveSettings(QSettings *s);
 
     /* Five zones for each contoller, the controller master and 4 zones. */
-    SingleController *zones[5];
+    RGBController *RGBzones[5];
+    WhiteController *WhiteZones[5];
 
     /* Actions to show/hide and create the menu. */
     QMenu *viewControllerMenu;
@@ -74,12 +76,17 @@ private:
     QString m_name;
 
     QWidget *m_mainWidget;
+    QWidget *m_rgbWidget;
+    QWidget *m_whiteWidget;
+
+    QAction *m_viewRGBAction;
+    QAction *m_viewWhiteAction;
 
     /* The connected UPD sender for this controller. */
     MiLightUPDsender *m_udp;
 
     /* Main layout */
-    QHBoxLayout *m_mainLayout;
+    QVBoxLayout *m_mainLayout;
 
 };
 

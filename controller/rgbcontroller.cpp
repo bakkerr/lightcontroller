@@ -1,6 +1,6 @@
-#include "singlecontroller.h"
+#include "rgbcontroller.h"
 
-SingleController::SingleController(QString name, unsigned char z, QWidget *parent) :
+RGBController::RGBController(QString name, unsigned char z, QWidget *parent) :
     QWidget(parent)
 {
     m_zone = z;
@@ -22,14 +22,15 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
     this->setLayout(m_mainLayout);
 }
 
-SingleController::~SingleController()
+RGBController::~RGBController()
 {
     delete m_wheel;
 }
 
-void SingleController::setupLayout()
+void RGBController::setupLayout()
 {
     m_mainLayout = new QHBoxLayout();
+    m_mainLayout->setContentsMargins(0, 0, 0, 0);
 
     m_groupBox = new QGroupBox(m_name, this);
     m_groupBox->setCheckable(true);
@@ -153,7 +154,7 @@ void SingleController::setupLayout()
     m_mainLayout->addWidget(m_groupBox, 0, Qt::AlignTop | Qt::AlignLeft);
 }
 
-void SingleController::contextMenu(const QPoint &x)
+void RGBController::contextMenu(const QPoint &x)
 {
     QPoint gp = m_groupBox->mapToGlobal(x);
 
@@ -168,12 +169,12 @@ void SingleController::contextMenu(const QPoint &x)
     myMenu.exec(gp);
 }
 
-PresetZone * SingleController::getPreset()
+PresetZone * RGBController::getPreset()
 {
     return new PresetZone(m_groupBox->isChecked(), m_wheel->color(), m_fadeBox->isChecked(), m_fadeSlider->value(), m_fixed, m_brightSlider->value(), this);
 }
 
-void SingleController::setPreset(PresetZone *p, bool set)
+void RGBController::setPreset(PresetZone *p, bool set)
 {
 
     m_fixedBox->setChecked(p->m_fixed);
@@ -204,19 +205,19 @@ void SingleController::setPreset(PresetZone *p, bool set)
     }
 }
 
-void SingleController::loadSettings(QSettings *s)
+void RGBController::loadSettings(QSettings *s)
 {
     setName(s->value(tr("name"), tr("Zone ") + QString::number(m_zone)).toString());
     viewControllerAction->setChecked(s->value(tr("visible"), tr("true")).toBool());
 }
 
-void SingleController::saveSettings(QSettings *s)
+void RGBController::saveSettings(QSettings *s)
 {
     s->setValue(tr("name"), m_name);
     s->setValue(tr("visible"), isVisible());
 }
 
-void SingleController::setName()
+void RGBController::setName()
 {
     bool ok;
     QString name = QInputDialog::getText(this, tr("Set name"), tr("Name:"), QLineEdit::Normal, m_name, &ok);
@@ -225,7 +226,7 @@ void SingleController::setName()
     }
 }
 
-void SingleController::setName(QString name)
+void RGBController::setName(QString name)
 {
     if(m_name == name) return;
 
@@ -245,7 +246,7 @@ void SingleController::setName(QString name)
 
 }
 
-void SingleController::setState(bool state)
+void RGBController::setState(bool state)
 {
     if(state){
         updateOn();
@@ -257,7 +258,7 @@ void SingleController::setState(bool state)
     }
 }
 
-void SingleController::toggleFade(bool state){
+void RGBController::toggleFade(bool state){
     if(state){
         m_fadeTimer->start();
         if(!m_fixed) emit fadeEnabled();
@@ -267,13 +268,13 @@ void SingleController::toggleFade(bool state){
     }
 }
 
-void SingleController::enableFade()
+void RGBController::enableFade()
 {
     toggleFade(true);
     m_fadeBox->setChecked(true);
 }
 
-void SingleController::disableFade()
+void RGBController::disableFade()
 {
     if(!m_fixed){
         toggleFade(false);
@@ -281,26 +282,26 @@ void SingleController::disableFade()
     }
 }
 
-void SingleController::setFadeTime(int msec)
+void RGBController::setFadeTime(int msec)
 {
     m_fadeTimer->setInterval(msec);
 }
 
-void SingleController::fade(int n)
+void RGBController::fade(int n)
 {
     QColor c = m_wheel->color();
     c.setHsv((c.hue() + n) % 360, 0, 0);
     m_wheel->changeColor(c);
 }
 
-void SingleController::setRandom()
+void RGBController::setRandom()
 {
     QColor c;
     c.setHsv(rand() % 360, 0, 0);
     m_wheel->changeColor(c);
 }
 
-void SingleController::setOnExt()
+void RGBController::setOnExt()
 {
     if(m_fixed) return;
 
@@ -309,7 +310,7 @@ void SingleController::setOnExt()
     setState(true);
 }
 
-void SingleController::setOffExt()
+void RGBController::setOffExt()
 {
     if(m_fixed) return;
 
@@ -319,7 +320,7 @@ void SingleController::setOffExt()
 }
 
 
-void SingleController::setColorExt(const QColor &color)
+void RGBController::setColorExt(const QColor &color)
 {
     if(m_fixed) return;
 
@@ -329,7 +330,7 @@ void SingleController::setColorExt(const QColor &color)
     setColor(color);
 }
 
-void SingleController::setWhiteExt()
+void RGBController::setWhiteExt()
 {
     if(m_fixed) return;
 
@@ -339,7 +340,7 @@ void SingleController::setWhiteExt()
     setWhite();
 }
 
-void SingleController::setBrightExt(unsigned char value){
+void RGBController::setBrightExt(unsigned char value){
     if(m_fixed) return;
 
     m_groupBox->setChecked(true);
@@ -349,7 +350,7 @@ void SingleController::setBrightExt(unsigned char value){
 }
 
 
-void SingleController::setRandomExt()
+void RGBController::setRandomExt()
 {
     if(m_fixed) return;
 
@@ -358,7 +359,7 @@ void SingleController::setRandomExt()
     setRandom();
 }
 
-void SingleController::updateColor(const QColor &color)
+void RGBController::updateColor(const QColor &color)
 {
     if(m_fixed) return;
 
@@ -367,7 +368,7 @@ void SingleController::updateColor(const QColor &color)
     m_wheel->setColor(color);
 }
 
-void SingleController::updateBright(unsigned char value)
+void RGBController::updateBright(unsigned char value)
 {
     if(m_fixed) return;
 
@@ -378,7 +379,7 @@ void SingleController::updateBright(unsigned char value)
     m_brightSlider->blockSignals(false);
 }
 
-void SingleController::updateWhite()
+void RGBController::updateWhite()
 {
     if(m_fixed) return;
 
@@ -387,7 +388,7 @@ void SingleController::updateWhite()
     m_wheel->setInnerColor(Qt::white);
 }
 
-void SingleController::updateOn()
+void RGBController::updateOn()
 {
     if(m_fixed) return;
 
@@ -398,7 +399,7 @@ void SingleController::updateOn()
 
 }
 
-void SingleController::updateOff()
+void RGBController::updateOff()
 {
     if(m_fixed) return;
 

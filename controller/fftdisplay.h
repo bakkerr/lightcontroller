@@ -6,7 +6,8 @@
 #include <QAudioInput>
 
 #include "cmath"
-#include "../libbeat/beatcontroller.h"
+
+#include "beatcontroller.h"
 
 class FFTDisplay : public QWidget
 {

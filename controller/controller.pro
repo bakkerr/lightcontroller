@@ -15,8 +15,8 @@ DEPENDPATH  += ../libbeat
 INCLUDEPATH += ../libbeat
 
 SOURCES += main.cpp\
-        lightcontroller.cpp \
-    singlecontroller.cpp \
+    lightcontroller.cpp \
+    rgbcontroller.cpp \
     milightupdsender.cpp \
     colorwheel.cpp \
     audiocontroller.cpp \
@@ -26,10 +26,11 @@ SOURCES += main.cpp\
     fftdisplay.cpp \
     presetcontroller.cpp \
     preset.cpp \
-    settings.cpp
+    settings.cpp \
+    whitecontroller.cpp
 
 HEADERS  += lightcontroller.h \
-    singlecontroller.h \
+    rgbcontroller.h \
     milightupdsender.h \
     colorwheel.h \
     audiocontroller.h \
@@ -41,6 +42,7 @@ HEADERS  += lightcontroller.h \
     fftdisplay.h \
     presetcontroller.h \
     preset.h \
-    settings.h
+    settings.h \
+    whitecontroller.h
 
 LIBS += -L../libbeat/ -lbeat

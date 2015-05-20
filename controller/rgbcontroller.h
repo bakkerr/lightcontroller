@@ -1,5 +1,5 @@
-#ifndef SINGLECONTROLLER_H
-#define SINGLECONTROLLER_H
+#ifndef RGBCONTROLLER_H
+#define RGBCONTROLLER_H
 
 #include <QWidget>
 
@@ -27,15 +27,15 @@
 #include "colorwheel.h"
 #include "preset.h"
 
-class SingleController : public QWidget
+class RGBController : public QWidget
 {
     Q_OBJECT
 public:
     /* Constructor. */
-    explicit SingleController(QString name, unsigned char z, QWidget *parent = 0);
+    explicit RGBController(QString name, unsigned char z, QWidget *parent = 0);
 
     /* Destructor. */
-    ~SingleController();
+    ~RGBController();
 
     /* View controller to set this controller (in)visible. */
     QAction *viewControllerAction;
@@ -170,4 +170,4 @@ private:
 
 };
 
-#endif // SINGLECONTROLLER_H
+#endif // RGBCONTROLLER_H

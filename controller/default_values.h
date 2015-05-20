@@ -26,9 +26,13 @@
 
 #define LC_DEFAULT_NAME           "Light Controller"
 #define LC_PREFIX                 "LC"
-#define LC_RGB_MASTER_NAME        "Controller Master"
+#define LC_RGB_MASTER_NAME        "RGB Master"
 #define LC_RGB_ZONE_NAME          "Zone"
-#define LC_RGB_ZONE_PREFIX        "Z"
+#define LC_RGB_ZONE_PREFIX        "RGB"
+#define LC_WHITE_MASTER_NAME      "Controller Master"
+#define LC_WHITE_ZONE_NAME        "Zone"
+#define LC_WHITE_ZONE_PREFIX      "W"
+
 
 #define AUDIO_CONTROLLER_NAME   "Audio Controller"
 #define AUDIO_THRESHOLD_DEFAULT           80

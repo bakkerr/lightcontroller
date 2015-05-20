@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
      * Create Mastercontroller (zone -1)
      * Controls all zones on all bridges.
      */
-    master = new SingleController("Master", -1, this);
+    master = new RGBController("Master", -1, this);
     masterDockWidget = new QDockWidget(tr("Master Controller"), this);
     masterDockWidget->setWidget(master);
     masterDockWidget->setMaximumWidth(200);
@@ -321,15 +321,15 @@ void MainWindow::setupControllers(const QStringList &devices, bool setDefaults){
         LightController *lc = new LightController(split.at(0), split.at(1), controllers.size() + 1, dummy, this);
 
         for(int j = 1; j <= 4; j++){
-            connect(audio, SIGNAL(setRandomAll()), lc->zones[j], SLOT(setRandomExt()));
+            connect(audio, SIGNAL(setRandomAll()), lc->RGBzones[j], SLOT(setRandomExt()));
         }
 
-        connect(master, SIGNAL(doColor(QColor, unsigned char)), lc->zones[0], SLOT(setColorExt(QColor)));
-        connect(master, SIGNAL(doBright(unsigned char, unsigned char)), lc->zones[0], SLOT(setBrightExt(unsigned char)));
-        connect(master, SIGNAL(doOn(unsigned char)), lc->zones[0], SLOT(setOnExt()));
-        connect(master, SIGNAL(doOff(unsigned char)), lc->zones[0], SLOT(setOffExt()));
-        connect(master, SIGNAL(doWhite(unsigned char)), lc->zones[0], SLOT(setWhiteExt()));
-        connect(master, SIGNAL(fadeEnabled()), lc->zones[0], SLOT(disableFade()));
+        connect(master, SIGNAL(doColor(QColor, unsigned char)), lc->RGBzones[0], SLOT(setColorExt(QColor)));
+        connect(master, SIGNAL(doBright(unsigned char, unsigned char)), lc->RGBzones[0], SLOT(setBrightExt(unsigned char)));
+        connect(master, SIGNAL(doOn(unsigned char)), lc->RGBzones[0], SLOT(setOnExt()));
+        connect(master, SIGNAL(doOff(unsigned char)), lc->RGBzones[0], SLOT(setOffExt()));
+        connect(master, SIGNAL(doWhite(unsigned char)), lc->RGBzones[0], SLOT(setWhiteExt()));
+        connect(master, SIGNAL(fadeEnabled()), lc->RGBzones[0], SLOT(disableFade()));
 
         controllers.append(lc);
 

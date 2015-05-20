@@ -19,13 +19,14 @@
 
 #include <QSettings>
 
+#include "qcustomplot.h"
+#include "fftdisplay.h"
+
 #include "beatcontroller.h"
 #include "soundbuffer.h"
 
 #include "default_values.h"
 #include "settings.h"
-#include "qcustomplot.h"
-#include "fftdisplay.h"
 
 enum effects { EFFECT_NO, EFFECT_RANDOM_ALL, EFFECT_RANDOM_SAME, EFFECT_FADE10, EFFECT_FADE20 };
 

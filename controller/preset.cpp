@@ -39,12 +39,12 @@ PresetLC::PresetLC(QString id, QObject *parent) :
 void PresetLC::loadSettings(QSettings *s)
 {
     m_id = s->value(tr("id"), tr("ABCD")).toString();
-    int size = s->beginReadArray(tr("zones"));
+    int size = s->beginReadArray(tr("RGBzones"));
     if(size != 5) abort();
     for(int i = 0; i < 5; i++){
         s->setArrayIndex(i);
-        zones[i] = new PresetZone(this);
-        zones[i]->loadSettings(s);
+        RGBzones[i] = new PresetZone(this);
+        RGBzones[i]->loadSettings(s);
     }
     s->endArray();
 }
@@ -52,10 +52,10 @@ void PresetLC::loadSettings(QSettings *s)
 void PresetLC::saveSettings(QSettings *s)
 {
     s->setValue(tr("id"), m_id);
-    s->beginWriteArray(tr("zones"));
+    s->beginWriteArray(tr("RGBzones"));
     for(int i = 0; i < 5; i++){
         s->setArrayIndex(i);
-        zones[i]->saveSettings(s);
+        RGBzones[i]->saveSettings(s);
     }
     s->endArray();
 }
@@ -71,7 +71,7 @@ bool Preset::addController(PresetLC *plc)
 {
     plc->setParent(this);
     for(int i = 0; i < 5; i++){
-        plc->zones[i]->setParent(plc);
+        plc->RGBzones[i]->setParent(plc);
     }
 
     lcs.append(plc);

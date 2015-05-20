@@ -46,7 +46,7 @@ private:
     QVBoxLayout l0;
     QHBoxLayout l1;
 
-    SingleController *master;
+    RGBController *master;
     QDockWidget *masterDockWidget;
 
     audioController *audio;
