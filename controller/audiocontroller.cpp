@@ -24,6 +24,7 @@ audioController::audioController(QWidget *parent) :
     const QAudioDeviceInfo &defaultDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
     if(defaultDeviceInfo.isNull()){
         this->setEnabled(false);
+        this->setToolTip(tr("AudioController has been disabled because it could not find a default audio input device. Please add an input device and restart ") + APPLICATION_NAME);
     }
     m_inputDevice = defaultDeviceInfo;
     m_deviceBox->addItem(defaultDeviceInfo.deviceName(), qVariantFromValue(defaultDeviceInfo));
