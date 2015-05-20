@@ -42,6 +42,7 @@ private:
     QPushButton  m_okButton;
     QPushButton  m_reDiscoverButton;
     QLabel       m_noDevicesFoundLabel;
+    QLabel       m_dummyLabel;
 
     QCheckBox    m_setDefaultCheckBox;
 

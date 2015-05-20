@@ -22,6 +22,9 @@ audioController::audioController(QWidget *parent) :
 
     m_deviceBox = new QComboBox(this);
     const QAudioDeviceInfo &defaultDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
+    if(defaultDeviceInfo.isNull()){
+        this->setEnabled(false);
+    }
     m_inputDevice = defaultDeviceInfo;
     m_deviceBox->addItem(defaultDeviceInfo.deviceName(), qVariantFromValue(defaultDeviceInfo));
     m_deviceBox->setMaximumWidth(150);

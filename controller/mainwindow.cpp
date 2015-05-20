@@ -115,8 +115,6 @@ void MainWindow::setupMenuBar()
 
     viewMenu->addAction(masterDockWidget->toggleViewAction());
 
-    viewMenu->addSeparator();
-
     viewMenu->addMenu(audio->viewAudioMenu);
 
     viewMenu->addAction(presetController->toggleViewAction());

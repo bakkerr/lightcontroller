@@ -18,6 +18,7 @@ MiLightDiscover::MiLightDiscover(QWidget *parent) :
     m_noDevicesFoundLabel.setText(tr("No bridges found :("));
     m_noDevicesFoundLabel.setAlignment(Qt::AlignCenter);
     m_noDevicesFoundLabel.setVisible(false);
+    m_dummyLabel.setText(tr("\nDummy devices"));
 
     m_setDefaultCheckBox.setText(tr("Enable all zones, Blue, max brightness"));
     m_setDefaultCheckBox.setChecked(true);
@@ -67,6 +68,7 @@ void MiLightDiscover::userSelected()
 
 void MiLightDiscover::discover()
 {
+    m_gbLayout.removeWidget(&m_dummyLabel);
     QList<QAbstractButton *> b = m_bg.buttons();
     for(int i = 0; i < b.size(); i++){
         m_bg.removeButton(b.at(i));
@@ -99,8 +101,7 @@ void MiLightDiscover::discover()
     }
 
 #ifdef ADD_DUMMY_DEVICES
-    m_gbLayout.addSpacing(25);
-    m_gbLayout.addWidget(new QLabel(tr("Dummy devices:")));
+    m_gbLayout.addWidget(&m_dummyLabel);
     QStringList dummys;
     dummys.append(QString("1.2.3.4,DUMMY01DUMMY,"));
     dummys.append(QString("4.3.2.1,DUMMY02DUMMY,"));
