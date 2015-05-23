@@ -14,14 +14,20 @@ public:
     MiLightUPDsender(QString ip, int port = MILIGHT_PORT_DEFAULT, QObject *parent = 0);
 
 public slots:
-    void setColor(const QColor &c, unsigned char zone);
-    void setBright(unsigned char value, unsigned char zone);
-    void setOn(unsigned char zone);
-    void setOff(unsigned char zone);
-    void setWhite(unsigned char zone);
-    void setBuildinEffect(unsigned char zone);
-    void increaseSpeed(unsigned char zone);
-    void decreaseSpeed(unsigned char zone);
+    void RGBSetColor(const QColor &c, unsigned char zone);
+    void RGBSetBright(unsigned char value, unsigned char zone);
+    void RGBSetOn(unsigned char zone);
+    void RGBSetOff(unsigned char zone);
+    void RGBSetWhite(unsigned char zone);
+    void RGBSetBuildinEffect(unsigned char zone);
+    void RGBIncreaseSpeed(unsigned char zone);
+    void RGBDecreaseSpeed(unsigned char zone);
+
+    void WhiteSetOn(unsigned char zone);
+    void WhiteSetOff(unsigned char zone);
+    void WhiteSetNight(unsigned char zone);
+    void WhiteIncreaseBright(unsigned char zone);
+    void WhiteDecreaseBright(unsigned char zone);
 
 private:
     void error(const char *x);

@@ -290,7 +290,7 @@ void RGBController::setFadeTime(int msec)
 void RGBController::fade(int n)
 {
     QColor c = m_wheel->color();
-    c.setHsv((c.hue() + n) % 360, 0, 0);
+    c.setHsv((c.hue() + n + 360) % 360, 0, 0);
     m_wheel->changeColor(c);
 }
 
@@ -314,7 +314,7 @@ void RGBController::setOffExt()
 {
     if(m_fixed) return;
 
-    m_groupBox->setChecked(true);
+    m_groupBox->setChecked(false);
 
     setState(false);
 }
@@ -342,6 +342,7 @@ void RGBController::setWhiteExt()
 
 void RGBController::setBrightExt(unsigned char value){
     if(m_fixed) return;
+    if(value > 18) return;
 
     m_groupBox->setChecked(true);
 

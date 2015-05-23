@@ -35,14 +35,14 @@ void MiLightUPDsender::udpsend(unsigned char code, unsigned char param)
     this->thread()->usleep(10000);
 }
 
-void MiLightUPDsender::setColor(const QColor &c, unsigned char zone)
+void MiLightUPDsender::RGBSetColor(const QColor &c, unsigned char zone)
 {
     int color = (256 + 176 - (int)(c.hue() / 360.0 * 255.0)) % 256;
-    setOn(zone);
+    RGBSetOn(zone);
     udpsend(0x40, color);
 }
 
-void MiLightUPDsender::setBright(unsigned char value, unsigned char zone)
+void MiLightUPDsender::RGBSetBright(unsigned char value, unsigned char zone)
 {
     unsigned char BRIGHTcodes[19] = {0x02, 0x03, 0x04, 0x05, 0x08,
                             0x09, 0x0A, 0x0B, 0x0D, 0x0E,
@@ -53,12 +53,12 @@ void MiLightUPDsender::setBright(unsigned char value, unsigned char zone)
 
     if(value < 19)
     {
-        setOn(zone);
+        RGBSetOn(zone);
         udpsend(0x4E, BRIGHTcodes[value]);
     }
 }
 
-void MiLightUPDsender::setOn(unsigned char zone)
+void MiLightUPDsender::RGBSetOn(unsigned char zone)
 {
     unsigned char ONcodes[5] = {0x42, 0x45, 0x47, 0x49, 0x4B};
     if(zone != currentzone){
@@ -68,34 +68,59 @@ void MiLightUPDsender::setOn(unsigned char zone)
     }
 }
 
-void MiLightUPDsender::setOff(unsigned char zone)
+void MiLightUPDsender::RGBSetOff(unsigned char zone)
 {
     unsigned char OFFcodes[5] = {0x41, 0x46, 0x48, 0x4A, 0x4C};
     udpsend(OFFcodes[zone], 0x00);
     currentzone = -1;
 }
 
-void MiLightUPDsender::setWhite(unsigned char zone)
+void MiLightUPDsender::RGBSetWhite(unsigned char zone)
 {
     unsigned char WHITEcodes[5] = {0xC2, 0xC5, 0xC7, 0xC9, 0xCB};
     udpsend(WHITEcodes[zone], 0x00);
     currentzone = -1;
 }
 
-void MiLightUPDsender::setBuildinEffect(unsigned char zone)
+void MiLightUPDsender::RGBSetBuildinEffect(unsigned char zone)
 {
-    setOn(zone);
+    RGBSetOn(zone);
     udpsend(0x4D, 0x00);
 }
 
-void MiLightUPDsender::increaseSpeed(unsigned char zone)
+void MiLightUPDsender::RGBIncreaseSpeed(unsigned char zone)
 {
-    setOn(zone);
+    RGBSetOn(zone);
     udpsend(0x44, 0x00);
 }
 
-void MiLightUPDsender::decreaseSpeed(unsigned char zone)
+void MiLightUPDsender::RGBDecreaseSpeed(unsigned char zone)
 {
-    setOn(zone);
+    RGBSetOn(zone);
     udpsend(0x43, 0x00);
+}
+
+void MiLightUPDsender::WhiteSetOn(unsigned char zone)
+{
+
+}
+
+void MiLightUPDsender::WhiteSetOff(unsigned char zone)
+{
+
+}
+
+void MiLightUPDsender::WhiteSetNight(unsigned char zone)
+{
+
+}
+
+void MiLightUPDsender::WhiteIncreaseBright(unsigned char zone)
+{
+
+}
+
+void MiLightUPDsender::WhiteDecreaseBright(unsigned char zone)
+{
+
 }

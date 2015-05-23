@@ -9,6 +9,9 @@
 #include <QGroupBox>
 #include <QDebug>
 
+#include <QToolBar>
+#include <QToolButton>
+
 #include <QInputDialog>
 
 #include "default_values.h"
@@ -52,14 +55,20 @@ private slots:
     void setName();
 
     /* Process the commands to change state and pass then to the UDP Sender. */
-    void setBright(unsigned char value, unsigned char zone);
-    void setColor(QColor c, unsigned char zone);
-    void setOn(unsigned char zone);
-    void setOff(unsigned char zone);
-    void setWhite(unsigned char zone);
-    void setBuildinEffect(unsigned char zone);
-    void setIncreaseSpeed(unsigned char zone);
-    void setDecreaseSpeed(unsigned char zone);
+    void RGBSetBright(unsigned char value, unsigned char zone);
+    void RGBSetColor(QColor c, unsigned char zone);
+    void RGBSetOn(unsigned char zone);
+    void RGBSetOff(unsigned char zone);
+    void RGBSetWhite(unsigned char zone);
+    void RGBSetBuildinEffect(unsigned char zone);
+    void RGBIncreaseSpeed(unsigned char zone);
+    void RGBDecreaseSpeed(unsigned char zone);
+
+    void WhiteSetOn(unsigned char zone);
+    void WhiteSetOff(unsigned char zone);
+    void WhiteSetNight(unsigned char zone);
+    void WhiteIncreaseBright(unsigned char zone);
+    void WhiteDecreaseBright(unsigned char zone);
 
     void contextMenu(const QPoint& x);
 
@@ -68,7 +77,8 @@ private:
      * See if there are any zones in this controller fixed
      * and should not be changed externally.
      */
-    bool areSomeFixed();
+    bool RGBAreSomeFixed();
+    bool WhiteAreSomeFixed();
 
     int m_num;
     QString m_id;

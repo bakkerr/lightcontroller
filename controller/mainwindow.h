@@ -23,6 +23,7 @@ signals:
 
 public slots:
     void closeEvent(QCloseEvent *event);
+    void keyPressEvent(QKeyEvent *);
 
 private slots:
     void setupControllers(const QStringList &devices, bool setDefaults);

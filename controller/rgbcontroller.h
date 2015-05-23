@@ -41,6 +41,7 @@ public:
     QAction *viewControllerAction;
 
     /* getMethods. */
+    bool    state()      { return m_groupBox->isChecked();  }
     QString name()       { return m_name;                   }
     bool    fixed()      { return m_fixed;                  }
     bool    fadeTime()   { return m_fadeSlider->value();    }
@@ -75,6 +76,7 @@ public slots:
     void setWhiteExt();
     void setBrightExt(unsigned char value);
     void setRandomExt();
+    void fade(int n);
     void fadeExt()   { if(!m_fixed) fade(1);  }
     void fade10Ext() { if(!m_fixed) fade(10); }
     void fade20Ext() { if(!m_fixed) fade(20); }
@@ -116,7 +118,6 @@ private slots:
     void blue()  { if(m_wheel->color() != Qt::blue)  m_wheel->changeColor(Qt::blue);  }
 
     /* Fading. */
-    void fade(int n);
     void toggleFade(bool state);
     void setFadeTime(int msec);
 

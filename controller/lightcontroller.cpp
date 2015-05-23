@@ -10,7 +10,7 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
 
     /* Main Widget. */
     m_mainWidget = new QWidget();
-    m_mainWidget->setContentsMargins(0, 0, 0, 0);
+    m_mainWidget->setContentsMargins(4, 4, 4, 4);
     m_mainWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_mainWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu(QPoint)));
 
@@ -33,6 +33,7 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
     }
 
     m_mainLayout = new QVBoxLayout();
+    m_mainLayout->setContentsMargins(0 ,0 ,0 ,0);
 
     m_rgbWidget = new QWidget(this);
     m_rgbWidget->setContentsMargins(0, 0, 0, 0);
@@ -42,6 +43,7 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
     connect(m_viewRGBAction, SIGNAL(toggled(bool)), m_rgbWidget, SLOT(setVisible(bool)));
     viewControllerMenu->addAction(m_viewRGBAction);
     QHBoxLayout *rgbLayout = new QHBoxLayout();
+    rgbLayout->setContentsMargins(0, 0, 0, 0);
 
     /* Create 5 zone controllers 1 Master, 4 Zones. */
     for(int i = 0; i <= 4; i++){
@@ -56,14 +58,14 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
 
         /* Connect signals to UPD Sender if it is not a Dummy. */
         if(!dummy){
-            connect(RGBzones[i], SIGNAL(doColor(QColor, unsigned char)), this, SLOT(setColor(QColor, unsigned char)));
-            connect(RGBzones[i], SIGNAL(doBright(unsigned char, unsigned char)), this, SLOT(setBright(unsigned char, unsigned char)));
-            connect(RGBzones[i], SIGNAL(doOn(unsigned char)), this, SLOT(setOn(unsigned char)));
-            connect(RGBzones[i], SIGNAL(doOff(unsigned char)), this, SLOT(setOff(unsigned char)));
-            connect(RGBzones[i], SIGNAL(doWhite(unsigned char)), this, SLOT(setWhite(unsigned char)));
-            connect(RGBzones[i], SIGNAL(doBuildinEffect(unsigned char)), this, SLOT(setBuildinEffect(unsigned char)));
-            connect(RGBzones[i], SIGNAL(doIncreaseSpeed(unsigned char)), this, SLOT(setIncreaseSpeed(unsigned char)));
-            connect(RGBzones[i], SIGNAL(doDecreaseSpeed(unsigned char)), this, SLOT(setDecreaseSpeed(unsigned char)));
+            connect(RGBzones[i], SIGNAL(doColor(QColor, unsigned char)), this, SLOT(RGBSetColor(QColor, unsigned char)));
+            connect(RGBzones[i], SIGNAL(doBright(unsigned char, unsigned char)), this, SLOT(RGBSetBright(unsigned char, unsigned char)));
+            connect(RGBzones[i], SIGNAL(doOn(unsigned char)), this, SLOT(RGBSetOn(unsigned char)));
+            connect(RGBzones[i], SIGNAL(doOff(unsigned char)), this, SLOT(RGBSetOff(unsigned char)));
+            connect(RGBzones[i], SIGNAL(doWhite(unsigned char)), this, SLOT(RGBSetWhite(unsigned char)));
+            connect(RGBzones[i], SIGNAL(doBuildinEffect(unsigned char)), this, SLOT(RGBSetBuildinEffect(unsigned char)));
+            connect(RGBzones[i], SIGNAL(doIncreaseSpeed(unsigned char)), this, SLOT(RGBIncreaseSpeed(unsigned char)));
+            connect(RGBzones[i], SIGNAL(doDecreaseSpeed(unsigned char)), this, SLOT(RGBDecreaseSpeed(unsigned char)));
         }
 
         /* For all except the master connect to the Master. */
@@ -98,6 +100,7 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
     connect(m_viewWhiteAction, SIGNAL(toggled(bool)), m_whiteWidget, SLOT(setVisible(bool)));
     viewControllerMenu->addAction(m_viewWhiteAction);
     QHBoxLayout *whiteLayout = new QHBoxLayout();
+    whiteLayout->setContentsMargins(0 ,0 ,0 ,0);
 
     /* Create 5 zone controllers 1 Master, 4 Zones. */
     for(int i = 0; i <= 4; i++){
@@ -116,6 +119,16 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
     }
 
     m_whiteWidget->setLayout(whiteLayout);
+
+    /*QToolBar *tb = new QToolBar();
+    tb->setContentsMargins(0, 0, 0, 0);
+    tb->addAction(m_viewRGBAction);
+    for(int i = 0; i < 5; i++) tb->addAction(RGBzones[i]->viewControllerAction);
+    tb->addSeparator();
+    tb->addAction(m_viewWhiteAction);
+    for(int i = 0; i < 5; i++) tb->addAction(WhiteZones[i]->viewControllerAction);
+    tb->setMaximumHeight(20);
+    m_mainLayout->addWidget(tb);*/
 
     m_mainLayout->addWidget(m_rgbWidget);
     m_mainLayout->addWidget(m_whiteWidget);
@@ -200,11 +213,6 @@ void LightController::saveSettings(QSettings *s)
     s->endArray();
 }
 
-bool LightController::areSomeFixed()
-{
-    return (RGBzones[1]->fixed() || RGBzones[2]->fixed() || RGBzones[3]->fixed() || RGBzones[4]->fixed());
-}
-
 void LightController::setName()
 {
     bool ok;
@@ -225,98 +233,169 @@ void LightController::setName(QString name)
     GLOBAL_settingsChanged = true;
 }
 
-void LightController::setBright(unsigned char value, unsigned char zone)
+bool LightController::RGBAreSomeFixed()
 {
-    if(zone == 0 && areSomeFixed()){
+    return (RGBzones[1]->fixed() || RGBzones[2]->fixed() || RGBzones[3]->fixed() || RGBzones[4]->fixed());
+}
+
+bool LightController::WhiteAreSomeFixed()
+{
+    return (WhiteZones[1]->fixed() || WhiteZones[2]->fixed() || WhiteZones[3]->fixed() || WhiteZones[4]->fixed());
+}
+
+void LightController::RGBSetBright(unsigned char value, unsigned char zone)
+{
+    if(zone == 0 && RGBAreSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!RGBzones[i]->fixed()) m_udp->setBright(value, i);
+            if(!RGBzones[i]->fixed()) m_udp->RGBSetBright(value, i);
         }
     }
     else{
-        m_udp->setBright(value, zone);
+        m_udp->RGBSetBright(value, zone);
     }
 }
 
-void LightController::setColor(QColor c, unsigned char zone)
+void LightController::RGBSetColor(QColor c, unsigned char zone)
 {
-    if(zone == 0 && areSomeFixed()){
+    if(zone == 0 && RGBAreSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!RGBzones[i]->fixed()) m_udp->setColor(c, i);
+            if(!RGBzones[i]->fixed()) m_udp->RGBSetColor(c, i);
         }
     }
     else{
-        m_udp->setColor(c, zone);
+        m_udp->RGBSetColor(c, zone);
     }
 }
 
-void LightController::setOn(unsigned char zone)
+void LightController::RGBSetOn(unsigned char zone)
 {
-    if(zone == 0 && areSomeFixed()){
+    if(zone == 0 && RGBAreSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!RGBzones[i]->fixed()) m_udp->setOn(i);
+            if(!RGBzones[i]->fixed()) m_udp->RGBSetOn(i);
         }
     }
     else{
-        m_udp->setOn(zone);
+        m_udp->RGBSetOn(zone);
     }
 }
 
-void LightController::setOff(unsigned char zone)
+void LightController::RGBSetOff(unsigned char zone)
 {
-    if(zone == 0 && areSomeFixed()){
+    if(zone == 0 && RGBAreSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!RGBzones[i]->fixed()) m_udp->setOff(i);
+            if(!RGBzones[i]->fixed()) m_udp->RGBSetOff(i);
         }
     }
     else{
-        m_udp->setOff(zone);
+        m_udp->RGBSetOff(zone);
     }
 }
 
-void LightController::setWhite(unsigned char zone)
+void LightController::RGBSetWhite(unsigned char zone)
 {
-    if(zone == 0 && areSomeFixed()){
+    if(zone == 0 && RGBAreSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!RGBzones[i]->fixed()) m_udp->setWhite(i);
+            if(!RGBzones[i]->fixed()) m_udp->RGBSetWhite(i);
         }
     }
     else{
-        m_udp->setWhite(zone);
+        m_udp->RGBSetWhite(zone);
     }
 }
 
-void LightController::setBuildinEffect(unsigned char zone)
+void LightController::RGBSetBuildinEffect(unsigned char zone)
 {
-    if(zone == 0 && areSomeFixed()){
+    if(zone == 0 && RGBAreSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!RGBzones[i]->fixed()) m_udp->setBuildinEffect(i);
+            if(!RGBzones[i]->fixed()) m_udp->RGBSetBuildinEffect(i);
         }
     }
     else{
-        m_udp->setBuildinEffect(zone);
+        m_udp->RGBSetBuildinEffect(zone);
     }
 }
 
-void LightController::setIncreaseSpeed(unsigned char zone)
+void LightController::RGBIncreaseSpeed(unsigned char zone)
 {
-    if(zone == 0 && areSomeFixed()){
+    if(zone == 0 && RGBAreSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!RGBzones[i]->fixed()) m_udp->increaseSpeed(i);
+            if(!RGBzones[i]->fixed()) m_udp->RGBIncreaseSpeed(i);
         }
     }
     else{
-        m_udp->increaseSpeed(zone);
+        m_udp->RGBIncreaseSpeed(zone);
     }
 }
 
-void LightController::setDecreaseSpeed(unsigned char zone)
+void LightController::RGBDecreaseSpeed(unsigned char zone)
 {
-    if(zone == 0 && areSomeFixed()){
+    if(zone == 0 && RGBAreSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(!RGBzones[i]->fixed()) m_udp->decreaseSpeed(i);
+            if(!RGBzones[i]->fixed()) m_udp->RGBDecreaseSpeed(i);
         }
     }
     else{
-        m_udp->decreaseSpeed(zone);
+        m_udp->RGBDecreaseSpeed(zone);
+    }
+}
+
+
+void LightController::WhiteSetOn(unsigned char zone)
+{
+    if(zone == 0 && WhiteAreSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!WhiteZones[i]->fixed()) m_udp->WhiteSetOn(i);
+        }
+    }
+    else{
+        m_udp->WhiteSetOn(zone);
+    }
+}
+
+void LightController::WhiteSetOff(unsigned char zone)
+{
+    if(zone == 0 && WhiteAreSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!WhiteZones[i]->fixed()) m_udp->WhiteSetOff(i);
+        }
+    }
+    else{
+        m_udp->WhiteSetOff(zone);
+    }
+}
+
+void LightController::WhiteSetNight(unsigned char zone)
+{
+    if(zone == 0 && WhiteAreSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!WhiteZones[i]->fixed()) m_udp->WhiteSetNight(i);
+        }
+    }
+    else{
+        m_udp->WhiteSetNight(zone);
+    }
+}
+
+void LightController::WhiteIncreaseBright(unsigned char zone)
+{
+    if(zone == 0 && WhiteAreSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(WhiteZones[i]->fixed()) m_udp->WhiteIncreaseBright(i);
+        }
+    }
+    else{
+        m_udp->WhiteIncreaseBright(zone);
+    }
+}
+
+void LightController::WhiteDecreaseBright(unsigned char zone)
+{
+    if(zone == 0 && WhiteAreSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!WhiteZones[i]->fixed()) m_udp->WhiteDecreaseBright(i);
+        }
+    }
+    else{
+        m_udp->WhiteDecreaseBright(zone);
     }
 }
