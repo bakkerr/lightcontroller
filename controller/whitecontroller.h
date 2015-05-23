@@ -41,7 +41,7 @@ public:
     /* getMethods. */
     QString name()       { return m_name;                   }
     bool    fixed()      { return m_fixed;                  }
-    int     brightness() { return m_brightSlider->value();  }
+    //int     brightness() { return m_brightSlider->value();  }
 
     PresetZone * getPreset();
     void loadSettings(QSettings *s);
@@ -104,10 +104,12 @@ private:
     QCheckBox *m_fixedBox;
 
     /* Brightness */
-    QLabel *m_brightLabel;
-    QSlider *m_brightSlider;
-
-    QPushButton *m_whiteButton;
+    QPushButton *m_brightUpButton;
+    QPushButton *m_brightDownButton;
+    QPushButton *m_brightFullButton;
+    QPushButton *m_warmthUpButton;
+    QPushButton *m_warmthDownButton;
+    QPushButton *m_nightButton;
 
 };
 

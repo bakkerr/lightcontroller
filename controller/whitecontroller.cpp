@@ -38,25 +38,36 @@ void WhiteController::setupLayout()
 
     m_groupBox->setMinimumWidth(175);
     m_groupBox->setMaximumWidth(175);
-    m_groupBox->setMinimumHeight(90);
-    m_groupBox->setMaximumHeight(90);
+    m_groupBox->setMinimumHeight(110);
+    m_groupBox->setMaximumHeight(110);
     connect(m_groupBox, SIGNAL(toggled(bool)), this, SLOT(setState(bool)));
 
     QVBoxLayout *l1 = new QVBoxLayout();
 
     QHBoxLayout *l2 = new QHBoxLayout();
-    m_brightLabel = new QLabel(tr("Brightness"), this);
-    m_brightLabel->setToolTip(tr("Set the Brightness for this zone"));
-    l2->addWidget(m_brightLabel);
-    m_brightSlider = new QSlider(Qt::Horizontal, this);
-    m_brightSlider->setToolTip(tr("Set the Brightness for this zone"));
-    m_brightSlider->setMinimumWidth(80);
-    m_brightSlider->setMaximumWidth(80);
-    m_brightSlider->setMinimum(0);
-    m_brightSlider->setMaximum(18);
-    m_brightSlider->setValue(BRIGHT_VALUE_DEFAULT);
-    l2->addWidget(m_brightSlider, 0, Qt::AlignRight);
-    connect(m_brightSlider, SIGNAL(valueChanged(int)), this, SLOT(setBright(int)));
+    m_brightDownButton = new QPushButton(tr("-"));
+    m_brightDownButton->setToolTip(tr("Decrease brightness"));
+    m_brightFullButton = new QPushButton(tr("Full"));
+    m_brightFullButton->setToolTip(tr("Full brightness"));
+    m_brightUpButton = new QPushButton(tr("+"));
+    m_brightUpButton->setToolTip(tr("Increase brightness"));
+    l2->addWidget(m_brightDownButton);
+    l2->addWidget(m_brightFullButton);
+    l2->addWidget(m_brightUpButton);
+
+    QHBoxLayout *l3 = new QHBoxLayout();
+
+    m_warmthDownButton = new QPushButton(tr("-"));
+    m_warmthDownButton->setToolTip(tr("Decrease warmth"));
+    m_warmthUpButton = new QPushButton(tr("+"));
+    m_warmthUpButton->setToolTip(tr("Increase warmth"));
+    m_nightButton = new QPushButton("Night", this);
+    m_nightButton->setToolTip(tr("Enable Nightmode"));
+    //connect(m_nightButton, SIGNAL(clicked()), this, SLOT(setNight()));
+
+    l3->addWidget(m_warmthDownButton);
+    l3->addWidget(m_nightButton);
+    l3->addWidget(m_warmthUpButton);
 
     QHBoxLayout *l4 = new QHBoxLayout();
 
@@ -67,13 +78,8 @@ void WhiteController::setupLayout()
     connect(m_fixedBox, SIGNAL(toggled(bool)), this, SLOT(setFixed(bool)));
     l4->addWidget(m_fixedBox);
 
-    m_whiteButton = new QPushButton("White", this);
-    m_whiteButton->setToolTip(tr("White"));
-    m_whiteButton->setStyleSheet("QPushButton {background-color: #FFFFFF}");
-    connect(m_whiteButton, SIGNAL(clicked()), this, SLOT(setWhite()));
-    l4->addWidget(m_whiteButton);
-
     l1->addLayout(l2);
+    l1->addLayout(l3);
     l1->addLayout(l4);
 
     m_groupBox->setLayout(l1);
@@ -110,12 +116,8 @@ void WhiteController::setPreset(PresetZone *p, bool set)
 
     if(set && p->m_enabled){
         setState(true);
-        setBrightExt(p->m_brightness);
    }
     else{
-        m_brightSlider->blockSignals(true);
-        m_brightSlider->setValue(p->m_brightness);
-        m_brightSlider->blockSignals(false);
         if(set) setState(false);
     }
 }
@@ -216,9 +218,9 @@ void WhiteController::updateBright(unsigned char value)
 
     m_groupBox->setChecked(true);
 
-    m_brightSlider->blockSignals(true);
-    m_brightSlider->setValue(value);
-    m_brightSlider->blockSignals(false);
+    //m_brightSlider->blockSignals(true);
+    //m_brightSlider->setValue(value);
+    //m_brightSlider->blockSignals(false);
 }
 
 void WhiteController::updateWhite()
