@@ -40,7 +40,7 @@ public:
 
     /* Five zones for each contoller, the controller master and 4 zones. */
     RGBController *RGBzones[5];
-    WhiteController *WhiteZones[5];
+    WhiteController *whiteZones[5];
 
     /* Actions to show/hide and create the menu. */
     QMenu *viewControllerMenu;
@@ -64,11 +64,11 @@ private slots:
     void RGBIncreaseSpeed(unsigned char zone);
     void RGBDecreaseSpeed(unsigned char zone);
 
-    void WhiteSetOn(unsigned char zone);
-    void WhiteSetOff(unsigned char zone);
-    void WhiteSetNight(unsigned char zone);
-    void WhiteIncreaseBright(unsigned char zone);
-    void WhiteDecreaseBright(unsigned char zone);
+    void whiteSetOn(unsigned char zone);
+    void whiteSetOff(unsigned char zone);
+    void whiteSetNight(unsigned char zone);
+    void whiteIncreaseBright(unsigned char zone);
+    void whiteDecreaseBright(unsigned char zone);
 
     void contextMenu(const QPoint& x);
 
@@ -78,7 +78,7 @@ private:
      * and should not be changed externally.
      */
     bool RGBAreSomeFixed();
-    bool WhiteAreSomeFixed();
+    bool whiteAreSomeFixed();
 
     int m_num;
     QString m_id;
