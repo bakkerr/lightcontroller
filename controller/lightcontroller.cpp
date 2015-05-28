@@ -113,6 +113,23 @@ LightController::LightController(QString ip, QString id, int num, bool dummy, QW
             whiteZones[i] = new WhiteController(tr(LC_WHITE_ZONE_NAME) + tr(" ") + QString::number(i), i, this);
         }
 
+        /* Connect signals to UPD Sender if it is not a Dummy. */
+        if(!dummy){
+            connect(whiteZones[i], SIGNAL(doOn(unsigned char)), this, SLOT(whiteSetOn(unsigned char)));
+            connect(whiteZones[i], SIGNAL(doOff(unsigned char)), this, SLOT(whiteSetOff(unsigned char)));
+            connect(whiteZones[i], SIGNAL(doNight(unsigned char)), this, SLOT(whiteSetNight(unsigned char)));
+            connect(whiteZones[i], SIGNAL(doIncreaseBright(unsigned char)), this, SLOT(whiteIncreaseBright(unsigned char)));
+            connect(whiteZones[i], SIGNAL(doDecreaseBright(unsigned char)), this, SLOT(whiteDecreaseBright(unsigned char)));
+            connect(whiteZones[i], SIGNAL(doIncreaseWarmth(unsigned char)), this, SLOT(whiteIncreaseWarmth(unsigned char)));
+            connect(whiteZones[i], SIGNAL(doDecreaseWarmth(unsigned char)), this, SLOT(whiteDecreaseWarmth(unsigned char)));
+        }
+
+        /* For all except the master connect to the Master. */
+        if(i != 0){
+            connect(whiteZones[0], SIGNAL(doOn(unsigned char)), whiteZones[i], SLOT(updateOn()));
+            connect(whiteZones[0], SIGNAL(doOff(unsigned char)), whiteZones[i], SLOT(updateOff()));
+        }
+
         viewControllerMenu->addAction(whiteZones[i]->viewControllerAction);
 
         whiteLayout->addWidget(whiteZones[i]);
@@ -380,7 +397,7 @@ void LightController::whiteIncreaseBright(unsigned char zone)
 {
     if(zone == 0 && whiteAreSomeFixed()){
         for(int i = 1; i <= 4; i++){
-            if(whiteZones[i]->fixed()) m_udp->whiteIncreaseBright(i);
+            if(!whiteZones[i]->fixed()) m_udp->whiteIncreaseBright(i);
         }
     }
     else{
@@ -397,5 +414,29 @@ void LightController::whiteDecreaseBright(unsigned char zone)
     }
     else{
         m_udp->whiteDecreaseBright(zone);
+    }
+}
+
+void LightController::whiteIncreaseWarmth(unsigned char zone)
+{
+    if(zone == 0 && whiteAreSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!whiteZones[i]->fixed()) m_udp->whiteIncreaseWarmth(i);
+        }
+    }
+    else{
+        m_udp->whiteIncreaseWarmth(zone);
+    }
+}
+
+void LightController::whiteDecreaseWarmth(unsigned char zone)
+{
+    if(zone == 0 && whiteAreSomeFixed()){
+        for(int i = 1; i <= 4; i++){
+            if(!whiteZones[i]->fixed()) m_udp->whiteDecreaseWarmth(i);
+        }
+    }
+    else{
+        m_udp->whiteDecreaseWarmth(zone);
     }
 }

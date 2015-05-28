@@ -69,6 +69,8 @@ private slots:
     void whiteSetNight(unsigned char zone);
     void whiteIncreaseBright(unsigned char zone);
     void whiteDecreaseBright(unsigned char zone);
+    void whiteIncreaseWarmth(unsigned char zone);
+    void whiteDecreaseWarmth(unsigned char zone);
 
     void contextMenu(const QPoint& x);
 

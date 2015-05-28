@@ -353,52 +353,6 @@ void MainWindow::showSettingsDialog()
     s->exec();
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *e)
-{
-    switch(e->key()){
-      case Qt::Key_0:
-        master->setOffExt();
-        break;
-      case Qt::Key_1:
-        master->setOnExt();
-        break;
-      case Qt::Key_F:
-      {
-        QColor c = master->color();
-        master->setWhiteExt();
-        master->setColorExt(c);
-        break;
-      }
-      case Qt::Key_P:
-        getPreset();
-        break;
-      case Qt::Key_R:
-        master->setRandomExt();
-        break;
-      case Qt::Key_T:
-        master->state() ? master->setOffExt() : master->setOnExt();
-        break;
-      case Qt::Key_W:
-        master->setWhiteExt();
-        break;
-      case Qt::Key_Up:
-        master->setBrightExt(master->brightness() + 1);
-        break;
-      case Qt::Key_Down:
-        master->setBrightExt(master->brightness() - 1);
-        break;
-      case Qt::Key_Left:
-        master->fade(-1);
-        break;
-      case Qt::Key_Right:
-        master->fade(1);
-        break;
-      default:
-        break;
-    }
-
-}
-
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if(GLOBAL_settingsChanged){

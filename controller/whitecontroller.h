@@ -49,10 +49,14 @@ public:
 
 signals:
     /* Signals to communicate with the lightcontroller to process the changes to the WiFi Bridge. */
-    void doBright(unsigned char value, unsigned char zone);
-    void doWhite(unsigned char zone);
     void doOn(unsigned char zone);
     void doOff(unsigned char zone);
+    void doNight(unsigned char zone);
+    void doIncreaseBright(unsigned char zone);
+    void doDecreaseBright(unsigned char zone);
+    void doIncreaseWarmth(unsigned char zone);
+    void doDecreaseWarmth(unsigned char zone);
+
 
 public slots:
     void setName(QString name);
@@ -60,14 +64,15 @@ public slots:
     /* Manipulate triggers for zone 0 from Master. */
     void setOnExt();
     void setOffExt();
-    void setWhiteExt();
-    void setBrightExt(unsigned char value);
+    void setNightExt();
+    void increaseBrightExt();
+    void decreaseBrightExt();
+    void increaseWarmthExt();
+    void decreaseWarmthExt();
 
     /* Update layout when triggers are from zone 0. */
     void updateOn();
     void updateOff();
-    void updateWhite();
-    void updateBright(unsigned char value);
 
     void setPreset(PresetZone *p, bool set);
 
@@ -81,8 +86,11 @@ private slots:
     void setFixed(bool s) { m_fixed = s; }
 
     /* Internal triggers */
-    void setBright(int value)     { emit doBright((unsigned char)value, m_zone);             }
-    void setWhite()               { emit doWhite(m_zone); }
+    void setNight();
+    void increaseBright();
+    void decreaseBright();
+    void increaseWarmth();
+    void decreaseWarmth();
 
     void contextMenu(const QPoint& x);
 
@@ -114,3 +122,4 @@ private:
 };
 
 #endif // WHITECONTROLLER_H
+

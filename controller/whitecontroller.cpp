@@ -175,6 +175,31 @@ void WhiteController::setState(bool state)
     }
 }
 
+void WhiteController::setNight(){
+    m_groupBox->setChecked(true);
+    emit doNight(m_zone);
+}
+
+void WhiteController::increaseBright(){
+    m_groupBox->setChecked(true);
+    emit doIncreaseBright(m_zone);
+}
+
+void WhiteController::decreaseBright(){
+    m_groupBox->setChecked(true);
+    emit doDecreaseBright(m_zone);
+}
+
+void WhiteController::increaseWarmth(){
+    m_groupBox->setChecked(true);
+    emit doIncreaseWarmth(m_zone);
+}
+
+void WhiteController::decreaseWarmth(){
+    m_groupBox->setChecked(true);
+    emit doDecreaseWarmth(m_zone);
+}
+
 void WhiteController::setOnExt()
 {
     if(m_fixed) return;
@@ -193,41 +218,35 @@ void WhiteController::setOffExt()
     setState(false);
 }
 
-void WhiteController::setWhiteExt()
+void WhiteController::setNightExt()
 {
     if(m_fixed) return;
 
-    m_groupBox->setChecked(true);
-
-    updateWhite();
-    setWhite();
+    setNight();
 }
 
-void WhiteController::setBrightExt(unsigned char value){
+void WhiteController::increaseBrightExt(){
     if(m_fixed) return;
 
-    m_groupBox->setChecked(true);
-
-    updateBright(value);
-    setBright(value);
+    increaseBright();
 }
 
-void WhiteController::updateBright(unsigned char value)
-{
+void WhiteController::decreaseBrightExt(){
     if(m_fixed) return;
 
-    m_groupBox->setChecked(true);
-
-    //m_brightSlider->blockSignals(true);
-    //m_brightSlider->setValue(value);
-    //m_brightSlider->blockSignals(false);
+    decreaseBright();
 }
 
-void WhiteController::updateWhite()
-{
+void WhiteController::increaseWarmthExt(){
     if(m_fixed) return;
 
-    m_groupBox->setChecked(true);
+    increaseWarmth();
+}
+
+void WhiteController::decreaseWarmthExt(){
+    if(m_fixed) return;
+
+    decreaseWarmth();
 }
 
 void WhiteController::updateOn()
@@ -247,5 +266,3 @@ void WhiteController::updateOff()
     m_groupBox->setChecked(false);
     m_groupBox->blockSignals(false);
 }
-
-
