@@ -42,6 +42,7 @@ public:
 
     /* getMethods. */
     QString name()       { return m_name;                   }
+    bool    state()      { return m_groupBox->isChecked();  }
     bool    fixed()      { return m_fixed;                  }
     bool    fadeTime()   { return m_fadeSlider->value();    }
     QColor  color()      { return m_wheel->color();         }
@@ -75,7 +76,7 @@ public slots:
     void setWhiteExt();
     void setBrightExt(unsigned char value);
     void setRandomExt();
-    void fadeExt()   { if(!m_fixed) fade(1);  }
+    void fadeExt(int n = 1)   { if(!m_fixed) fade(n);  }
     void fade10Ext() { if(!m_fixed) fade(10); }
     void fade20Ext() { if(!m_fixed) fade(20); }
 

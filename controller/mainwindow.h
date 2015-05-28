@@ -22,6 +22,7 @@ signals:
     void presetAvailable(Preset *p);
 
 public slots:
+    void keyPressEvent(QKeyEvent *);
     void closeEvent(QCloseEvent *event);
 
 private slots:

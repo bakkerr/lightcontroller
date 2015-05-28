@@ -289,7 +289,7 @@ void SingleController::setFadeTime(int msec)
 void SingleController::fade(int n)
 {
     QColor c = m_wheel->color();
-    c.setHsv((c.hue() + n) % 360, 0, 0);
+    c.setHsv((c.hue() + n + 360) % 360, 0, 0);
     m_wheel->changeColor(c);
 }
 
@@ -297,7 +297,7 @@ void SingleController::setRandom()
 {
     QColor c;
     c.setHsv(rand() % 360, 0, 0);
-    m_wheel->changeColor(c);
+    setColorExt(c);
 }
 
 void SingleController::setOnExt()
@@ -313,7 +313,7 @@ void SingleController::setOffExt()
 {
     if(m_fixed) return;
 
-    m_groupBox->setChecked(true);
+    m_groupBox->setChecked(false);
 
     setState(false);
 }
@@ -341,6 +341,7 @@ void SingleController::setWhiteExt()
 
 void SingleController::setBrightExt(unsigned char value){
     if(m_fixed) return;
+    if(value > 19) return;
 
     m_groupBox->setChecked(true);
 
@@ -364,6 +365,7 @@ void SingleController::updateColor(const QColor &color)
 
     m_groupBox->setChecked(true);
 
+    m_wheel->setInnerColor(color);
     m_wheel->setColor(color);
 }
 
