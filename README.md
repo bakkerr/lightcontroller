@@ -24,6 +24,10 @@ This application lets you control MiLight (and equivalent) LED bulbs and LED str
   make
 ```
 
+## Windows Pre-compiled Binary:
+28-05-2015: https://github.com/bakkerr/lightcontroller/releases/download/Windows_Binary_0.1/lightcontroller.exe
+
+
 ## Bugs and Feature ideas:
 
 Feel free to contact me :)
