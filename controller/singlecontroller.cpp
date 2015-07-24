@@ -1,7 +1,7 @@
 #include "singlecontroller.h"
 
 SingleController::SingleController(QString name, unsigned char z, QWidget *parent) :
-    QWidget(parent)
+    QDockWidget(parent)
 {
     m_zone = z;
     m_fixed = false;
@@ -19,7 +19,7 @@ SingleController::SingleController(QString name, unsigned char z, QWidget *paren
     setName(name);
 
     /* Set the layout for this Widget. */
-    this->setLayout(m_mainLayout);
+    this->setWidget(m_groupBox);
 }
 
 SingleController::~SingleController()
@@ -29,8 +29,6 @@ SingleController::~SingleController()
 
 void SingleController::setupLayout()
 {
-    m_mainLayout = new QHBoxLayout();
-
     m_groupBox = new QGroupBox(m_name, this);
     m_groupBox->setCheckable(true);
     m_groupBox->setChecked(true);
@@ -150,7 +148,6 @@ void SingleController::setupLayout()
     m_groupBox->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_groupBox, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu(QPoint)));
 
-    m_mainLayout->addWidget(m_groupBox, 0, Qt::AlignTop | Qt::AlignLeft);
 }
 
 void SingleController::contextMenu(const QPoint &x)

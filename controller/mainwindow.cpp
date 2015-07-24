@@ -18,10 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
      * Controls all zones on all bridges.
      */
     master = new SingleController("Master", -1, this);
-    masterDockWidget = new QDockWidget(tr("Master Controller"), this);
-    masterDockWidget->setWidget(master);
-    masterDockWidget->setMaximumWidth(200);
-    addDockWidget(Qt::TopDockWidgetArea, masterDockWidget);
+    addDockWidget(Qt::TopDockWidgetArea, master);
 
     /* Audio Controller */
     audio = new audioController(this);
@@ -43,19 +40,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *w = window();
     w->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w->size(), qApp->desktop()->availableGeometry()));
 
-    /* Create Bridge Discovery Dialog. */
-    MiLightDiscover *d = new MiLightDiscover(this);
-    connect(d, SIGNAL(selectedDevices(QStringList, bool)), this, SLOT(setupControllers(QStringList, bool)));
-    d->exec();
+    setupControllers(5, true);
 
     setupActions();
     setupToolBar();
     setupMenuBar();
     setupStatusBar();
 
-    loadSettings();
-
-    delete d;
+    //loadSettings();
 
 }
 
@@ -109,7 +101,7 @@ void MainWindow::setupMenuBar()
     /* View Menu */
     viewMenu = menuBar()->addMenu(tr("&View"));
 
-    viewMenu->addAction(masterDockWidget->toggleViewAction());
+    viewMenu->addAction(master->toggleViewAction());
 
     viewMenu->addSeparator();
 
@@ -119,10 +111,10 @@ void MainWindow::setupMenuBar()
 
     viewMenu->addSeparator();
 
-    QVectorIterator<LightController*> i(controllers);
+    QVectorIterator<SingleController*> i(controllers);
     while(i.hasNext()){
-        LightController * lc = i.next();
-        viewMenu->addMenu(lc->viewControllerMenu);
+        SingleController * lc = i.next();
+        viewMenu->addAction(lc->viewControllerAction);
     }
 
     viewMenu->addSeparator();
@@ -146,12 +138,13 @@ void MainWindow::setupToolBar()
 {
     toolBar = addToolBar(tr("Tools"));
     toolBar->addSeparator();
-    toolBar->addAction(masterDockWidget->toggleViewAction());
+    toolBar->addAction(master->toggleViewAction());
     toolBar->addAction(audio->toggleViewAction());
     toolBar->addAction(presetController->toggleViewAction());
     toolBar->addSeparator();
 
-    QVectorIterator<LightController*> i(controllers);
+
+    QVectorIterator<SingleController*> i(controllers);
     while(i.hasNext()){
         toolBar->addAction(i.next()->toggleViewAction());
     }
@@ -176,6 +169,7 @@ void MainWindow::setupStatusBar()
 
 void MainWindow::loadSettings()
 {
+/*
     QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
 
     s->beginGroup(tr("MainWindow"));
@@ -205,11 +199,12 @@ void MainWindow::loadSettings()
     GLOBAL_settingsChanged = false;
 
     s->sync();
-
+*/
 }
 
 void MainWindow::saveSettings()
 {
+/*
     QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
     s->beginGroup(tr("MainWindow"));
     s->setValue(tr("MasterControllerName"), master->name());
@@ -234,6 +229,7 @@ void MainWindow::saveSettings()
     s->sync();
 
     GLOBAL_settingsChanged = false;
+*/
 }
 
 void MainWindow::clearSettings()
@@ -254,42 +250,26 @@ void MainWindow::clearSettings()
 
 }
 
-void MainWindow::setupControllers(const QStringList &devices, bool setDefaults){
+void MainWindow::setupControllers(int num, bool setDefaults){
 
 
-    for(int i = 0; i < devices.length(); i++){
+    for(int i = 0; i < num; i++){
+        SingleController *lc =  new SingleController(tr("Zone "), i, this);
 
-        bool dummy = false;
-
-        QString s = devices.at(i);
-        QStringList split = s.split(',');
-
-        if(split.length() < 2){
-            qDebug() << "Invalid device String: " << s << endl;
-            continue;
-        }
-
-        if(split.at(1).startsWith("DUMMY")) dummy = true;
-
-        qDebug() << "Found device IP: " << split.at(0) << "ID: " << split.at(1) << "Dummy: " << dummy << endl;
-
-        LightController *lc = new LightController(split.at(0), split.at(1), controllers.size() + 1, dummy, this);
-
-        for(int j = 1; j <= 4; j++){
-            connect(audio, SIGNAL(setRandomAll()), lc->zones[j], SLOT(setRandomExt()));
-        }
-
+/*
         connect(master, SIGNAL(doColor(QColor, unsigned char)), lc->zones[0], SLOT(setColorExt(QColor)));
         connect(master, SIGNAL(doBright(unsigned char, unsigned char)), lc->zones[0], SLOT(setBrightExt(unsigned char)));
         connect(master, SIGNAL(doOn(unsigned char)), lc->zones[0], SLOT(setOnExt()));
         connect(master, SIGNAL(doOff(unsigned char)), lc->zones[0], SLOT(setOffExt()));
         connect(master, SIGNAL(doWhite(unsigned char)), lc->zones[0], SLOT(setWhiteExt()));
         connect(master, SIGNAL(fadeEnabled()), lc->zones[0], SLOT(disableFade()));
-
+*/
         controllers.append(lc);
 
         addDockWidget(Qt::BottomDockWidgetArea, lc);
+/*
         if(controllers.size() > 1) tabifyDockWidget(controllers.first(), controllers.last());
+*/
 
     }
 
@@ -327,6 +307,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::getPreset()
 {
+/*
     Preset *p = new Preset(this);
 
     p->master = master->getPreset();
@@ -339,6 +320,7 @@ void MainWindow::getPreset()
     }
 
     emit presetAvailable(p);
+*/
 }
 
 void MainWindow::setPreset(Preset *p)
@@ -347,6 +329,7 @@ void MainWindow::setPreset(Preset *p)
     /* Need to do something with the mastercontroller... */
 
     /* Set all controllers. */
+/*
     QVectorIterator<PresetLC*> pi(p->lcs);
     while(pi.hasNext()){
         PresetLC * plc = pi.next();
@@ -360,12 +343,12 @@ void MainWindow::setPreset(Preset *p)
         }
 
     }
-
+*/
 }
 
 void MainWindow::dockAll()
 {
-    masterDockWidget->setFloating(false);
+    master->setFloating(false);
     audio->setFloating(false);
     presetController->setFloating(false);
 

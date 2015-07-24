@@ -1,7 +1,7 @@
 #ifndef SINGLECONTROLLER_H
 #define SINGLECONTROLLER_H
 
-#include <QWidget>
+#include <QDockWidget>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -20,6 +20,7 @@
 
 #include <QInputDialog>
 
+
 #include <unistd.h>
 
 #include "default_values.h"
@@ -27,7 +28,7 @@
 #include "colorwheel.h"
 #include "preset.h"
 
-class SingleController : public QWidget
+class SingleController : public QDockWidget
 {
     Q_OBJECT
 public:
@@ -130,7 +131,6 @@ private slots:
 private:
     /* Set the layout */
     void setupLayout();
-    QHBoxLayout *m_mainLayout;
 
     /* Private state variables */
     QString m_name;

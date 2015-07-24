@@ -25,7 +25,7 @@ public slots:
     void closeEvent(QCloseEvent *event);
 
 private slots:
-    void setupControllers(const QStringList &devices, bool setDefaults);
+    void setupControllers(int num, bool setDefaults);
     void loadSettings();
     void saveSettings();
     void clearSettings();
@@ -46,13 +46,12 @@ private:
     QHBoxLayout l1;
 
     SingleController *master;
-    QDockWidget *masterDockWidget;
 
     audioController *audio;
 
     PresetController *presetController;
 
-    QVector<LightController*> controllers;
+    QVector<SingleController*> controllers;
 
     QToolBar *toolBar;
 

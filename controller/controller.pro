@@ -15,26 +15,23 @@ DEPENDPATH  += ../libbeat
 INCLUDEPATH += ../libbeat
 
 SOURCES += main.cpp\
-        lightcontroller.cpp \
     singlecontroller.cpp \
     milightupdsender.cpp \
     colorwheel.cpp \
     audiocontroller.cpp \
     qcustomplot.cpp \
     mainwindow.cpp \
-    discover.cpp \
     fftdisplay.cpp \
     presetcontroller.cpp \
     preset.cpp \
     settings.cpp
 
-HEADERS  += lightcontroller.h \
+HEADERS  += \
     singlecontroller.h \
     milightupdsender.h \
     colorwheel.h \
     audiocontroller.h \
     qcustomplot.h \
-    discover.h \
     mainwindow.h \
     default_values.h \
     beatcontroller.h \
