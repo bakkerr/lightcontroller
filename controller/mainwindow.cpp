@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* Connect Audio to Master .*/
     connect(audio, SIGNAL(setRandomSame()), master, SLOT(setRandomExt()));
+    connect(audio, SIGNAL(flash()), master, SLOT(flash()));
+    connect(audio, SIGNAL(flashRandom()), master, SLOT(flashRandom()));
     connect(audio, SIGNAL(fade10()), master, SLOT(fade10Ext()));
     connect(audio, SIGNAL(fade20()), master, SLOT(fade20Ext()));
 
@@ -352,7 +354,7 @@ void MainWindow::showSettingsDialog()
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *e)
-{
+{    
     switch(e->key()){
       case Qt::Key_0:
         master->setOffExt();
@@ -360,6 +362,34 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
       case Qt::Key_1:
         master->setOnExt();
         break;
+
+      case Qt::Key_F1:
+      case Qt::Key_W:
+        master->setWhiteExt();
+        master->setFixed(true);
+        break;
+      case Qt::Key_F2:
+        master->red();
+        master->setFixed(true);
+        break;
+      case Qt::Key_F3:
+        master->green();
+        master->setFixed(true);
+        break;
+      case Qt::Key_F4:
+        master->blue();
+        master->setFixed(true);
+        break;
+
+      case Qt::Key_F5:
+      case Qt::Key_B:
+        if(!e->isAutoRepeat() && master->state()){
+            master->setOffExt();
+            master->setFixed(true);
+        }
+        break;
+
+      case Qt::Key_F7:
       case Qt::Key_F:
       {
         QColor c = master->color();
@@ -373,8 +403,14 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
         }
         break;
       }
+      case Qt::Key_F8:
+      case Qt::Key_G:
+        if(!e->isAutoRepeat() && master->color().hue() != QColor(Qt::white).hue()){
+            master->setWhiteExt();
+            master->setFixed(true);
+        }
+        break;
       case Qt::Key_A:
-        //audio->
         break;
       case Qt::Key_P:
         getPreset();
@@ -384,9 +420,6 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
         break;
       case Qt::Key_T:
         master->state() ? master->setOffExt() : master->setOnExt();
-        break;
-      case Qt::Key_W:
-        master->setWhiteExt();
         break;
       case Qt::Key_Up:
         master->setBrightExt(master->brightness() + 1);
@@ -403,7 +436,24 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
       default:
         break;
     }
+}
 
+void MainWindow::keyReleaseEvent(QKeyEvent *e)
+{
+    if(e->isAutoRepeat()) return;
+
+    master->setFixed(false);
+
+    switch(e->key()){
+      case Qt::Key_B:
+        master->setOnExt();
+        break;
+      case Qt::Key_G:
+        master->setColorExt(Qt::red);
+        break;
+      default:
+        break;
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

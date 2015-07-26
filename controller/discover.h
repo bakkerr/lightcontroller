@@ -9,6 +9,8 @@
 #include <QLabel>
 #include <QGroupBox>
 #include <QCheckBox>
+#include <QRadioButton>
+#include <QButtonGroup>
 
 #include <QUdpSocket>
 #include <QDebug>
@@ -30,14 +32,22 @@ signals:
     void selectedDevices(const QStringList &devices, bool setDefaults);
 
 private slots:
+    void closeEvent(QCloseEvent *event);
+    void getSettings();
+    void checkSettings();
+    QStringList getSelectedDevices();
+    void discoveryDone();
     void discover();
-    void userSelected();
+
 
 private:
-    QGroupBox    m_gb;
-    QVBoxLayout  m_gbLayout;
+    QGroupBox    m_devicesGroupbox;
+    QVBoxLayout  m_devicesGroupboxLayout;
+    QButtonGroup m_devicesButtonGroup;
 
-    QButtonGroup m_bg;
+    QGroupBox    m_settingsGroupbox;
+    QVBoxLayout  m_settingsGroupboxLayout;
+    QButtonGroup m_settingsButtonGroup;
 
     QPushButton  m_okButton;
     QPushButton  m_reDiscoverButton;
@@ -45,6 +55,7 @@ private:
     QLabel       m_dummyLabel;
 
     QCheckBox    m_setDefaultCheckBox;
+
 
     QStringList UDPdiscover();
 

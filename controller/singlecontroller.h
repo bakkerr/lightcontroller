@@ -69,6 +69,11 @@ signals:
 public slots:
     void setName(QString name);
 
+    /* Color Shortcuts */
+    void red()   { if(m_wheel->color() != Qt::red)   m_wheel->changeColor(Qt::red);   }
+    void green() { if(m_wheel->color() != Qt::green) m_wheel->changeColor(Qt::green); }
+    void blue()  { if(m_wheel->color() != Qt::blue)  m_wheel->changeColor(Qt::blue);  }
+
     /* Manipulate triggers for zone 0 from Master. */
     void setOnExt();
     void setOffExt();
@@ -93,14 +98,14 @@ public slots:
 
     void setPreset(PresetZone *p, bool set);
 
+    /* Toggle Fixed */
+    void setFixed(bool s) { m_fixed = s; }
+
 private slots:
     void setName();
 
     /* Toggle On/Off */
     void setState(bool state);
-
-    /* Toggle Fixed */
-    void setFixed(bool s) { m_fixed = s; }
 
     /* Internal triggers */
     void setColor(const QColor c) { emit doColor(c, m_zone);                                 }
@@ -111,11 +116,6 @@ private slots:
     void increaseSpeed()          { emit doIncreaseSpeed(m_zone);                            }
     void setRandom();
 
-    /* Color Shortcuts */
-    void red()   { if(m_wheel->color() != Qt::red)   m_wheel->changeColor(Qt::red);   }
-    void green() { if(m_wheel->color() != Qt::green) m_wheel->changeColor(Qt::green); }
-    void blue()  { if(m_wheel->color() != Qt::blue)  m_wheel->changeColor(Qt::blue);  }
-
     /* Fading. */
     void fade(int n);
     void toggleFade(bool state);
@@ -125,6 +125,10 @@ private slots:
     void fade()   { fade(1);  }
     void fade10() { fade(10); }
     void fade20() { fade(20); }
+
+    /* Other Effects */
+    void flash();
+    void flashRandom() { setWhite(); setRandom(); }
 
     void contextMenu(const QPoint& x);
 

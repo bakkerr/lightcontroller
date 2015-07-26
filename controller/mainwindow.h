@@ -23,6 +23,7 @@ signals:
 
 public slots:
     void keyPressEvent(QKeyEvent *);
+    void keyReleaseEvent(QKeyEvent *);
     void closeEvent(QCloseEvent *event);
 
 private slots:

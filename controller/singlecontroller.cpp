@@ -300,6 +300,18 @@ void SingleController::setRandom()
     setColorExt(c);
 }
 
+void SingleController::flash(){
+    QColor c = color();
+    if(c.hue() != QColor(Qt::white).hue()){
+        setWhiteExt();
+        setColorExt(c);
+    }
+    else{
+        setRandomExt();
+        setWhiteExt();
+    }
+}
+
 void SingleController::setOnExt()
 {
     if(m_fixed) return;
