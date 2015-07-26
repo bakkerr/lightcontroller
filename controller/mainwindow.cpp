@@ -14,10 +14,10 @@ MainWindow::MainWindow(QWidget *parent) :
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 
     /*
-     * Create Mastercontroller (zone -1)
-     * Controls all zones on all bridges.
+     * Create Mastercontroller
+     * Controls all zones.
      */
-    master = new SingleController("Master", -1, this);
+    master = new SingleController("Master", 0, true, this);
     addDockWidget(Qt::TopDockWidgetArea, master);
 
     /* Audio Controller */
@@ -253,8 +253,8 @@ void MainWindow::clearSettings()
 void MainWindow::setupControllers(int num, bool setDefaults){
 
 
-    for(int i = 0; i < num; i++){
-        SingleController *lc =  new SingleController(tr("Zone "), i, this);
+    for(int i = 1; i <= num; i++){
+        SingleController *lc =  new SingleController(tr("Zone "), i, false, this);
 
 /*
         connect(master, SIGNAL(doColor(QColor, unsigned char)), lc->zones[0], SLOT(setColorExt(QColor)));

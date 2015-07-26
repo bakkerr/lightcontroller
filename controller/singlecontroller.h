@@ -33,7 +33,7 @@ class SingleController : public QDockWidget
     Q_OBJECT
 public:
     /* Constructor. */
-    explicit SingleController(QString name, unsigned char z, QWidget *parent = 0);
+    explicit SingleController(QString name, unsigned int id, bool master = false, QWidget *parent = 0);
 
     /* Destructor. */
     ~SingleController();
@@ -134,7 +134,8 @@ private:
 
     /* Private state variables */
     QString m_name;
-    unsigned char m_zone;
+    unsigned int m_zone;
+    bool m_master;
     bool m_state;
     bool m_fixed;
 

@@ -1,11 +1,12 @@
 #include "singlecontroller.h"
 
-SingleController::SingleController(QString name, unsigned char z, QWidget *parent) :
+SingleController::SingleController(QString name, unsigned int id, bool master, QWidget *parent) :
     QDockWidget(parent)
 {
-    m_zone = z;
+    m_zone = id;
     m_fixed = false;
     m_state = true;
+    m_master = master;
 
     /* Setup the layout. */
     setupLayout();

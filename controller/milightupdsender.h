@@ -14,24 +14,29 @@ public:
     MiLightUPDsender(QString ip, int port = MILIGHT_PORT_DEFAULT, QObject *parent = 0);
 
 public slots:
-    void setColor(const QColor &c, unsigned char zone);
-    void setBright(unsigned char value, unsigned char zone);
-    void setOn(unsigned char zone);
-    void setOff(unsigned char zone);
-    void setWhite(unsigned char zone);
-    void setBuildinEffect(unsigned char zone);
-    void increaseSpeed(unsigned char zone);
-    void decreaseSpeed(unsigned char zone);
+    void setColor(const QColor &c, quint16 zone);
+    void setBright(unsigned char value, quint16 zone);
+    void setOn(quint16 zone);
+    void setOff(quint16zone);
+    void setWhite(quint16 zone);
+    void setBuildinEffect(quint16 zone);
+    void increaseSpeed(quint16 zone);
+    void decreaseSpeed(quint16 zone);
 
 private:
     void error(const char *x);
-    void udpsend(unsigned char code, unsigned char param);
+    void udpsend(quint8 prefix, quint16 remote, quint8 color, quint8 bright, quint8 key);
 
     QUdpSocket *m_udpSocket;
     QHostAddress m_addr;
     quint16 m_port;
 
+    quint8 m_seq;
+
+
     int currentzone;
+
+
 };
 
 #endif // MILIGHTUPDSENDER_H
