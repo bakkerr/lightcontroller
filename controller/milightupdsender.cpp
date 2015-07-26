@@ -15,34 +15,37 @@ MiLightUPDsender::MiLightUPDsender(QString ip, int port, QObject *parent) :
 
     currentzone = -1;
 
+    m_seq = 0;
+
 }
 
 void MiLightUPDsender::error(const char* x){
-    printf("%s", x);
+    printf("%s\n", x);
 }
 
-void MiLightUPDsender::udpsend(unsigned char code, unsigned char param)
+void MiLightUPDsender::udpsend(quint8 prefix, quint16 remote, quint8 color, quint8 bright, quint8 key)
 {
     //qDebug() << "Command: " << code << " Param: " << param << endl;
 
-    const char command[3] = {(char)code, (char)param, (char)0x55};
+    const char command[7] = {(char)prefix, (char)(remote >> 8), (char)(remote & 0xFF),
+                             (char)color,  (char)bright, (char)key, (char)m_seq}
 
-    for(int i = 0; i < 2; i++){
+    for(int i = 0; i < 1; i++){
         qint64 bs = m_udpSocket->writeDatagram(command, 3, m_addr, m_port);
         if(bs <= 0) error("Error sending data!\n");
     }
 
-    this->thread()->usleep(10000);
+    m_seq++;
+    //this->thread()->usleep(10000);
 }
 
-void MiLightUPDsender::setColor(const QColor &c, unsigned char zone)
+void MiLightUPDsender::setColor(const QColor &c, quint16 zone)
 {
     int color = (256 + 176 - (int)(c.hue() / 360.0 * 255.0)) % 256;
-    setOn(zone);
     udpsend(0x40, color);
 }
 
-void MiLightUPDsender::setBright(unsigned char value, unsigned char zone)
+void MiLightUPDsender::setBright(unsigned char value, quint16 zone)
 {
     unsigned char BRIGHTcodes[19] = {0x02, 0x03, 0x04, 0x05, 0x08,
                             0x09, 0x0A, 0x0B, 0x0D, 0x0E,
@@ -53,8 +56,7 @@ void MiLightUPDsender::setBright(unsigned char value, unsigned char zone)
 
     if(value < 19)
     {
-        setOn(zone);
-        udpsend(0x4E, BRIGHTcodes[value]);
+        udpsend(0xB8, zone, 0x00, BRIGHTcodes[value], 0x0E);
     }
 }
 
@@ -77,8 +79,7 @@ void MiLightUPDsender::setOff(unsigned char zone)
 
 void MiLightUPDsender::setWhite(unsigned char zone)
 {
-    unsigned char WHITEcodes[5] = {0xC2, 0xC5, 0xC7, 0xC9, 0xCB};
-    udpsend(WHITEcodes[zone], 0x00);
+    udpsend(0xB8, zone, 0x00, 0x00, 0x11);
     currentzone = -1;
 }
 
