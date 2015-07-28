@@ -33,7 +33,7 @@ class SingleController : public QDockWidget
     Q_OBJECT
 public:
     /* Constructor. */
-    explicit SingleController(QString name, unsigned int id, QList<SingleController *> slaves, QWidget *parent = 0);
+    explicit SingleController(quint16 id, QString name, quint16 remote, QList<SingleController *> slaves, QWidget *parent = 0);
 
     /* Destructor. */
     ~SingleController();
@@ -42,12 +42,15 @@ public:
     QAction *viewControllerAction;
 
     /* getMethods. */
+    quint16 id()         { return m_id;                     }
     QString name()       { return m_name;                   }
     quint16 remote()     { return m_zone;                   }
     bool    fixed()      { return m_fixed;                  }
     bool    fadeTime()   { return m_fadeSlider->value();    }
     QColor  color()      { return m_wheel->color();         }
     int     brightness() { return m_brightSlider->value();  }
+
+    QList<SingleController*> slaves() { return m_slaves; }
 
     bool areSlavesFixed();
 
@@ -153,6 +156,7 @@ private:
     void setupLayout();
 
     /* Private state variables */
+    quint16 m_id;
     QString m_name;
     quint16 m_zone;
     bool m_state;

@@ -10,10 +10,9 @@
 #define APPLICATION_YEAR          "2015"
 #define APPLICATION_URL           "http://github.com/bakkerr/lightcontroller"
 
+#define DEFAULT_SAVE_NAME         "default"
 
 #define MILIGHT_PORT_DEFAULT            8899
-#define MILIGHT_PORT_DISCOVER          48899
-#define MILIGHT_MSG_DISCOVER    "Link_Wi-Fi"
 
 #define BRIGHT_VALUE_DEFAULT              19
 

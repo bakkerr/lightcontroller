@@ -1,9 +1,10 @@
 #include "singlecontroller.h"
 
-SingleController::SingleController(QString name, unsigned int id, QList<SingleController*> slaves, QWidget *parent) :
+SingleController::SingleController(quint16 id, QString name, quint16 remote, QList<SingleController*> slaves, QWidget *parent) :
     QDockWidget(name, parent)
 {
-    m_zone = id;
+    m_id = id;
+    m_zone = remote;
     m_fixed = false;
     m_state = true;
     m_slaves = slaves;

@@ -27,9 +27,10 @@ public slots:
     void closeEvent(QCloseEvent *event);
 
 private slots:
-    void addController(QString name, quint16 remote, QList<quint16> slave_ids);
-    void loadSettings();
-    void saveSettings();
+    void addController(quint16 id, QString name, quint16 remote, QList<quint16> slave_ids);
+    void loadSettings(QString settingsName = tr(DEFAULT_SAVE_NAME));
+    void saveSettings(QString settingsName = tr(DEFAULT_SAVE_NAME));
+    void saveSettingsAs();
     void clearSettings();
     void getPreset();
     void setPreset(Preset *p);
@@ -64,6 +65,7 @@ private:
     QMenu *helpMenu;
 
     QAction *saveSettingsAction;
+    QAction *saveSettingsAsAction;
     QAction *clearSettingsAction;
 
     QAction *viewStatusBarAction;

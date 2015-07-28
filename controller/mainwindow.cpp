@@ -37,10 +37,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QList<quint16> slaves;
     for(int i = 1; i <= 5; i++){
-        addController(tr("L") + QString::number(i), i, QList<quint16>());
+        addController(i, tr("L") + QString::number(i), i, QList<quint16>());
         slaves.append(i);
     }
-    addController(tr("Master"), 0x0044, slaves);
+    addController(6, tr("Master"), 0x0044, slaves);
 
     //loadSettings();
 
@@ -55,6 +55,9 @@ void MainWindow::setupActions()
 {
     saveSettingsAction = new QAction(tr("&Save Settings"), this);
     connect(saveSettingsAction, SIGNAL(triggered()), this, SLOT(saveSettings()));
+
+    saveSettingsAsAction = new QAction(tr("&Save Settings as..."), this);
+    connect(saveSettingsAsAction, SIGNAL(triggered()), this, SLOT(saveSettingsAs()));
 
     clearSettingsAction = new QAction(tr("&Clear Settings"), this);
     connect(clearSettingsAction, SIGNAL(triggered()), this, SLOT(clearSettings()));
@@ -88,6 +91,7 @@ void MainWindow::setupMenuBar()
     /* File Menu */
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(saveSettingsAction);
+    fileMenu->addAction(saveSettingsAsAction);
     fileMenu->addAction(clearSettingsAction);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
@@ -158,25 +162,30 @@ void MainWindow::setupStatusBar()
                              , 0);
 }
 
-void MainWindow::loadSettings()
+void MainWindow::loadSettings(QString settingsName)
 {
-/*
     QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
 
-    s->beginGroup(tr("MainWindow"));
+    s->beginGroup(settingsName);
 
-    master->setName(s->value(tr("MasterControllerName"), tr("Master")).toString());
+    int size = s->beginReadArray(tr("Controllers"));
 
-    int size = s->beginReadArray(tr("LightControllers"));
+    for(int i = 0; i < size; i++){
+        s->setArrayIndex(i);
 
-    for(int i = 0; i < controllers.size(); i++){
-        LightController *lc = controllers.at(i);
-        for(int j = 0; j < size; j++){
+        quint16 id = s->value(tr("id"), 0x00).toUInt();
+        QString name = s->value(tr("name"), tr("name")).toString();
+        quint16 remote = s->value(tr("remote"), 0x00).toUInt();
+
+        int slave_size = s->beginReadArray(tr("Slaves"));
+        QList<quint16> slaves;
+        for(int j = 0; j < slave_size; j++){
             s->setArrayIndex(j);
-            if(s->value(tr("id"), tr("")).toString() == lc->id()){
-                lc->loadSettings(s);
-            }
+            slaves.append(s->value(tr("id"), 0x00).toUInt());
         }
+        s->endArray();
+
+        addController(id, name, remote, slaves);
     }
 
     s->endArray();
@@ -190,23 +199,39 @@ void MainWindow::loadSettings()
     GLOBAL_settingsChanged = false;
 
     s->sync();
-*/
 }
 
-void MainWindow::saveSettings()
+
+void MainWindow::saveSettings(QString settingsName)
 {
-/*
     QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
-    s->beginGroup(tr("MainWindow"));
-    s->setValue(tr("MasterControllerName"), master->name());
-    s->setValue(tr("MasterControllerVisible"), master->isVisible());
+    s->beginGroup(settingsName);
 
+    s->beginGroup(tr("Info"));
+    s->setValue(tr("version"), tr(APPLICATION_VERSION));
+#if defined(__DATE__) && defined(__TIME__)
+    s->setValue(tr("build_date"), tr(__DATE__) + tr(" ") + tr(__TIME__));
+#endif
+    s->setValue(tr("saved"), QDateTime::currentDateTime());
+    s->endGroup();
 
-    s->beginWriteArray(tr("LightControllers"));
+    s->beginWriteArray(tr("Controllers"));
 
-    for(int i = 0; i < controllers.size(); i++){
+    for(int i = 0; i < controllers.count(); i++){
         s->setArrayIndex(i);
-        controllers.at(i)->saveSettings(s);
+
+        SingleController *lc = controllers.at(i);
+        s->setValue(tr("id"), lc->id());
+        s->setValue(tr("name"), lc->name());
+        s->setValue(tr("remote"), lc->remote());
+
+        s->beginWriteArray(tr("Slaves"));
+        QList<SingleController*> slaves = lc->slaves();
+        for(int j = 0; j < slaves.count(); j++){
+            s->setArrayIndex(j);
+            s->setValue(tr("id"), slaves.at(j)->id());
+        }
+        s->endArray();
     }
 
     s->endArray();
@@ -220,7 +245,32 @@ void MainWindow::saveSettings()
     s->sync();
 
     GLOBAL_settingsChanged = false;
-*/
+
+}
+
+void MainWindow::saveSettingsAs()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Set name"), tr("Name:"), QLineEdit::Normal, tr(""), &ok);
+    if(ok){
+        if(name.isEmpty()){
+            saveSettingsAs();
+            return;
+        }
+        QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
+        if(s->childGroups().contains(name)){
+            QMessageBox::StandardButton mb = QMessageBox::question(this,
+                tr("Overwrite settings?"),
+                tr("Settings with the name \"") + name + tr("\" already exist. Do you want to overwrite them?"),
+                QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::No);
+            if(mb == QMessageBox::No){
+                return;
+            }
+        }
+
+        saveSettings(name);
+    }
 }
 
 void MainWindow::clearSettings()
@@ -241,16 +291,20 @@ void MainWindow::clearSettings()
 
 }
 
-void MainWindow::addController(QString name, quint16 remote, QList<quint16> slave_ids)
+void MainWindow::addController(quint16 id, QString name, quint16 remote, QList<quint16> slave_ids)
 {
     QList<SingleController *> slaves;
     foreach(SingleController *l, controllers){
+        if(l->id() == id){
+            QMessageBox::critical(this, tr("Error!"), tr("Trying to add controller with the same id!"));
+        }
+
         if(slave_ids.contains(l->remote())){
             slaves.append(l);
         }
     }
 
-    SingleController *lc = new SingleController(name, remote, slaves);
+    SingleController *lc = new SingleController(id, name, remote, slaves);
 
     if(remote > 0){
         connect(lc, SIGNAL(doOn(quint16)), udp, SLOT(setOn(quint16)));
