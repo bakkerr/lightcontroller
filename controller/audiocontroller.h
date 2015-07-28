@@ -27,7 +27,7 @@
 #include "qcustomplot.h"
 #include "fftdisplay.h"
 
-enum effects { EFFECT_NO, EFFECT_RANDOM_ALL, EFFECT_RANDOM_SAME, EFFECT_FADE10, EFFECT_FADE20 };
+enum effects { EFFECT_NO, EFFECT_RANDOM_ALL, EFFECT_RANDOM_SAME, EFFECT_FLASH, EFFECT_FLASH_RANDOM, EFFECT_FADE10, EFFECT_FADE20 };
 
 class audioController : public QDockWidget
 {
@@ -47,6 +47,8 @@ signals:
     void beatDetected();
     void setRandomAll();
     void setRandomSame();
+    void flash();
+    void flashRandom();
     void fade10();
     void fade20();
 
@@ -80,6 +82,8 @@ private:
     QRadioButton *m_noEffectButton;
     QRadioButton *m_randomSameButton;
     QRadioButton *m_randomAllButton;
+    QRadioButton *m_flashButton;
+    QRadioButton *m_flashRandomButton;
     QRadioButton *m_fade10Button;
     QRadioButton *m_fade20Button;
 

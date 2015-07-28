@@ -13,21 +13,11 @@ MainWindow::MainWindow(QWidget *parent) :
     setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 
-    /*
-     * Create Mastercontroller
-     * Controls all zones.
-     */
-    master = new SingleController("Master", 0, true, this);
-    addDockWidget(Qt::TopDockWidgetArea, master);
+    udp = new MiLightUPDsender(tr("192.168.1.12"), 8899, this);
 
     /* Audio Controller */
     audio = new audioController(this);
     addDockWidget(Qt::TopDockWidgetArea, audio);
-
-    /* Connect Audio to Master .*/
-    connect(audio, SIGNAL(setRandomSame()), master, SLOT(setRandomExt()));
-    connect(audio, SIGNAL(fade10()), master, SLOT(fade10Ext()));
-    connect(audio, SIGNAL(fade20()), master, SLOT(fade20Ext()));
 
     presetController = new PresetController(this);
     presetController->setMinimumWidth(230);
@@ -40,12 +30,17 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *w = window();
     w->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w->size(), qApp->desktop()->availableGeometry()));
 
-    setupControllers(5, true);
-
     setupActions();
     setupToolBar();
     setupMenuBar();
     setupStatusBar();
+
+    QList<quint16> slaves;
+    for(int i = 1; i <= 5; i++){
+        addController(tr("L") + QString::number(i), i, QList<quint16>());
+        slaves.append(i);
+    }
+    addController(tr("Master"), 0x0044, slaves);
 
     //loadSettings();
 
@@ -75,6 +70,9 @@ void MainWindow::setupActions()
     settingsAction = new QAction(tr("&Settings"), this);
     connect(settingsAction, SIGNAL(triggered()), this, SLOT(showSettingsDialog()));
 
+    addControllerAction = new QAction(tr("&Add Controller"), this);
+    connect(addControllerAction, SIGNAL(triggered()), this, SLOT(showAddControllerDialog()));
+
     dockAllAction = new QAction(tr("&Dock All"), this);
     connect(dockAllAction, SIGNAL(triggered()), this, SLOT(dockAll()));
 
@@ -97,13 +95,10 @@ void MainWindow::setupMenuBar()
     /* Edit Menu */
     editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(settingsAction);
+    editMenu->addAction(addControllerAction);
 
     /* View Menu */
     viewMenu = menuBar()->addMenu(tr("&View"));
-
-    viewMenu->addAction(master->toggleViewAction());
-
-    viewMenu->addSeparator();
 
     viewMenu->addMenu(audio->viewAudioMenu);
 
@@ -111,9 +106,7 @@ void MainWindow::setupMenuBar()
 
     viewMenu->addSeparator();
 
-    QVectorIterator<SingleController*> i(controllers);
-    while(i.hasNext()){
-        SingleController * lc = i.next();
+    foreach(SingleController *lc, controllers){
         viewMenu->addAction(lc->viewControllerAction);
     }
 
@@ -138,15 +131,13 @@ void MainWindow::setupToolBar()
 {
     toolBar = addToolBar(tr("Tools"));
     toolBar->addSeparator();
-    toolBar->addAction(master->toggleViewAction());
     toolBar->addAction(audio->toggleViewAction());
     toolBar->addAction(presetController->toggleViewAction());
     toolBar->addSeparator();
 
 
-    QVectorIterator<SingleController*> i(controllers);
-    while(i.hasNext()){
-        toolBar->addAction(i.next()->toggleViewAction());
+    foreach(SingleController *lc, controllers){
+        toolBar->addAction(lc->toggleViewAction());
     }
 
     toolBar->addSeparator();
@@ -250,40 +241,44 @@ void MainWindow::clearSettings()
 
 }
 
-void MainWindow::setupControllers(int num, bool setDefaults){
-
-
-    for(int i = 1; i <= num; i++){
-        SingleController *lc =  new SingleController(tr("Zone "), i, false, this);
-
-/*
-        connect(master, SIGNAL(doColor(QColor, unsigned char)), lc->zones[0], SLOT(setColorExt(QColor)));
-        connect(master, SIGNAL(doBright(unsigned char, unsigned char)), lc->zones[0], SLOT(setBrightExt(unsigned char)));
-        connect(master, SIGNAL(doOn(unsigned char)), lc->zones[0], SLOT(setOnExt()));
-        connect(master, SIGNAL(doOff(unsigned char)), lc->zones[0], SLOT(setOffExt()));
-        connect(master, SIGNAL(doWhite(unsigned char)), lc->zones[0], SLOT(setWhiteExt()));
-        connect(master, SIGNAL(fadeEnabled()), lc->zones[0], SLOT(disableFade()));
-*/
-        controllers.append(lc);
-
-        addDockWidget(Qt::BottomDockWidgetArea, lc);
-/*
-        if(controllers.size() > 1) tabifyDockWidget(controllers.first(), controllers.last());
-*/
-
+void MainWindow::addController(QString name, quint16 remote, QList<quint16> slave_ids)
+{
+    QList<SingleController *> slaves;
+    foreach(SingleController *l, controllers){
+        if(slave_ids.contains(l->remote())){
+            slaves.append(l);
+        }
     }
 
-    if(setDefaults){
-        master->setColorExt(Qt::blue);
-        usleep(150000);
-        master->setBrightExt(18);
+    SingleController *lc = new SingleController(name, remote, slaves);
+
+    if(remote > 0){
+        connect(lc, SIGNAL(doOn(quint16)), udp, SLOT(setOn(quint16)));
+        connect(lc, SIGNAL(doOff(quint16)), udp, SLOT(setOff(quint16)));
+        connect(lc, SIGNAL(doWhite(quint16)), udp, SLOT(setWhite(quint16)));
+        connect(lc, SIGNAL(doColor(QColor, quint16)), udp, SLOT(setColor(QColor, quint16)));
+        connect(lc, SIGNAL(doBright(quint8, quint16)), udp, SLOT(setBright(quint8, quint16)));
+
+        connect(lc, SIGNAL(doPair(quint16)), udp, SLOT(pair(quint16)));
+        connect(lc, SIGNAL(doUnPair(quint16)), udp, SLOT(unPair(quint16)));
     }
+
+    controllers.append(lc);
+
+    addDockWidget(Qt::BottomDockWidgetArea, lc);
 }
 
 void MainWindow::showSettingsDialog()
 {
     settingsDialog *s = new settingsDialog(this);
     s->exec();
+}
+
+void MainWindow::showAddControllerDialog()
+{
+    addControllerDialog *d = new addControllerDialog(controllers, this);
+    connect(d, SIGNAL(addController(QString,quint16,QList<quint16>)), this, SLOT(addController(QString,quint16,QList<quint16>)));
+    d->exec();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -348,12 +343,11 @@ void MainWindow::setPreset(Preset *p)
 
 void MainWindow::dockAll()
 {
-    master->setFloating(false);
     audio->setFloating(false);
     presetController->setFloating(false);
 
-    for(int i = 0; i < controllers.size(); i++){
-        controllers.at(i)->setFloating(false);
+    foreach(SingleController *lc, controllers){
+        lc->setFloating(false);
     }
 }
 

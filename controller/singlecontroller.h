@@ -33,7 +33,7 @@ class SingleController : public QDockWidget
     Q_OBJECT
 public:
     /* Constructor. */
-    explicit SingleController(QString name, unsigned int id, bool master = false, QWidget *parent = 0);
+    explicit SingleController(QString name, unsigned int id, QList<SingleController *> slaves, QWidget *parent = 0);
 
     /* Destructor. */
     ~SingleController();
@@ -43,25 +43,34 @@ public:
 
     /* getMethods. */
     QString name()       { return m_name;                   }
+    quint16 remote()     { return m_zone;                   }
     bool    fixed()      { return m_fixed;                  }
     bool    fadeTime()   { return m_fadeSlider->value();    }
     QColor  color()      { return m_wheel->color();         }
     int     brightness() { return m_brightSlider->value();  }
 
+    bool areSlavesFixed();
+
+    /* Settings */
     PresetZone * getPreset();
     void loadSettings(QSettings *s);
     void saveSettings(QSettings *s);
 
 signals:
-    /* Signals to communicate with the lightcontroller to process the changes to the WiFi Bridge. */
-    void doColor(const QColor &color, unsigned char zone);
-    void doBright(unsigned char value, unsigned char zone);
-    void doWhite(unsigned char zone);
-    void doOn(unsigned char zone);
-    void doOff(unsigned char zone);
-    void doBuildinEffect(unsigned char zone);
-    void doIncreaseSpeed(unsigned char zone);
-    void doDecreaseSpeed(unsigned char zone);
+    /* Signals to communicate with the UDP controller. */
+    void doOn(quint16 zone);
+    void doOff(quint16 zone);
+    void doColor(const QColor &color, quint16 zone);
+    void doBright(unsigned char value, quint16 zone);
+    void doWhite(quint16 zone);
+    void doNight(quint16 zone);
+
+    void doBuildinEffect(quint16 zone);
+    void doIncreaseSpeed(quint16 zone);
+    void doDecreaseSpeed(quint16 zone);
+
+    void doPair(quint16 zone);
+    void doUnPair(quint16 zone);
 
     /* Sync fade state between Master and Zones. */
     void fadeEnabled();
@@ -73,8 +82,10 @@ public slots:
     void setOnExt();
     void setOffExt();
     void setColorExt(const QColor &color);
-    void setWhiteExt();
     void setBrightExt(unsigned char value);
+    void setWhiteExt();
+    void setNightExt();
+
     void setRandomExt();
     void fadeExt()   { if(!m_fixed) fade(1);  }
     void fade10Ext() { if(!m_fixed) fade(10); }
@@ -84,8 +95,10 @@ public slots:
     void updateOn();
     void updateOff();
     void updateColor(const QColor &color);
-    void updateWhite();
     void updateBright(unsigned char value);
+    void updateWhite();
+    void updateNight();
+
 
     /* Fading Slots. */
     void enableFade();
@@ -96,19 +109,26 @@ public slots:
 private slots:
     void setName();
 
-    /* Toggle On/Off */
-    void setState(bool state);
-
     /* Toggle Fixed */
     void setFixed(bool s) { m_fixed = s; }
 
+    /* Toggle On/Off */
+    void setState(bool state);
+
     /* Internal triggers */
-    void setColor(const QColor c) { emit doColor(c, m_zone);                                 }
-    void setBright(int value)     { emit doBright((unsigned char)value, m_zone);             }
-    void setWhite()               { m_wheel->setInnerColor(Qt::white); emit doWhite(m_zone); }
-    void setBuildinEffect()       { emit doBuildinEffect(m_zone);                            }
-    void decreaseSpeed()          { emit doDecreaseSpeed(m_zone);                            }
-    void increaseSpeed()          { emit doIncreaseSpeed(m_zone);                            }
+    void setColor(const QColor &color);
+    void setBright(int value);
+    void setWhite();
+    void setNight();
+
+    void setBuildinEffect();
+    void decreaseSpeed();
+    void increaseSpeed();
+
+    /* Pairing slots. */
+    void pair()   { emit(doPair(m_zone));   }
+    void unPair() { emit(doUnPair(m_zone)); }
+
     void setRandom();
 
     /* Color Shortcuts */
@@ -134,10 +154,11 @@ private:
 
     /* Private state variables */
     QString m_name;
-    unsigned int m_zone;
-    bool m_master;
+    quint16 m_zone;
     bool m_state;
     bool m_fixed;
+    QList<SingleController*> m_slaves;
+
 
     /* Outer groupbox container. */
     QGroupBox *m_groupBox;

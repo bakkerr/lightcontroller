@@ -13,90 +13,90 @@ MiLightUPDsender::MiLightUPDsender(QString ip, int port, QObject *parent) :
     m_udpSocket = new QUdpSocket(this);
     m_port = (quint16)port;
 
-    currentzone = -1;
-
     m_seq = 0;
-
 }
 
 void MiLightUPDsender::error(const char* x){
     printf("%s\n", x);
 }
 
-void MiLightUPDsender::udpsend(quint8 prefix, quint16 remote, quint8 color, quint8 bright, quint8 key)
+void MiLightUPDsender::udpsend(quint16 remote, quint8 color, quint8 bright, quint8 key, quint8 prefix)
 {
-    //qDebug() << "Command: " << code << " Param: " << param << endl;
+    const unsigned char command[7] = {(unsigned char)prefix, (unsigned char)(remote >> 8), (unsigned char)(remote & 0xFF),
+                             (unsigned char)color,  (unsigned char)bright, (unsigned char)key, (unsigned char)m_seq};
 
-    const char command[7] = {(char)prefix, (char)(remote >> 8), (char)(remote & 0xFF),
-                             (char)color,  (char)bright, (char)key, (char)m_seq}
+    //for(int i = 0; i < 7; i++) printf("%2x ", command[i]);
+    //printf("\n"); fflush(stdout);
 
     for(int i = 0; i < 1; i++){
-        qint64 bs = m_udpSocket->writeDatagram(command, 3, m_addr, m_port);
+        qint64 bs = m_udpSocket->writeDatagram((char*)command, 7, m_addr, m_port);
         if(bs <= 0) error("Error sending data!\n");
     }
 
     m_seq++;
-    //this->thread()->usleep(10000);
 }
 
 void MiLightUPDsender::setColor(const QColor &c, quint16 zone)
 {
-    int color = (256 + 176 - (int)(c.hue() / 360.0 * 255.0)) % 256;
-    udpsend(0x40, color);
+    int color = 24 + ((int)(c.hue() / 360.0 * 255.0)) % 256;
+    udpsend(zone, color, 0x00, 0x0F);
 }
 
 void MiLightUPDsender::setBright(unsigned char value, quint16 zone)
 {
-    unsigned char BRIGHTcodes[19] = {0x02, 0x03, 0x04, 0x05, 0x08,
-                            0x09, 0x0A, 0x0B, 0x0D, 0x0E,
-                            0x0F, 0x10, 0x12, 0x13, 0x14,
-                            0x15, 0x17, 0x18, 0x19};
-
-    //qDebug() << "B" << zone << ":" << value << endl;
+    unsigned char BRIGHTcodes[19] = {0x80, 0x78, 0x70, 0x68, 0x50,
+                            0x48, 0x40, 0x38, 0x28, 0x20,
+                            0x18, 0x10, 0x00, 0xF8, 0xF0,
+                            0xE8, 0xD8, 0xD0, 0xC8};
 
     if(value < 19)
     {
-        udpsend(0xB8, zone, 0x00, BRIGHTcodes[value], 0x0E);
+        udpsend(zone, 0x00, BRIGHTcodes[value], 0x0E);
     }
 }
 
-void MiLightUPDsender::setOn(unsigned char zone)
+void MiLightUPDsender::setOn(quint16 zone)
 {
-    unsigned char ONcodes[5] = {0x42, 0x45, 0x47, 0x49, 0x4B};
-    if(zone != currentzone){
-        udpsend(ONcodes[zone], 0x00);
-        currentzone = zone;
-        //this->thread()->usleep(10000);
+    udpsend(zone, 0x00, 0x00, 0x01);
+}
+
+void MiLightUPDsender::setOff(quint16 zone)
+{
+    udpsend(zone, 0x00, 0x00, 0x02);
+}
+
+void MiLightUPDsender::setWhite(quint16 zone)
+{
+    udpsend(zone, 0x00, 0x00, 0x11);
+}
+
+void MiLightUPDsender::setNight(quint16 zone)
+{
+    udpsend(zone, 0x00, 0x00, 0x12);
+}
+
+void MiLightUPDsender::setBuildinEffect(quint8 effect, quint16 zone)
+{
+    if(effect <= 8){
+      udpsend(zone, 0x00, 0x00, 0x0D, effect + 0xB0);
     }
 }
 
-void MiLightUPDsender::setOff(unsigned char zone)
+void MiLightUPDsender::increaseSpeed(quint16 zone, quint8 effect)
 {
-    unsigned char OFFcodes[5] = {0x41, 0x46, 0x48, 0x4A, 0x4C};
-    udpsend(OFFcodes[zone], 0x00);
-    currentzone = -1;
+    udpsend(zone, 0x00, 0x00, 0xB, effect);
 }
 
-void MiLightUPDsender::setWhite(unsigned char zone)
+void MiLightUPDsender::decreaseSpeed(quint16 zone, quint8 effect)
 {
-    udpsend(0xB8, zone, 0x00, 0x00, 0x11);
-    currentzone = -1;
+    udpsend(zone, 0x00, 0x00, 0xC, effect);
 }
 
-void MiLightUPDsender::setBuildinEffect(unsigned char zone)
-{
-    setOn(zone);
-    udpsend(0x4D, 0x00);
+void MiLightUPDsender::pair(quint16 zone){
+    udpsend(zone, 0x00, 0x00, 0x03);
 }
 
-void MiLightUPDsender::increaseSpeed(unsigned char zone)
-{
-    setOn(zone);
-    udpsend(0x44, 0x00);
-}
-
-void MiLightUPDsender::decreaseSpeed(unsigned char zone)
-{
-    setOn(zone);
-    udpsend(0x43, 0x00);
+void MiLightUPDsender::unPair(quint16 zone){
+    udpsend(zone, 0x00, 0x00, 0x03);
+    udpsend(zone, 0x00, 0x00, 0x13);
 }

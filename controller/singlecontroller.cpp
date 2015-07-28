@@ -1,12 +1,13 @@
 #include "singlecontroller.h"
 
-SingleController::SingleController(QString name, unsigned int id, bool master, QWidget *parent) :
-    QDockWidget(parent)
+SingleController::SingleController(QString name, unsigned int id, QList<SingleController*> slaves, QWidget *parent) :
+    QDockWidget(name, parent)
 {
     m_zone = id;
     m_fixed = false;
     m_state = true;
-    m_master = master;
+    m_slaves = slaves;
+    m_name = name;
 
     /* Setup the layout. */
     setupLayout();
@@ -16,8 +17,6 @@ SingleController::SingleController(QString name, unsigned int id, bool master, Q
     viewControllerAction->setCheckable(true);
     viewControllerAction->setChecked(true);
     connect(viewControllerAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
-
-    setName(name);
 
     /* Set the layout for this Widget. */
     this->setWidget(m_groupBox);
@@ -30,7 +29,7 @@ SingleController::~SingleController()
 
 void SingleController::setupLayout()
 {
-    m_groupBox = new QGroupBox(m_name, this);
+    m_groupBox = new QGroupBox(tr("On/Off"), this);
     m_groupBox->setCheckable(true);
     m_groupBox->setChecked(true);
 
@@ -159,12 +158,18 @@ void SingleController::contextMenu(const QPoint &x)
 
     myMenu.addAction(viewControllerAction);
     myMenu.addSeparator();
+
     QAction *setNameAction = myMenu.addAction(tr("Change name"));
-
-
     connect(setNameAction, SIGNAL(triggered()), this, SLOT(setName()));
 
-    //QAction * selected =
+    myMenu.addSeparator();
+
+    QAction *sendPairAction = myMenu.addAction(tr("Send pair command"));
+    connect(sendPairAction, SIGNAL(triggered()), this, SLOT(pair()));
+
+    QAction *sendUnPairAction = myMenu.addAction(tr("Send unpair command"));
+    connect(sendUnPairAction, SIGNAL(triggered()), this, SLOT(unPair()));
+
     myMenu.exec(gp);
 }
 
@@ -228,19 +233,12 @@ void SingleController::setName(QString name)
     if(m_name == name) return;
 
     m_name = name;
-    QString displayName;
 
-    if(m_zone == 255){
-        displayName = tr("[M] ") + m_name;
-    }
-    else{
-        displayName = tr("[Z") + QString::number(m_zone) + tr("] ") + m_name;
-    }
-    m_groupBox->setTitle(displayName);
-    viewControllerAction->setText(displayName);
+    setWindowTitle(m_name);
+
+    viewControllerAction->setText(m_name);
 
     GLOBAL_settingsChanged = true;
-
 }
 
 void SingleController::setState(bool state)
@@ -291,6 +289,106 @@ void SingleController::fade(int n)
     m_wheel->changeColor(c);
 }
 
+bool SingleController::areSlavesFixed(){
+    foreach(SingleController* slave, m_slaves){
+        if(slave->fixed()){
+            return true;
+        }
+    }
+    return false;
+}
+
+void SingleController::setColor(const QColor &color)
+{
+    if(m_slaves.empty()){
+      emit doColor(color, m_zone);
+    }
+    else if(m_zone == 0 || areSlavesFixed()){
+        foreach(SingleController* slave, m_slaves){
+            slave->setColorExt(color);
+        }
+    }
+    else{
+        foreach(SingleController* slave, m_slaves){
+            slave->updateColor(color);
+        }
+        emit doColor(color, m_zone);
+    }
+}
+
+void SingleController::setBright(int value)
+{
+    if(m_slaves.empty()){
+        emit doBright((quint8)value, m_zone);
+    }
+    else if(m_zone == 0 || areSlavesFixed()){
+        foreach(SingleController* slave, m_slaves){
+            slave->setBrightExt(value);
+        }
+    }
+    else{
+        foreach(SingleController* slave, m_slaves){
+            slave->updateBright(value);
+        }
+        emit doBright((quint8)value, m_zone);
+    }
+}
+
+void SingleController::setWhite()
+{
+    if(m_slaves.empty()){
+      emit doWhite(m_zone);
+    }
+    else if(m_zone == 0 || areSlavesFixed()){
+        foreach(SingleController* slave, m_slaves){
+            slave->setWhiteExt();
+        }
+    }
+    else{
+        foreach(SingleController* slave, m_slaves){
+            slave->updateWhite();
+        }
+        emit doWhite(m_zone);
+    }
+
+    m_wheel->setInnerColor(Qt::white);
+}
+
+void SingleController::setNight()
+{
+    if(m_slaves.empty()){
+      emit doNight(m_zone);
+    }
+    else if(m_zone == 0 || areSlavesFixed()){
+        foreach(SingleController* slave, m_slaves){
+            slave->setNightExt();
+        }
+    }
+    else{
+        foreach(SingleController* slave, m_slaves){
+            slave->updateNight();
+        }
+        emit doNight(m_zone);
+    }
+
+    m_wheel->setInnerColor(Qt::white);
+}
+
+void SingleController::setBuildinEffect()
+{
+    //emit doBuildinEffect(m_zone);
+}
+
+void SingleController::decreaseSpeed()
+{
+    //emit doDecreaseSpeed(m_zone);
+}
+
+void SingleController::increaseSpeed()
+{
+    //emit doIncreaseSpeed(m_zone);
+}
+
 void SingleController::setRandom()
 {
     QColor c;
@@ -316,7 +414,6 @@ void SingleController::setOffExt()
     setState(false);
 }
 
-
 void SingleController::setColorExt(const QColor &color)
 {
     if(m_fixed) return;
@@ -325,6 +422,15 @@ void SingleController::setColorExt(const QColor &color)
 
     updateColor(color);
     setColor(color);
+}
+
+void SingleController::setBrightExt(unsigned char value){
+    if(m_fixed) return;
+
+    m_groupBox->setChecked(true);
+
+    updateBright(value);
+    setBright(value);
 }
 
 void SingleController::setWhiteExt()
@@ -337,15 +443,15 @@ void SingleController::setWhiteExt()
     setWhite();
 }
 
-void SingleController::setBrightExt(unsigned char value){
+void SingleController::setNightExt()
+{
     if(m_fixed) return;
 
     m_groupBox->setChecked(true);
 
-    updateBright(value);
-    setBright(value);
+    updateNight();
+    setNight();
 }
-
 
 void SingleController::setRandomExt()
 {
@@ -354,6 +460,28 @@ void SingleController::setRandomExt()
     m_groupBox->setChecked(true);
 
     setRandom();
+}
+
+void SingleController::updateOn()
+{
+    if(m_fixed) return;
+
+    m_groupBox->blockSignals(true);
+    m_groupBox->setChecked(true);
+    m_wheel->setInnerColor(m_wheel->color());
+    m_groupBox->blockSignals(false);
+
+}
+
+void SingleController::updateOff()
+{
+    if(m_fixed) return;
+
+    m_groupBox->blockSignals(true);
+    m_groupBox->setChecked(false);
+    m_wheel->setInnerColor(Qt::gray);
+    m_groupBox->blockSignals(false);
+
 }
 
 void SingleController::updateColor(const QColor &color)
@@ -385,24 +513,11 @@ void SingleController::updateWhite()
     m_wheel->setInnerColor(Qt::white);
 }
 
-void SingleController::updateOn()
+void SingleController::updateNight()
 {
     if(m_fixed) return;
 
-    m_groupBox->blockSignals(true);
     m_groupBox->setChecked(true);
-    m_wheel->setInnerColor(m_wheel->color());
-    m_groupBox->blockSignals(false);
 
-}
-
-void SingleController::updateOff()
-{
-    if(m_fixed) return;
-
-    m_groupBox->blockSignals(true);
-    m_groupBox->setChecked(false);
-    m_wheel->setInnerColor(Qt::gray);
-    m_groupBox->blockSignals(false);
-
+    m_wheel->setInnerColor(Qt::white);
 }

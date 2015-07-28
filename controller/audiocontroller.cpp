@@ -22,6 +22,10 @@ audioController::audioController(QWidget *parent) :
 
     m_deviceBox = new QComboBox(this);
     const QAudioDeviceInfo &defaultDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
+    if(defaultDeviceInfo.isNull()){
+        this->setEnabled(false);
+        this->setToolTip(tr("AudioController has been disabled because it could not find a default audio input device. Please add an input device and restart ") + APPLICATION_NAME);
+    }
     m_inputDevice = defaultDeviceInfo;
     m_deviceBox->addItem(defaultDeviceInfo.deviceName(), qVariantFromValue(defaultDeviceInfo));
     m_deviceBox->setMaximumWidth(150);
@@ -73,26 +77,36 @@ audioController::audioController(QWidget *parent) :
     l1->addWidget(m_settingsBox);
 
     m_effectBox = new QGroupBox(tr("Trigger Effect"), this);
-    QVBoxLayout *effectLayout = new QVBoxLayout();
+    QHBoxLayout *effectLayout0 = new QHBoxLayout();
+    QVBoxLayout *effectLayout1 = new QVBoxLayout();
+    QVBoxLayout *effectLayout2 = new QVBoxLayout();
     m_effectGroup = new QButtonGroup(this);
     m_effectGroup->setExclusive(true);
     m_noEffectButton = new QRadioButton(tr("None"), this);
     m_randomSameButton = new QRadioButton(tr("Same random"), this);
     m_randomSameButton->setChecked(true);
     m_randomAllButton = new QRadioButton(tr("Different random"), this);
+    m_flashButton = new QRadioButton(tr("Flash"), this);
+    m_flashRandomButton = new QRadioButton(tr("Flash + Random"), this);
     m_fade10Button = new QRadioButton(tr("Fade +10"), this);
     m_fade20Button = new QRadioButton(tr("Fade +20"), this);
     m_effectGroup->addButton(m_noEffectButton, EFFECT_NO);
     m_effectGroup->addButton(m_randomSameButton, EFFECT_RANDOM_SAME);
     m_effectGroup->addButton(m_randomAllButton, EFFECT_RANDOM_ALL);
+    m_effectGroup->addButton(m_flashButton, EFFECT_FLASH);
+    m_effectGroup->addButton(m_flashRandomButton, EFFECT_FLASH_RANDOM);
     m_effectGroup->addButton(m_fade10Button, EFFECT_FADE10);
     m_effectGroup->addButton(m_fade20Button, EFFECT_FADE20);
-    effectLayout->addWidget(m_noEffectButton);
-    effectLayout->addWidget(m_randomSameButton);
-    effectLayout->addWidget(m_randomAllButton);
-    effectLayout->addWidget(m_fade10Button);
-    effectLayout->addWidget(m_fade20Button);
-    m_effectBox->setLayout(effectLayout);
+    effectLayout1->addWidget(m_noEffectButton);
+    effectLayout1->addWidget(m_randomSameButton);
+    effectLayout1->addWidget(m_randomAllButton);
+    effectLayout1->addWidget(m_flashRandomButton);
+    effectLayout2->addWidget(m_flashButton);
+    effectLayout2->addWidget(m_fade10Button);
+    effectLayout2->addWidget(m_fade20Button);
+    effectLayout0->addLayout(effectLayout1);
+    effectLayout0->addLayout(effectLayout2);
+    m_effectBox->setLayout(effectLayout0);
     l1->addWidget(m_effectBox);
 
     l4->addLayout(l1);
@@ -161,18 +175,18 @@ void audioController::createViewMenu()
 void audioController::loadSettings(QSettings *s)
 {
     s->beginGroup("AudioController");
-    setVisible(s->value(tr("Visible"), tr("true")).toBool());
-    viewAudioGraphAction->setChecked(s->value(tr("AudioGraphVisible"), tr("true")).toBool());
-    viewAudioFFTAction->setChecked(s->value(tr("FFTDisplayVisible"), tr("true")).toBool());
+    setVisible(s->value(tr("visible"), tr("true")).toBool());
+    viewAudioGraphAction->setChecked(s->value(tr("displayGraph"), tr("true")).toBool());
+    viewAudioFFTAction->setChecked(s->value(tr("displayFFT"), tr("true")).toBool());
     s->endGroup();
 }
 
 void audioController::saveSettings(QSettings *s)
 {
     s->beginGroup("AudioController");
-    s->setValue(tr("Visible"), isVisible());
-    s->setValue(tr("AudioGraphVisible"), viewAudioGraphAction->isChecked());
-    s->setValue(tr("FFTDisplayVisible"), viewAudioFFTAction->isChecked());
+    s->setValue(tr("visible"), isVisible());
+    s->setValue(tr("displayGraph"), viewAudioGraphAction->isChecked());
+    s->setValue(tr("displayFFT"), viewAudioFFTAction->isChecked());
     s->endGroup();
 }
 
@@ -260,6 +274,12 @@ void audioController::triggerEffect()
             break;
         case EFFECT_RANDOM_SAME:
             emit setRandomSame();
+            break;
+        case EFFECT_FLASH:
+            emit flash();
+            break;
+        case EFFECT_FLASH_RANDOM:
+            emit flashRandom();
             break;
         case EFFECT_FADE10:
             emit fade10();

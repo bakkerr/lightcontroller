@@ -6,10 +6,12 @@
 
 #include "default_values.h"
 #include "settings.h"
+#include "addcontrollerdialog.h"
 #include "lightcontroller.h"
 #include "audiocontroller.h"
 #include "presetcontroller.h"
 #include "discover.h"
+#include "milightupdsender.h"
 
 class MainWindow : public QMainWindow
 {
@@ -25,13 +27,14 @@ public slots:
     void closeEvent(QCloseEvent *event);
 
 private slots:
-    void setupControllers(int num, bool setDefaults);
+    void addController(QString name, quint16 remote, QList<quint16> slave_ids);
     void loadSettings();
     void saveSettings();
     void clearSettings();
     void getPreset();
     void setPreset(Preset *p);
     void showSettingsDialog();
+    void showAddControllerDialog();
     void settingsChanged() { qDebug() << "Called" << endl; GLOBAL_settingsChanged = true; }
     void dockAll();
     void about();
@@ -45,13 +48,13 @@ private:
     QVBoxLayout l0;
     QHBoxLayout l1;
 
-    SingleController *master;
+    MiLightUPDsender *udp;
 
     audioController *audio;
 
     PresetController *presetController;
 
-    QVector<SingleController*> controllers;
+    QList<SingleController*> controllers;
 
     QToolBar *toolBar;
 
@@ -67,6 +70,7 @@ private:
     QAction *dockAllAction;
 
     QAction *settingsAction;
+    QAction *addControllerAction;
 
     QAction *aboutQtAction;
     QAction *aboutAction;

@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     fftdisplay.cpp \
     presetcontroller.cpp \
     preset.cpp \
-    settings.cpp
+    settings.cpp \
+    addcontrollerdialog.cpp
 
 HEADERS  += \
     singlecontroller.h \
@@ -38,6 +39,7 @@ HEADERS  += \
     fftdisplay.h \
     presetcontroller.h \
     preset.h \
-    settings.h
+    settings.h \
+    addcontrollerdialog.h
 
 LIBS += -L../libbeat/ -lbeat
