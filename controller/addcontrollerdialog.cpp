@@ -1,6 +1,6 @@
 #include "addcontrollerdialog.h"
 
-addControllerDialog::addControllerDialog(QList<SingleController *> controllers, QWidget *parent) : QDialog(parent)
+addControllerDialog::addControllerDialog(QList<SingleController *> controllers, QList<container *> containers, QWidget *parent) : QDialog(parent)
 {
     setWindowTitle(tr("Add Controller"));
     m_mainLayout = new QGridLayout();
@@ -15,6 +15,14 @@ addControllerDialog::addControllerDialog(QList<SingleController *> controllers, 
     m_remoteLineEdit = new QLineEdit(this);
     rl->addWidget(m_remoteLineEdit);
     m_hasRemoteGroupBox->setLayout(rl);
+
+
+    QLabel *containerLabel = new QLabel(tr("Container:"), this);
+    m_containerBox = new QComboBox(this);
+
+    foreach(container *c, containers){
+        m_containerBox->addItem(c->name(), c->id());
+    }
 
     m_slaveGroupBox = new QGroupBox(tr("This controller is a Master for:"), this);
     m_slaveSelect = new QButtonGroup(this);
@@ -61,10 +69,12 @@ addControllerDialog::addControllerDialog(QList<SingleController *> controllers, 
 
     m_mainLayout->addWidget(nameLabel, 1, 1, 1, 1);
     m_mainLayout->addWidget(m_nameLineEdit, 1, 2, 1, 2);
-    m_mainLayout->addWidget(m_hasRemoteGroupBox, 2, 1, 1, 3);
-    m_mainLayout->addWidget(m_slaveGroupBox, 3, 1, 1, 3);
-    m_mainLayout->addWidget(m_okButton, 4, 2, 1, 1);
-    m_mainLayout->addWidget(m_cancelButton, 4, 3, 1, 1);
+    m_mainLayout->addWidget(containerLabel, 2, 1, 1, 1);
+    m_mainLayout->addWidget(m_containerBox, 2, 2, 1, 2);
+    m_mainLayout->addWidget(m_hasRemoteGroupBox, 3, 1, 1, 3);
+    m_mainLayout->addWidget(m_slaveGroupBox, 4, 1, 1, 3);
+    m_mainLayout->addWidget(m_okButton, 5, 2, 1, 1);
+    m_mainLayout->addWidget(m_cancelButton, 5, 3, 1, 1);
 
     m_nextID++;
 
@@ -114,7 +124,7 @@ void addControllerDialog::checkValues()
          remote = 0;
     }
 
-    emit(addController(m_nextID, m_nameLineEdit->text(), remote, selectedSlaves));
+    emit(addController(m_nextID, m_nameLineEdit->text(), remote, selectedSlaves, m_containerBox->currentData().toUInt()));
 
     close();
 }

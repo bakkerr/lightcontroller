@@ -22,10 +22,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     presetController = new PresetController(this);
     presetController->setMinimumWidth(230);
-    addDockWidget(Qt::TopDockWidgetArea, presetController);
     connect(presetController, SIGNAL(createPreset()), this, SLOT(getPreset()));
     connect(this, SIGNAL(presetAvailable(Preset*)), presetController, SLOT(addPreset(Preset*)));
     connect(presetController, SIGNAL(setPreset(Preset*)), this, SLOT(setPreset(Preset*)));
+    addDockWidget(Qt::TopDockWidgetArea, presetController);
+
+    settings = new settingsWidget(this);
+    connect(settings, SIGNAL(udpResends(int)), udp, SLOT(setUdpResends(int)));
+    connect(settings, SIGNAL(wirelessResends(int)), udp, SLOT(setWirelessResends(int)));
+    addDockWidget(Qt::TopDockWidgetArea, settings);
 
     /* Center the window. */
     QWidget *w = window();
@@ -35,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setupToolBar();
     setupMenuBar();
     setupStatusBar();
+
+    addContainer(tr("Main"), 1);
 
     /*QList<quint16> slaves;
     for(int i = 1; i <= 5; i++){
@@ -77,6 +84,9 @@ void MainWindow::setupActions()
     addControllerAction = new QAction(tr("&Add Controller"), this);
     connect(addControllerAction, SIGNAL(triggered()), this, SLOT(showAddControllerDialog()));
 
+    addContainerAction = new QAction(tr("Add &Container"), this);
+    connect(addContainerAction, SIGNAL(triggered()), this, SLOT(showAddContainerDialog()));
+
     dockAllAction = new QAction(tr("&Dock All"), this);
     connect(dockAllAction, SIGNAL(triggered()), this, SLOT(dockAll()));
 
@@ -101,6 +111,7 @@ void MainWindow::setupMenuBar()
     editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(settingsAction);
     editMenu->addAction(addControllerAction);
+    editMenu->addAction(addContainerAction);
 
     /* View Menu */
     viewMenu = menuBar()->addMenu(tr("&View"));
@@ -135,21 +146,19 @@ void MainWindow::setupMenuBar()
 void MainWindow::setupToolBar()
 {
     toolBar = addToolBar(tr("Tools"));
-    toolBar->addSeparator();
-    toolBar->addAction(audio->toggleViewAction());
-    toolBar->addAction(presetController->toggleViewAction());
-    toolBar->addSeparator();
-
-
-    foreach(SingleController *lc, controllers){
-        toolBar->addAction(lc->toggleViewAction());
-    }
 
     toolBar->addSeparator();
     toolBar->addAction(dockAllAction);
     toolBar->addSeparator();
     toolBar->addAction(aboutAction);
     toolBar->addSeparator();
+
+    toolBar->addSeparator();
+    toolBar->addAction(audio->toggleViewAction());
+    toolBar->addAction(presetController->toggleViewAction());
+    toolBar->addAction(settings->toggleViewAction());
+    toolBar->addSeparator();
+
 }
 
 void MainWindow::setupStatusBar()
@@ -177,6 +186,7 @@ void MainWindow::loadSettings(QString settingsName)
         quint16 id = s->value(tr("id"), 0x00).toUInt();
         QString name = s->value(tr("name"), tr("name")).toString();
         quint16 remote = s->value(tr("remote"), 0x00).toUInt();
+        quint16 containerID = s->value(tr("containerID"), 0x01).toUInt();
 
         int slave_size = s->beginReadArray(tr("Slaves"));
         QList<quint16> slaves;
@@ -186,7 +196,7 @@ void MainWindow::loadSettings(QString settingsName)
         }
         s->endArray();
 
-        addController(id, name, remote, slaves);
+        addController(id, name, remote, slaves, containerID);
     }
 
     s->endArray();
@@ -225,6 +235,7 @@ void MainWindow::saveSettings(QString settingsName)
         s->setValue(tr("id"), lc->id());
         s->setValue(tr("name"), lc->name());
         s->setValue(tr("remote"), lc->remote());
+        s->setValue(tr("containerID"), lc->container());
 
         s->beginWriteArray(tr("Slaves"));
         QList<SingleController*> slaves = lc->slaves();
@@ -313,7 +324,7 @@ void MainWindow::connectAudioController(int id){
 
 }
 
-void MainWindow::addController(quint16 id, QString name, quint16 remote, QList<quint16> slave_ids)
+void MainWindow::addController(quint16 id, QString name, quint16 remote, QList<quint16> slave_ids, quint16 containerID)
 {
     QList<SingleController *> slaves;
     foreach(SingleController *l, controllers){
@@ -327,7 +338,7 @@ void MainWindow::addController(quint16 id, QString name, quint16 remote, QList<q
         }
     }
 
-    SingleController *lc = new SingleController(id, name, remote, slaves);
+    SingleController *lc = new SingleController(id, name, remote, slaves, containerID);
 
     if(remote > 0){
         connect(lc, SIGNAL(doOn(quint16)), udp, SLOT(setOn(quint16)));
@@ -341,10 +352,29 @@ void MainWindow::addController(quint16 id, QString name, quint16 remote, QList<q
     }
 
     controllers.append(lc);
+    getContainerByID(containerID)->addController(lc);
 
     audio->updateControllers(controllers);
 
-    addDockWidget(Qt::BottomDockWidgetArea, lc);
+}
+
+void MainWindow::addContainer(QString name, quint16 id)
+{
+    if(id == 0){
+        foreach(container *c, containers){
+            if(c->id() > id){
+                id = c->id();
+            }
+        }
+        id++;
+    }
+
+    container *c = new container(name, id, this);
+    containers.append(c);
+
+    addDockWidget(Qt::BottomDockWidgetArea, c);
+
+    toolBar->addAction(c->toggleViewAction());
 }
 
 void MainWindow::showSettingsDialog()
@@ -355,9 +385,18 @@ void MainWindow::showSettingsDialog()
 
 void MainWindow::showAddControllerDialog()
 {
-    addControllerDialog *d = new addControllerDialog(controllers, this);
-    connect(d, SIGNAL(addController(quint16, QString, quint16, QList<quint16>)), this, SLOT(addController(quint16, QString, quint16, QList<quint16>)));
+    addControllerDialog *d = new addControllerDialog(controllers, containers, this);
+    connect(d, SIGNAL(addController(quint16, QString, quint16, QList<quint16>, quint16)), this, SLOT(addController(quint16, QString, quint16, QList<quint16>, quint16)));
     d->exec();
+}
+
+void MainWindow::showAddContainerDialog()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Add Container"), tr("Name:"), QLineEdit::Normal, tr(""), &ok);
+    if(ok){
+        addContainer(name, 0);
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -390,6 +429,17 @@ SingleController* MainWindow::getControllerByID(quint16 id)
     return NULL;
 }
 
+container* MainWindow::getContainerByID(quint16 id)
+{
+    foreach(container *c, containers){
+        if(c->id() == id){
+            return c;
+        }
+    }
+
+    return NULL;
+}
+
 void MainWindow::getPreset()
 {
     Preset *p = new Preset(this);
@@ -413,9 +463,10 @@ void MainWindow::dockAll()
 {
     audio->setFloating(false);
     presetController->setFloating(false);
+    settings->setFloating(false);
 
-    foreach(SingleController *lc, controllers){
-        lc->setFloating(false);
+    foreach(container *c, containers){
+        c->setFloating(false);
     }
 }
 

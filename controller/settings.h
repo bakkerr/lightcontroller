@@ -3,11 +3,13 @@
 
 #include <QWidget>
 #include <QDialog>
+#include <QDockWidget>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QTreeWidget>
 #include <QPushButton>
+#include <QSpinBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -28,19 +30,30 @@ public:
 signals:
 
 public slots:
-    void displaySettings(const QString setting = tr("default"));
+    void displaySettings();
 
 private:
     QTreeWidgetItem *__newNesting(QSettings *s, QTreeWidgetItem *twi);
-    QGroupBox *m_preferencesBox;
-    QLabel *m_udpSleepLabel;
-    QLineEdit *m_udpSleepText;
-    QPushButton *m_saveButton;
 
     QGroupBox *m_settingsManager;
     QTreeWidget *m_settingsDisplay;
+};
 
+class settingsWidget : public QDockWidget
+{
+    Q_OBJECT
 
+public:
+    explicit settingsWidget(QWidget *parent = 0);
+
+signals:
+    void udpResends(int);
+    void wirelessResends(int);
+
+private:
+    QGroupBox *m_preferencesBox;
+    QSpinBox *m_udpRepeat;
+    QSpinBox *m_wirelessRepeat;
 };
 
 #endif // SETTINGS_H

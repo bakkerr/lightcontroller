@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     presetcontroller.cpp \
     preset.cpp \
     settings.cpp \
-    addcontrollerdialog.cpp
+    addcontrollerdialog.cpp \
+    container.cpp
 
 HEADERS  += \
     singlecontroller.h \
@@ -40,6 +41,7 @@ HEADERS  += \
     presetcontroller.h \
     preset.h \
     settings.h \
-    addcontrollerdialog.h
+    addcontrollerdialog.h \
+    container.h
 
 LIBS += -L../libbeat/ -lbeat

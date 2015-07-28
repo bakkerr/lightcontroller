@@ -8,24 +8,6 @@ settingsDialog::settingsDialog(QWidget *parent) :
     setWindowTitle(tr(APPLICATION_NAME) + tr(" Settings"));
     QVBoxLayout *l0 = new QVBoxLayout();
 
-    m_preferencesBox = new QGroupBox(tr("Preferences:"), this);
-
-    QVBoxLayout *l1 = new QVBoxLayout();
-
-    QHBoxLayout *l2 = new QHBoxLayout();
-    m_udpSleepLabel = new QLabel(tr("UDP Sleep"));
-    m_udpSleepLabel->setToolTip(tr("Microsecond sleep after each UDP command"));
-    m_udpSleepText = new QLineEdit(tr("100"), this);
-    l2->addWidget(m_udpSleepLabel);
-    l2->addWidget(m_udpSleepText);
-
-    m_saveButton = new QPushButton(tr("Save"), this);
-
-    l1->addLayout(l2);
-    l1->addWidget(m_saveButton);
-
-    m_preferencesBox->setLayout(l1);
-
     m_settingsManager = new QGroupBox(tr("Settings:"), this);
 
     QHBoxLayout *l3 = new QHBoxLayout();
@@ -38,7 +20,6 @@ settingsDialog::settingsDialog(QWidget *parent) :
 
     m_settingsManager->setLayout(l3);
 
-    l0->addWidget(m_preferencesBox);
     l0->addWidget(m_settingsManager);
 
     setMinimumWidth(250);
@@ -46,6 +27,11 @@ settingsDialog::settingsDialog(QWidget *parent) :
     displaySettings();
 
     setLayout(l0);
+
+}
+
+settingsDialog::~settingsDialog()
+{
 
 }
 
@@ -82,7 +68,7 @@ QTreeWidgetItem *settingsDialog::__newNesting(QSettings *s, QTreeWidgetItem *twi
     return twi;
 }
 
-void settingsDialog::displaySettings(const QString setting)
+void settingsDialog::displaySettings()
 {
 
     QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME));
@@ -115,12 +101,39 @@ void settingsDialog::displaySettings(const QString setting)
         s->endGroup();
     }
 
-
-
 }
 
-settingsDialog::~settingsDialog()
+settingsWidget::settingsWidget(QWidget *parent) :
+    QDockWidget(parent)
 {
+    setWindowTitle(tr("Settings"));
+    setMaximumWidth(150);
+    setMaximumHeight(150);
 
+    m_preferencesBox = new QGroupBox(tr("Preferences:"), this);
+
+    QGridLayout *l1 = new QGridLayout();
+
+    QLabel *udpRepeatLabel = new QLabel(tr("UDP resends:"), this);
+    m_udpRepeat = new QSpinBox(this);
+    m_udpRepeat->setMinimum(1);
+    m_udpRepeat->setMaximum(3);
+    m_udpRepeat->setValue(UDP_RESENDS_DEFAULT);
+    connect(m_udpRepeat, SIGNAL(valueChanged(int)), this, SIGNAL(udpResends(int)));
+
+    QLabel *wirelessRepeatLabel = new QLabel(tr("Wireless resends:"), this);
+    m_wirelessRepeat = new QSpinBox(this);
+    m_wirelessRepeat->setMinimum(1);
+    m_wirelessRepeat->setMaximum(20);
+    m_wirelessRepeat->setValue(WIRELESS_RESENDS_DEFAULT);
+    connect(m_wirelessRepeat, SIGNAL(valueChanged(int)), this, SIGNAL(wirelessResends(int)));
+
+    l1->addWidget(udpRepeatLabel, 1, 1, 1, 1);
+    l1->addWidget(m_udpRepeat, 1, 2, 1, 1);
+    l1->addWidget(wirelessRepeatLabel, 2, 1, 1, 1);
+    l1->addWidget(m_wirelessRepeat, 2, 2, 1, 1);
+
+    m_preferencesBox->setLayout(l1);
+
+    setWidget(m_preferencesBox);
 }
-

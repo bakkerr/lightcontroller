@@ -1,8 +1,6 @@
 #ifndef SINGLECONTROLLER_H
 #define SINGLECONTROLLER_H
 
-#include <QDockWidget>
-
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -28,12 +26,12 @@
 #include "colorwheel.h"
 #include "preset.h"
 
-class SingleController : public QDockWidget
+class SingleController : public QWidget
 {
     Q_OBJECT
 public:
     /* Constructor. */
-    explicit SingleController(quint16 id, QString name, quint16 remote, QList<SingleController *> slaves, QWidget *parent = 0);
+    explicit SingleController(quint16 id, QString name, quint16 remote, QList<SingleController *> slaves, quint16 containerID, QWidget *parent = 0);
 
     /* Destructor. */
     ~SingleController();
@@ -45,6 +43,7 @@ public:
     quint16 id()         { return m_id;                     }
     QString name()       { return m_name;                   }
     quint16 remote()     { return m_zone;                   }
+    quint16 container()  { return m_container;              }
     bool    fixed()      { return m_fixed;                  }
     bool    fadeTime()   { return m_fadeSlider->value();    }
     QColor  color()      { return m_wheel->color();         }
@@ -165,6 +164,7 @@ private:
     quint16 m_id;
     QString m_name;
     quint16 m_zone;
+    quint16 m_container;
     bool m_state;
     bool m_fixed;
     QList<SingleController*> m_slaves;

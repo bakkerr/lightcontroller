@@ -1,10 +1,11 @@
 #include "singlecontroller.h"
 
-SingleController::SingleController(quint16 id, QString name, quint16 remote, QList<SingleController*> slaves, QWidget *parent) :
-    QDockWidget(name, parent)
+SingleController::SingleController(quint16 id, QString name, quint16 remote, QList<SingleController*> slaves, quint16 containerID, QWidget *parent) :
+    QWidget(parent)
 {
     m_id = id;
     m_zone = remote;
+    m_container = containerID;
     m_fixed = false;
     m_state = true;
     m_slaves = slaves;
@@ -20,7 +21,10 @@ SingleController::SingleController(quint16 id, QString name, quint16 remote, QLi
     connect(viewControllerAction, SIGNAL(toggled(bool)), this, SLOT(setVisible(bool)));
 
     /* Set the layout for this Widget. */
-    this->setWidget(m_groupBox);
+    QHBoxLayout *ml = new QHBoxLayout();
+    ml->setContentsMargins(0, 0, 0, 0);
+    ml->addWidget(m_groupBox);
+    this->setLayout(ml);
 }
 
 SingleController::~SingleController()
@@ -30,7 +34,7 @@ SingleController::~SingleController()
 
 void SingleController::setupLayout()
 {
-    m_groupBox = new QGroupBox(tr("On/Off"), this);
+    m_groupBox = new QGroupBox(m_name, this);
     m_groupBox->setCheckable(true);
     m_groupBox->setChecked(true);
 
@@ -235,9 +239,10 @@ void SingleController::setName(QString name)
 
     m_name = name;
 
-    setWindowTitle(m_name);
+    //setWindowTitle(m_name);
 
     viewControllerAction->setText(m_name);
+    m_groupBox->setTitle(m_name);
 
     GLOBAL_settingsChanged = true;
 }

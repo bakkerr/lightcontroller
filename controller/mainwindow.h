@@ -7,10 +7,9 @@
 #include "default_values.h"
 #include "settings.h"
 #include "addcontrollerdialog.h"
-#include "lightcontroller.h"
 #include "audiocontroller.h"
 #include "presetcontroller.h"
-#include "discover.h"
+#include "container.h"
 #include "milightupdsender.h"
 
 class MainWindow : public QMainWindow
@@ -21,6 +20,7 @@ public:
     ~MainWindow();
 
     SingleController* getControllerByID(quint16 id);
+    container* getContainerByID(quint16 id);
 
 signals:
     void presetAvailable(Preset *p);
@@ -29,7 +29,8 @@ public slots:
     void closeEvent(QCloseEvent *event);
 
 private slots:
-    void addController(quint16 id, QString name, quint16 remote, QList<quint16> slave_ids);
+    void addController(quint16 id, QString name, quint16 remote, QList<quint16> slave_ids, quint16 containerID);
+    void addContainer(QString name, quint16 id);
 
     void loadSettings(QString settingsName = tr(DEFAULT_SAVE_NAME));
     void saveSettings(QString settingsName = tr(DEFAULT_SAVE_NAME));
@@ -42,6 +43,7 @@ private slots:
     void setPreset(Preset *p);
     void showSettingsDialog();
     void showAddControllerDialog();
+    void showAddContainerDialog();
     void settingsChanged() { qDebug() << "Called" << endl; GLOBAL_settingsChanged = true; }
     void dockAll();
     void about();
@@ -61,7 +63,10 @@ private:
 
     PresetController *presetController;
 
+    settingsWidget *settings;
+
     QList<SingleController*> controllers;
+    QList<container*> containers;
 
     QToolBar *toolBar;
 
@@ -79,6 +84,7 @@ private:
 
     QAction *settingsAction;
     QAction *addControllerAction;
+    QAction *addContainerAction;
 
     QAction *aboutQtAction;
     QAction *aboutAction;

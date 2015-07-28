@@ -26,6 +26,9 @@ public slots:
     void pair(quint16 zone);
     void unPair(quint16 zone);
 
+    void setUdpResends(int resends)      { m_udpResends = (quint8)resends; }
+    void setWirelessResends(int resends) { m_resends = (quint8)resends; }
+
 private:
     void error(const char *x);
     void udpsend(quint16 remote, quint8 color, quint8 bright, quint8 key, quint8 prefix = 0xB8);
