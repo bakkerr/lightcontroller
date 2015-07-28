@@ -17,7 +17,7 @@ audioController::audioController(QWidget *parent) :
 
     QVBoxLayout *l1 = new QVBoxLayout();
 
-    QGroupBox *inputDevice = new QGroupBox(tr("Audio Input"), this);
+    QLabel *inputLabel = new QLabel(tr("Audio Input:"), this);
     QHBoxLayout *l001 = new QHBoxLayout();
 
     m_deviceBox = new QComboBox(this);
@@ -33,13 +33,12 @@ audioController::audioController(QWidget *parent) :
         if (deviceInfo != defaultDeviceInfo)
             m_deviceBox->addItem(deviceInfo.deviceName(), qVariantFromValue(deviceInfo));
     }
-    //m_deviceBox->setEnabled(false);
 
     connect(m_deviceBox, SIGNAL(activated(int)), SLOT(inputDeviceChanged(int)));
+    l001->addWidget(inputLabel);
     l001->addWidget(m_deviceBox);
-    inputDevice->setLayout(l001);
 
-    l1->addWidget(inputDevice);
+    l1->addLayout(l001);
 
     QHBoxLayout *l4 = new QHBoxLayout();
 
