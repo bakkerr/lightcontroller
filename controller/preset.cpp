@@ -13,6 +13,7 @@ PresetLC::PresetLC(quint16 id = 0x00, bool enabled, QColor color, bool fade, int
 }
 
 void PresetLC::loadSettings(QSettings *s){
+    m_id = s->value(tr("id"), 0x00).toUInt();
     m_enabled = s->value(tr("enabled"), tr("true")).toBool();
     m_color = s->value(tr("color"), QVariant(QColor(Qt::blue))).value<QColor>();
     m_fade = s->value(tr("fade"), tr("false")).toBool();

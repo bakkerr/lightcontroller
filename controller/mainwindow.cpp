@@ -36,14 +36,14 @@ MainWindow::MainWindow(QWidget *parent) :
     setupMenuBar();
     setupStatusBar();
 
-    QList<quint16> slaves;
+    /*QList<quint16> slaves;
     for(int i = 1; i <= 5; i++){
         addController(i, tr("L") + QString::number(i), i, QList<quint16>());
         slaves.append(i);
     }
-    addController(6, tr("Master"), 0x0044, slaves);
+    addController(6, tr("Master"), 0x0044, slaves);*/
 
-    //loadSettings();
+    loadSettings();
 
 }
 
@@ -319,6 +319,7 @@ void MainWindow::addController(quint16 id, QString name, quint16 remote, QList<q
     foreach(SingleController *l, controllers){
         if(l->id() == id){
             QMessageBox::critical(this, tr("Error!"), tr("Trying to add controller with the same id!"));
+            return;
         }
 
         if(slave_ids.contains(l->remote())){
