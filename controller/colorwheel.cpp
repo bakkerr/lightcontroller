@@ -29,7 +29,6 @@ QColor ColorWheel::color()
 
 void ColorWheel::setColor(const QColor &color)
 {
-    if(color == current) return;
     setColor(color.hue());
 }
 

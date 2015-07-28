@@ -22,9 +22,14 @@ addControllerDialog::addControllerDialog(QList<SingleController *> controllers, 
 
     QVBoxLayout *sl = new QVBoxLayout();
 
-    quint16 nextRemote = 1;
+    m_nextID = 0;
+    quint16 nextRemote = 0;
     foreach(SingleController *c, controllers){
         m_existingRemotes.append(c->remote());
+
+        if(c->id() > m_nextID){
+            m_nextID = c->id();
+        }
 
         if(c->remote() > nextRemote){
             nextRemote = c->remote();
@@ -36,7 +41,7 @@ addControllerDialog::addControllerDialog(QList<SingleController *> controllers, 
 
         QCheckBox *cb = new QCheckBox(c->name() + tr(" (") + remoteString + tr(")"), this);
         sl->addWidget(cb);
-        m_slaveSelect->addButton(cb, c->remote());
+        m_slaveSelect->addButton(cb, c->id());
     }
 
     nextRemote++;
@@ -60,6 +65,8 @@ addControllerDialog::addControllerDialog(QList<SingleController *> controllers, 
     m_mainLayout->addWidget(m_slaveGroupBox, 3, 1, 1, 3);
     m_mainLayout->addWidget(m_okButton, 4, 2, 1, 1);
     m_mainLayout->addWidget(m_cancelButton, 4, 3, 1, 1);
+
+    m_nextID++;
 
     setLayout(m_mainLayout);
 }
@@ -107,7 +114,7 @@ void addControllerDialog::checkValues()
          remote = 0;
     }
 
-    emit(addController(m_nameLineEdit->text(), remote, selectedSlaves));
+    emit(addController(m_nextID, m_nameLineEdit->text(), remote, selectedSlaves));
 
     close();
 }

@@ -12,7 +12,9 @@
 
 #define DEFAULT_SAVE_NAME         "default"
 
-#define MILIGHT_PORT_DEFAULT            8899
+#define UDP_PORT_DEFAULT                8899
+#define UDP_RESENDS_DEFAULT                1
+#define WIRELESS_RESENDS_DEFAULT          10
 
 #define BRIGHT_VALUE_DEFAULT              19
 

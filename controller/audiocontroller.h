@@ -27,6 +27,8 @@
 #include "qcustomplot.h"
 #include "fftdisplay.h"
 
+#include "singlecontroller.h"
+
 enum effects { EFFECT_NO, EFFECT_RANDOM_ALL, EFFECT_RANDOM_SAME, EFFECT_FLASH, EFFECT_FLASH_RANDOM, EFFECT_FADE10, EFFECT_FADE20 };
 
 class audioController : public QDockWidget
@@ -44,8 +46,9 @@ public:
     QAction *viewAudioFFTAction;
 
 signals:
+    void controllerChanged(int id);
     void beatDetected();
-    void setRandomAll();
+    void setRandomDifferent();
     void setRandomSame();
     void flash();
     void flashRandom();
@@ -53,6 +56,7 @@ signals:
     void fade20();
 
 public slots:
+    void updateControllers(QList<SingleController*> controllers = QList<SingleController*>());
     void stateChange(bool s);
     void setSamples(int value);
     void doReplot();
@@ -74,6 +78,7 @@ private:
     QGroupBox *m_groupBox;
 
     QComboBox *m_deviceBox;
+    QComboBox *m_triggerControllerBox;
 
     libbeat::BeatController *m_beat;
 

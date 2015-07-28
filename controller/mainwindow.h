@@ -20,6 +20,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    SingleController* getControllerByID(quint16 id);
+
 signals:
     void presetAvailable(Preset *p);
 
@@ -28,10 +30,14 @@ public slots:
 
 private slots:
     void addController(quint16 id, QString name, quint16 remote, QList<quint16> slave_ids);
+
     void loadSettings(QString settingsName = tr(DEFAULT_SAVE_NAME));
     void saveSettings(QString settingsName = tr(DEFAULT_SAVE_NAME));
     void saveSettingsAs();
     void clearSettings();
+
+    void connectAudioController(int id);
+
     void getPreset();
     void setPreset(Preset *p);
     void showSettingsDialog();

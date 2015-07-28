@@ -1,35 +1,5 @@
 #include "presetcontroller.h"
 
-/*
-PresetModel::PresetModel(QObject *parent) :
-    QStandardItemModel(parent)
-{
-  m_numRows = 0;
-}
-
-int PresetModel::rowCount(const QModelIndex &) const
-{
-   return m_numRows;
-}
-
-int PresetModel::columnCount(const QModelIndex &) const
-{
-    return 3;
-}
-
-QVariant PresetModel::data(const QModelIndex &index, int role) const
-{
-    if (role == Qt::DisplayRole)
-    {
-       return QString("Row%1, Column%2")
-                   .arg(index.row() + 1)
-                   .arg(index.column() +1);
-    }
-    return QVariant();
-}
-*/
-
-
 PresetController::PresetController(QWidget *parent) :
     QDockWidget(tr("Preset Controller"), parent)
 {
@@ -39,28 +9,28 @@ PresetController::PresetController(QWidget *parent) :
 
   QVBoxLayout *l1 = new QVBoxLayout();
 
-  m_createPreset = new QPushButton(tr("Create"), this);
+  m_createPresetButton = new QPushButton(tr("Create"), this);
 
-  m_pm = new QStandardItemModel(0, 3, this);
+  m_presetItemModel = new QStandardItemModel(0, 3, this);
 
   QStringList header;
   header.append(tr("Name"));
   header.append(tr("SET"));
   header.append(tr("DEL"));
-  m_pm->setHorizontalHeaderLabels(header);
+  m_presetItemModel->setHorizontalHeaderLabels(header);
 
-  m_lv = new QTableView(this);
-  m_lv->setModel(m_pm);
-  m_lv->setColumnWidth(0, 120);
-  m_lv->setColumnWidth(1, 36);
-  m_lv->setColumnWidth(2, 36);
+  m_presetTableView = new QTableView(this);
+  m_presetTableView->setModel(m_presetItemModel);
+  m_presetTableView->setColumnWidth(0, 120);
+  m_presetTableView->setColumnWidth(1, 36);
+  m_presetTableView->setColumnWidth(2, 36);
 
-  l1->addWidget(m_createPreset);
-  l1->addWidget(m_lv);
+  l1->addWidget(m_createPresetButton);
+  l1->addWidget(m_presetTableView);
 
-  connect(m_createPreset, SIGNAL(clicked()), this, SIGNAL(createPreset()));
-  connect(m_lv, SIGNAL(clicked(QModelIndex)), this, SLOT(cellClicked(QModelIndex)));
-  connect(m_pm, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+  connect(m_createPresetButton, SIGNAL(clicked()), this, SIGNAL(createPreset()));
+  connect(m_presetTableView, SIGNAL(clicked(QModelIndex)), this, SLOT(cellClicked(QModelIndex)));
+  connect(m_presetItemModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(dataChanged(QModelIndex,QModelIndex)));
 
   mw->setLayout(l1);
 
@@ -73,7 +43,7 @@ PresetController::PresetController(QWidget *parent) :
 
 void PresetController::loadSettings(QSettings *s)
 {
-    s->beginGroup(tr("Presets"));
+    s->beginGroup(tr("PresetController"));
     setVisible(s->value(tr("Visible"), tr("true")).toBool());
 
     int size = s->beginReadArray(tr("Presets"));
@@ -91,13 +61,13 @@ void PresetController::loadSettings(QSettings *s)
 
 void PresetController::saveSettings(QSettings *s)
 {
-    s->beginGroup(tr("Presets"));
+    s->beginGroup(tr("PresetController"));
     s->setValue(tr("Visible"), isVisible());
     s->beginWriteArray(tr("Presets"));
 
-    for(int i = 0; i < m_pList.size(); i++){
+    for(int i = 0; i < m_presetList.size(); i++){
         s->setArrayIndex(i);
-        m_pList.at(i)->saveSettings(s);
+        m_presetList.at(i)->saveSettings(s);
     }
 
     s->endArray();
@@ -110,7 +80,7 @@ void PresetController::addPreset(Preset *p){
 
     m_instanceNum++;
 
-    m_pList.append(p);
+    m_presetList.append(p);
 
     QList<QStandardItem*> newRow;
 
@@ -131,7 +101,7 @@ void PresetController::addPreset(Preset *p){
     newRow.append(set);
     newRow.append(del);
 
-    m_pm->appendRow(newRow);
+    m_presetItemModel->appendRow(newRow);
 
     GLOBAL_settingsChanged = true;
 }
@@ -152,7 +122,7 @@ void PresetController::dataChanged(const QModelIndex &tl, const QModelIndex &br)
 
     int row = tl.row();
 
-    m_pList.at(row)->setName(m_pm->data(tl).toString());
+    m_presetList.at(row)->setName(m_presetItemModel->data(tl).toString());
 
 }
 
@@ -165,7 +135,7 @@ void PresetController::cellClicked(QModelIndex mi)
       case 0:
         break;
       case 1:
-        emit(setPreset(m_pList.at(row)));
+        emit(setPreset(m_presetList.at(row)));
         break;
       case 2:
       {
@@ -177,8 +147,8 @@ void PresetController::cellClicked(QModelIndex mi)
                                                                );
 
         if(mb == QMessageBox::Yes){
-            m_pList.removeAt(row);
-            m_pm->removeRow(row);
+            m_presetList.removeAt(row);
+            m_presetItemModel->removeRow(row);
             GLOBAL_settingsChanged = true;
         }
         break;
@@ -187,9 +157,3 @@ void PresetController::cellClicked(QModelIndex mi)
         break;
     }
 }
-
-PresetController::~PresetController()
-{
-
-}
-

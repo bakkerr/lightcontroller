@@ -55,7 +55,7 @@ public:
     bool areSlavesFixed();
 
     /* Settings */
-    PresetZone * getPreset();
+    PresetLC * getPreset();
     void loadSettings(QSettings *s);
     void saveSettings(QSettings *s);
 
@@ -89,7 +89,9 @@ public slots:
     void setWhiteExt();
     void setNightExt();
 
-    void setRandomExt();
+    void setRandomExt(bool same = true);
+    void setRandomExtSame()       { setRandomExt(true);  }
+    void setRandomExtDifferent()  { setRandomExt(false); }
     void fadeExt()   { if(!m_fixed) fade(1);  }
     void fade10Ext() { if(!m_fixed) fade(10); }
     void fade20Ext() { if(!m_fixed) fade(20); }
@@ -107,7 +109,7 @@ public slots:
     void enableFade();
     void disableFade();
 
-    void setPreset(PresetZone *p, bool set);
+    void setPreset(PresetLC *p, bool set);
 
 private slots:
     void setName();
@@ -132,7 +134,7 @@ private slots:
     void pair()   { emit(doPair(m_zone));   }
     void unPair() { emit(doUnPair(m_zone)); }
 
-    void setRandom();
+    void setRandom(bool same = true);
 
     /* Color Shortcuts */
     void red()   { if(m_wheel->color() != Qt::red)   m_wheel->changeColor(Qt::red);   }
@@ -148,6 +150,10 @@ private slots:
     void fade()   { fade(1);  }
     void fade10() { fade(10); }
     void fade20() { fade(20); }
+
+    /* Other Effects */
+    void flash();
+    void flashRandom() { setWhite(); setRandom(); }
 
     void contextMenu(const QPoint& x);
 

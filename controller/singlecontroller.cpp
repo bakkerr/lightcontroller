@@ -174,12 +174,12 @@ void SingleController::contextMenu(const QPoint &x)
     myMenu.exec(gp);
 }
 
-PresetZone * SingleController::getPreset()
+PresetLC *SingleController::getPreset()
 {
-    return new PresetZone(m_groupBox->isChecked(), m_wheel->color(), m_fadeBox->isChecked(), m_fadeSlider->value(), m_fixed, m_brightSlider->value(), this);
+    return new PresetLC(m_id, m_groupBox->isChecked(), m_wheel->color(), m_fadeBox->isChecked(), m_fadeSlider->value(), m_fixed, m_brightSlider->value(), this);
 }
 
-void SingleController::setPreset(PresetZone *p, bool set)
+void SingleController::setPreset(PresetLC *p, bool set)
 {
 
     m_fixedBox->setChecked(p->m_fixed);
@@ -390,11 +390,43 @@ void SingleController::increaseSpeed()
     //emit doIncreaseSpeed(m_zone);
 }
 
-void SingleController::setRandom()
+void SingleController::setRandom(bool same)
 {
     QColor c;
     c.setHsv(rand() % 360, 0, 0);
-    m_wheel->changeColor(c);
+
+    if(m_slaves.empty()){
+      setColorExt(c);
+    }
+    else if(m_zone == 0 || !same || areSlavesFixed()){
+        foreach(SingleController* slave, m_slaves){
+            if(same){
+                slave->setColorExt(c);
+            }
+            else{
+                slave->setRandomExtDifferent();
+            }
+            updateColor(c);
+        }
+    }
+    else{
+        foreach(SingleController* slave, m_slaves){
+            slave->updateColor(c);
+        }
+        setColorExt(c);
+    }
+}
+
+void SingleController::flash(){
+    QColor c = color();
+    if(c.hue() != QColor(Qt::white).hue()){
+        setWhiteExt();
+        setColorExt(c);
+    }
+    else{
+        setRandomExt();
+        setWhiteExt();
+    }
 }
 
 void SingleController::setOnExt()
@@ -454,13 +486,13 @@ void SingleController::setNightExt()
     setNight();
 }
 
-void SingleController::setRandomExt()
+void SingleController::setRandomExt(bool same)
 {
     if(m_fixed) return;
 
     m_groupBox->setChecked(true);
 
-    setRandom();
+    setRandom(same);
 }
 
 void SingleController::updateOn()

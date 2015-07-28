@@ -15,29 +15,13 @@
 #include "settings.h"
 #include "preset.h"
 
-/*class PresetModel : public QStandardItemModel
-{
-    Q_OBJECT
-
-public:
-    PresetModel(QObject *parent = 0);
-    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-
-private:
-    int m_numRows;
-
-
-};*/
-
 class PresetController : public QDockWidget
 {
     Q_OBJECT
 
 public:
     PresetController(QWidget *parent = 0);
-    ~PresetController();
+
     void loadSettings(QSettings *s);
     void saveSettings(QSettings *s);
 
@@ -52,12 +36,12 @@ private slots:
 
 private:
     int m_instanceNum;
-    QStandardItemModel *m_pm;
-    QTableView *m_lv;
+    QStandardItemModel *m_presetItemModel;
+    QTableView *m_presetTableView;
 
-    QList<Preset*> m_pList;
+    QList<Preset*> m_presetList;
 
-    QPushButton *m_createPreset;
+    QPushButton *m_createPresetButton;
 
 };
 

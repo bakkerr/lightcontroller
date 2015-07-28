@@ -26,7 +26,7 @@ public:
     explicit addControllerDialog(QList<SingleController*> controllers, QWidget *parent = 0);
 
 signals:
-    void addController(QString Name, quint16 remote, QList<quint16> slaves);
+    void addController(quint16 id, QString name, quint16 remote, QList<quint16> slaves);
 
 public slots:
 
@@ -34,6 +34,7 @@ private slots:
     void checkValues();
 
 private:
+    quint16 m_nextID;
     QList<quint16> m_existingRemotes;
 
     QGridLayout *m_mainLayout;

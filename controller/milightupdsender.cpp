@@ -13,7 +13,8 @@ MiLightUPDsender::MiLightUPDsender(QString ip, int port, QObject *parent) :
     m_udpSocket = new QUdpSocket(this);
     m_port = (quint16)port;
 
-    m_seq = 0;
+    m_udpResends = UDP_RESENDS_DEFAULT;
+    m_resends    = WIRELESS_RESENDS_DEFAULT;
 }
 
 void MiLightUPDsender::error(const char* x){
@@ -23,17 +24,16 @@ void MiLightUPDsender::error(const char* x){
 void MiLightUPDsender::udpsend(quint16 remote, quint8 color, quint8 bright, quint8 key, quint8 prefix)
 {
     const unsigned char command[7] = {(unsigned char)prefix, (unsigned char)(remote >> 8), (unsigned char)(remote & 0xFF),
-                             (unsigned char)color,  (unsigned char)bright, (unsigned char)key, (unsigned char)m_seq};
+                             (unsigned char)color,  (unsigned char)bright, (unsigned char)key, (unsigned char)m_resends};
 
     //for(int i = 0; i < 7; i++) printf("%2x ", command[i]);
     //printf("\n"); fflush(stdout);
 
-    for(int i = 0; i < 1; i++){
+    for(int i = 0; i < m_udpResends; i++){
         qint64 bs = m_udpSocket->writeDatagram((char*)command, 7, m_addr, m_port);
         if(bs <= 0) error("Error sending data!\n");
     }
 
-    m_seq++;
 }
 
 void MiLightUPDsender::setColor(const QColor &c, quint16 zone)

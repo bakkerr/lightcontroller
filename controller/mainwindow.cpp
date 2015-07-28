@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* Audio Controller */
     audio = new audioController(this);
+    connect(audio, SIGNAL(controllerChanged(int)), this, SLOT(connectAudioController(int)));
     addDockWidget(Qt::TopDockWidgetArea, audio);
 
     presetController = new PresetController(this);
@@ -291,6 +292,27 @@ void MainWindow::clearSettings()
 
 }
 
+void MainWindow::connectAudioController(int id){
+
+    qDebug() << id << endl;
+
+    foreach(SingleController *lc, controllers){
+        audio->disconnect(lc);
+    }
+
+    if(id > 0){
+        SingleController *lc = getControllerByID((quint16)id);
+
+        connect(audio, SIGNAL(fade10()), lc, SLOT(fade10()));
+        connect(audio, SIGNAL(fade20()), lc, SLOT(fade20()));
+        connect(audio, SIGNAL(setRandomSame()), lc, SLOT(setRandomExtSame()));
+        connect(audio, SIGNAL(setRandomDifferent()), lc, SLOT(setRandomExtDifferent()));
+        connect(audio, SIGNAL(flash()), lc, SLOT(flash()));
+        connect(audio, SIGNAL(flashRandom()), lc, SLOT(flashRandom()));
+    }
+
+}
+
 void MainWindow::addController(quint16 id, QString name, quint16 remote, QList<quint16> slave_ids)
 {
     QList<SingleController *> slaves;
@@ -319,6 +341,8 @@ void MainWindow::addController(quint16 id, QString name, quint16 remote, QList<q
 
     controllers.append(lc);
 
+    audio->updateControllers(controllers);
+
     addDockWidget(Qt::BottomDockWidgetArea, lc);
 }
 
@@ -331,7 +355,7 @@ void MainWindow::showSettingsDialog()
 void MainWindow::showAddControllerDialog()
 {
     addControllerDialog *d = new addControllerDialog(controllers, this);
-    connect(d, SIGNAL(addController(QString,quint16,QList<quint16>)), this, SLOT(addController(QString,quint16,QList<quint16>)));
+    connect(d, SIGNAL(addController(quint16, QString, quint16, QList<quint16>)), this, SLOT(addController(quint16, QString, quint16, QList<quint16>)));
     d->exec();
 }
 
@@ -354,45 +378,34 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 }
 
+SingleController* MainWindow::getControllerByID(quint16 id)
+{
+    foreach(SingleController *lc, controllers){
+        if(lc->id() == id){
+            return lc;
+        }
+    }
+
+    return NULL;
+}
+
 void MainWindow::getPreset()
 {
-/*
     Preset *p = new Preset(this);
 
-    p->master = master->getPreset();
-
-    QVectorIterator<LightController*> i(controllers);
-    while(i.hasNext()){
-        LightController *lc = i.next();
-        PresetLC * plc = lc->getPreset();
+    foreach(SingleController *lc, controllers){
+        PresetLC *plc = lc->getPreset();
         p->addController(plc);
     }
 
     emit presetAvailable(p);
-*/
 }
 
 void MainWindow::setPreset(Preset *p)
 {
-
-    /* Need to do something with the mastercontroller... */
-
-    /* Set all controllers. */
-/*
-    QVectorIterator<PresetLC*> pi(p->lcs);
-    while(pi.hasNext()){
-        PresetLC * plc = pi.next();
-
-        QVectorIterator<LightController*> ci(controllers);
-        while (ci.hasNext()) {
-            LightController *lc = ci.next();
-            if(lc->id() == plc->m_id){
-                lc->setPreset(plc);
-            }
-        }
-
+    foreach(PresetLC *plc, p->lcs){
+        getControllerByID(plc->id())->setPreset(plc, true);
     }
-*/
 }
 
 void MainWindow::dockAll()

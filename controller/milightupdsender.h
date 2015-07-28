@@ -11,7 +11,7 @@ class MiLightUPDsender : public QObject
     Q_OBJECT;
 
 public:
-    MiLightUPDsender(QString ip, int port = MILIGHT_PORT_DEFAULT, QObject *parent = 0);
+    MiLightUPDsender(QString ip, int port = UDP_PORT_DEFAULT, QObject *parent = 0);
 
 public slots:
     void setColor(const QColor &c, quint16 zone);
@@ -34,7 +34,8 @@ private:
     QHostAddress m_addr;
     quint16 m_port;
 
-    quint8 m_seq;
+    quint8 m_udpResends;
+    quint8 m_resends;
 
 };
 

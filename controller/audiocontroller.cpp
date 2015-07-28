@@ -69,6 +69,15 @@ audioController::audioController(QWidget *parent) :
     fftWindowLayout->addWidget(m_fftWindowBox);
     settingsLayout->addLayout(fftWindowLayout);
 
+    QHBoxLayout *triggerControllerLayout = new QHBoxLayout();
+    QLabel *triggerControllerLabel = new QLabel("Controller:");
+    triggerControllerLayout->addWidget(triggerControllerLabel);
+    m_triggerControllerBox = new QComboBox(this);
+    updateControllers();
+    connect(m_triggerControllerBox, SIGNAL(currentIndexChanged(int)), SIGNAL(controllerChanged(int)));
+    triggerControllerLayout->addWidget(m_triggerControllerBox);
+    settingsLayout->addLayout(triggerControllerLayout);
+
     m_manualTriggerButton = new QPushButton(tr("Trigger Manual"), this);
     connect(m_manualTriggerButton, SIGNAL(clicked()), this, SLOT(triggerEffect()));
     settingsLayout->addWidget(m_manualTriggerButton);
@@ -189,6 +198,21 @@ void audioController::saveSettings(QSettings *s)
     s->endGroup();
 }
 
+void audioController::updateControllers(QList<SingleController *> controllers)
+{
+    m_triggerControllerBox->blockSignals(true);
+    m_triggerControllerBox->clear();
+    m_triggerControllerBox->addItem(tr("<None>"), 0x00);
+    foreach(SingleController *lc, controllers){
+        QString remoteString = QString::number(lc->remote(), 16);
+        while(remoteString.length() < 4){
+            remoteString.prepend("0");
+        }
+        m_triggerControllerBox->addItem(lc->name() + tr(" (") + remoteString + tr(")"), lc->id());
+    }
+    m_triggerControllerBox->blockSignals(false);
+}
+
 void audioController::stateChange(bool s)
 {
     if(s) {
@@ -258,7 +282,6 @@ void audioController::doReplot()
         }
 
         m_plot->graph(0)->setData(m_plotX, m_plotY);
-        //plot->graph(1)->setData(x, z);
 
         m_plot->replot();
     }
@@ -269,7 +292,7 @@ void audioController::triggerEffect()
 {
     switch(m_effectGroup->checkedId()){
         case EFFECT_RANDOM_ALL:
-            emit setRandomAll();
+            emit setRandomDifferent();
             break;
         case EFFECT_RANDOM_SAME:
             emit setRandomSame();
