@@ -76,6 +76,7 @@ signals:
 
     /* Sync fade state between Master and Zones. */
     void fadeEnabled();
+    void fadeDisabled();
 
 public slots:
     void setName(QString name);

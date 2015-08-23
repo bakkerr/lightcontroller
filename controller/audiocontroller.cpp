@@ -10,6 +10,7 @@ audioController::audioController(QWidget *parent) :
     m_plotZ(AUDIO_GRAPH_DISPLAY_SAMPLES)
 {
     m_samples = AUDIO_SAMPLES_DEFAULT;
+    m_beat = NULL;
 
     m_groupBox = new QGroupBox(tr("Enable"), this);
     m_groupBox->setCheckable(true);
@@ -150,7 +151,7 @@ audioController::audioController(QWidget *parent) :
 
     m_groupBox->setLayout(l4);
 
-    connect(m_groupBox, SIGNAL(clicked(bool)), this, SLOT(stateChange(bool)));
+    connect(m_groupBox, SIGNAL(toggled(bool)), this, SLOT(stateChange(bool)));
     connect(m_sampleSlider, SIGNAL(valueChanged(int)), this, SLOT(setSamples(int)));
 
     connect(this, SIGNAL(beatDetected()), this, SLOT(triggerEffect()));
@@ -186,6 +187,12 @@ void audioController::loadSettings(QSettings *s)
     setVisible(s->value(tr("visible"), tr("true")).toBool());
     viewAudioGraphAction->setChecked(s->value(tr("displayGraph"), tr("true")).toBool());
     viewAudioFFTAction->setChecked(s->value(tr("displayFFT"), tr("true")).toBool());
+    m_groupBox->setChecked(s->value(tr("enabled"), tr("false")).toBool());
+    m_sampleSlider->setValue(s->value(tr("samples"), AUDIO_SAMPLES_DEFAULT).toInt());
+    m_fftWindowBox->setCurrentText(s->value(tr("fftWindow"), tr("None")).toString());
+    m_triggerControllerBox->setCurrentText(s->value(tr("controller"), tr("<None>")).toString());
+    m_effectGroup->button(s->value(tr("effect"), 0).toInt())->setChecked(true);
+
     s->endGroup();
 }
 
@@ -195,6 +202,11 @@ void audioController::saveSettings(QSettings *s)
     s->setValue(tr("visible"), isVisible());
     s->setValue(tr("displayGraph"), viewAudioGraphAction->isChecked());
     s->setValue(tr("displayFFT"), viewAudioFFTAction->isChecked());
+    s->setValue(tr("enabled"), m_groupBox->isChecked());
+    s->setValue(tr("samples"), m_samples);
+    s->setValue(tr("fftWindow"), m_fftWindowBox->currentText());
+    s->setValue(tr("controller"), m_triggerControllerBox->currentText());
+    s->setValue(tr("effect"), m_effectGroup->checkedId());
     s->endGroup();
 }
 
@@ -225,19 +237,22 @@ void audioController::stateChange(bool s)
 
 void audioController::setSamples(int value)
 {
-    stopAudio();
     m_samples = value;
+
+    if(m_beat == NULL) return;
+
+    stopAudio();
     startAudio();
 }
 
 void audioController::startAudio()
 {
-    //m_sampleSlider->setEnabled(false);
     m_beat = new libbeat::BeatController(m_inputDevice, m_samples, AUDIO_INCOMING_SAMPLES_PER_SEC, 192, this);
     m_fft->setController(m_beat);
     connect(m_beat, SIGNAL(beatDrum()), this, SLOT(triggerEffect()));
     connect(m_beat, SIGNAL(processingDone()), this, SLOT(doReplot()));
     connect(m_beat, SIGNAL(processingDone()), m_fft, SLOT(drawNewData()));
+    setFFTWindow(m_fftWindowBox->currentText());
 }
 
 

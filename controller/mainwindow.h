@@ -34,6 +34,7 @@ private slots:
 
     void loadSettings(QString settingsName = tr(DEFAULT_SAVE_NAME));
     void saveSettings(QString settingsName = tr(DEFAULT_SAVE_NAME));
+    void loadSettingsFrom();
     void saveSettingsAs();
     void clearSettings();
 
@@ -77,6 +78,7 @@ private:
 
     QAction *saveSettingsAction;
     QAction *saveSettingsAsAction;
+    QAction *loadSettingsAction;
     QAction *clearSettingsAction;
 
     QAction *viewStatusBarAction;

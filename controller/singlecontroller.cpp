@@ -88,7 +88,6 @@ void SingleController::setupLayout()
     m_fixedBox = new QCheckBox(tr("Fixed"), this);
     m_fixedBox->setToolTip(tr("If checked, this zone will ignore all external input. Less stable..."));
     m_fixedBox->setChecked(false);
-    //if(m_zone <= 0 || m_zone > 4) m_fixedBox->setEnabled(false);
     connect(m_fixedBox, SIGNAL(toggled(bool)), this, SLOT(setFixed(bool)));
     l4->addWidget(m_fixedBox);
 
@@ -200,14 +199,14 @@ void SingleController::setPreset(PresetLC *p, bool set)
             this->setColorExt(p->m_color);
         }
         setBrightExt(p->m_brightness);
-        m_fadeBox->setEnabled(p->m_fade);
+        m_fadeBox->setChecked(p->m_fade);
     }
     else{
         m_brightSlider->blockSignals(true);
         m_brightSlider->setValue(p->m_brightness);
         m_brightSlider->blockSignals(false);
         m_fadeBox->blockSignals(true);
-        m_fadeBox->setEnabled(p->m_fade);
+        m_fadeBox->setChecked(p->m_fade);
         m_fadeBox->blockSignals(false);
         m_wheel->setColor(p->m_color);
         if(set) setState(false);
@@ -239,8 +238,6 @@ void SingleController::setName(QString name)
 
     m_name = name;
 
-    //setWindowTitle(m_name);
-
     viewControllerAction->setText(m_name);
     m_groupBox->setTitle(m_name);
 
@@ -249,37 +246,50 @@ void SingleController::setName(QString name)
 
 void SingleController::setState(bool state)
 {
-    if(state){
-        updateOn();
-        emit doOn(m_zone);
+    if(m_zone == 0 || areSlavesFixed()){
+        foreach(SingleController* slave, m_slaves){
+            state ? slave->setOnExt() : slave->setOffExt();
+        }
     }
-    else {
-        updateOff();
-        emit doOff(m_zone);
+    else{
+        foreach(SingleController* slave, m_slaves){
+            state ? slave->updateOn() : slave->updateOff();
+        }
+        state ? emit doOn(m_zone) : emit doOff(m_zone);
     }
+
+    state ? updateOn() : updateOff();
+
 }
 
 void SingleController::toggleFade(bool state){
     if(state){
         m_fadeTimer->start();
-        if(!m_fixed) emit fadeEnabled();
+        emit fadeEnabled();
     }
     else{
         m_fadeTimer->stop();
+        emit fadeDisabled();
     }
 }
 
 void SingleController::enableFade()
 {
-    toggleFade(true);
-    m_fadeBox->setChecked(true);
+    if(!m_fixed){
+        m_fadeBox->blockSignals(true);
+        m_fadeTimer->stop();
+        m_fadeBox->setChecked(true);
+        m_fadeBox->setEnabled(false);
+    }
 }
 
 void SingleController::disableFade()
 {
     if(!m_fixed){
-        toggleFade(false);
         m_fadeBox->setChecked(false);
+        m_fadeBox->setEnabled(true);
+        m_fadeTimer->stop();
+        m_fadeBox->blockSignals(false);
     }
 }
 

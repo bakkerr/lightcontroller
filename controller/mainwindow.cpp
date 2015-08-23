@@ -41,17 +41,11 @@ MainWindow::MainWindow(QWidget *parent) :
     setupMenuBar();
     setupStatusBar();
 
-    addContainer(tr("Main"), 1);
-
-    /*QList<quint16> slaves;
-    for(int i = 1; i <= 5; i++){
-        addController(i, tr("L") + QString::number(i), i, QList<quint16>());
-        slaves.append(i);
-    }
-    addController(6, tr("Master"), 0x0044, slaves);*/
-
     loadSettings();
 
+    if(containers.empty()){
+        addContainer(tr("Main"), 1);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -64,8 +58,11 @@ void MainWindow::setupActions()
     saveSettingsAction = new QAction(tr("&Save Settings"), this);
     connect(saveSettingsAction, SIGNAL(triggered()), this, SLOT(saveSettings()));
 
-    saveSettingsAsAction = new QAction(tr("&Save Settings as..."), this);
+    saveSettingsAsAction = new QAction(tr("Save Settings &as..."), this);
     connect(saveSettingsAsAction, SIGNAL(triggered()), this, SLOT(saveSettingsAs()));
+
+    loadSettingsAction = new QAction(tr("&Load Settings"), this);
+    connect(loadSettingsAction, SIGNAL(triggered()), this, SLOT(loadSettingsFrom()));
 
     clearSettingsAction = new QAction(tr("&Clear Settings"), this);
     connect(clearSettingsAction, SIGNAL(triggered()), this, SLOT(clearSettings()));
@@ -103,6 +100,7 @@ void MainWindow::setupMenuBar()
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(saveSettingsAction);
     fileMenu->addAction(saveSettingsAsAction);
+    fileMenu->addAction(loadSettingsAction);
     fileMenu->addAction(clearSettingsAction);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
@@ -178,7 +176,19 @@ void MainWindow::loadSettings(QString settingsName)
 
     s->beginGroup(settingsName);
 
-    int size = s->beginReadArray(tr("Controllers"));
+    int size = s->beginReadArray(tr("Containers"));
+
+    for(int i = 0; i < size; i++){
+        s->setArrayIndex(i);
+        quint16 id = s->value(tr("id"), 0x00).toUInt();
+        QString name = s->value(tr("name"), tr("name")).toString();
+
+        addContainer(name, id);
+    }
+
+    s->endArray();
+
+    size = s->beginReadArray(tr("Controllers"));
 
     for(int i = 0; i < size; i++){
         s->setArrayIndex(i);
@@ -226,6 +236,17 @@ void MainWindow::saveSettings(QString settingsName)
     s->setValue(tr("saved"), QDateTime::currentDateTime());
     s->endGroup();
 
+    s->beginWriteArray(tr("Containers"));
+
+    for(int i = 0; i < containers.count(); i++){
+        s->setArrayIndex(i);
+        container *c = containers.at(i);
+        s->setValue(tr("id"), c->id());
+        s->setValue(tr("name"), c->name());
+    }
+
+    s->endArray();
+
     s->beginWriteArray(tr("Controllers"));
 
     for(int i = 0; i < controllers.count(); i++){
@@ -258,6 +279,24 @@ void MainWindow::saveSettings(QString settingsName)
 
     GLOBAL_settingsChanged = false;
 
+}
+
+void MainWindow::loadSettingsFrom(){
+    bool ok = false;
+
+    QSettings *s = new QSettings(tr(APPLICATION_COMPANY), tr(APPLICATION_NAME), this);
+    QStringList items = s->childGroups();
+
+    if(items.isEmpty()){
+        QMessageBox::warning(this, tr("Settings"), tr("There are no settings to load!"));
+        return;
+    };
+
+    QString settings = QInputDialog::getItem(this, tr("Select settings to load"), tr("Settings:"), items, items.indexOf(DEFAULT_SAVE_NAME), false, &ok);
+
+    if(ok){
+        //loadSettings(settings);
+    }
 }
 
 void MainWindow::saveSettingsAs()
@@ -351,6 +390,11 @@ void MainWindow::addController(quint16 id, QString name, quint16 remote, QList<q
         connect(lc, SIGNAL(doUnPair(quint16)), udp, SLOT(unPair(quint16)));
     }
 
+    foreach(SingleController *slave, slaves){
+        connect(lc, SIGNAL(fadeEnabled()), slave, SLOT(enableFade()));
+        connect(lc, SIGNAL(fadeDisabled()), slave, SLOT(disableFade()));
+    }
+
     controllers.append(lc);
     getContainerByID(containerID)->addController(lc);
 
@@ -360,13 +404,20 @@ void MainWindow::addController(quint16 id, QString name, quint16 remote, QList<q
 
 void MainWindow::addContainer(QString name, quint16 id)
 {
-    if(id == 0){
-        foreach(container *c, containers){
-            if(c->id() > id){
-                id = c->id();
-            }
+    int newid = 0;
+    foreach(container *c, containers){
+        if(c->id() > newid){
+            newid = c->id();
         }
-        id++;
+        if(c->id() == id){
+            QMessageBox::warning(this, tr(APPLICATION_NAME), tr("Cannot add container with existing ID!"));
+            return;
+        }
+    }
+    newid++;
+
+    if(id == 0){
+        id = newid;
     }
 
     container *c = new container(name, id, this);

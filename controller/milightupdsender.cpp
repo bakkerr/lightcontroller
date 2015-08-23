@@ -23,14 +23,14 @@ void MiLightUPDsender::error(const char* x){
 
 void MiLightUPDsender::udpsend(quint16 remote, quint8 color, quint8 bright, quint8 key, quint8 prefix)
 {
-    const unsigned char command[7] = {(unsigned char)prefix, (unsigned char)(remote >> 8), (unsigned char)(remote & 0xFF),
-                             (unsigned char)color,  (unsigned char)bright, (unsigned char)key, (unsigned char)m_resends};
+    const unsigned char command[8] = {(unsigned char)prefix, (unsigned char)(remote >> 8), (unsigned char)(remote & 0xFF),
+                             (unsigned char)color,  (unsigned char)bright, (unsigned char)key, 0x00, (unsigned char)m_resends};
 
-    //for(int i = 0; i < 7; i++) printf("%2x ", command[i]);
+    //for(int i = 0; i < 8; i++) printf("%2x ", command[i]);
     //printf("\n"); fflush(stdout);
 
     for(int i = 0; i < m_udpResends; i++){
-        qint64 bs = m_udpSocket->writeDatagram((char*)command, 7, m_addr, m_port);
+        qint64 bs = m_udpSocket->writeDatagram((char*)command, 8, m_addr, m_port);
         if(bs <= 0) error("Error sending data!\n");
     }
 
