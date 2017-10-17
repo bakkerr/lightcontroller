@@ -47,6 +47,9 @@ private slots:
     void showAddContainerDialog();
     void settingsChanged() { qDebug() << "Called" << endl; GLOBAL_settingsChanged = true; }
     void dockAll();
+
+    void setLayoutBlack(bool black);
+
     void about();
 
 private:
@@ -82,6 +85,7 @@ private:
     QAction *clearSettingsAction;
 
     QAction *viewStatusBarAction;
+    QAction *viewBlackAction;
     QAction *dockAllAction;
 
     QAction *settingsAction;
@@ -91,6 +95,8 @@ private:
     QAction *aboutQtAction;
     QAction *aboutAction;
     QAction *exitAction;
+
+    QPalette m_origPalette;
 
 };
 

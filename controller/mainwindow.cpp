@@ -7,19 +7,23 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Window Title */
     setWindowTitle(tr(APPLICATION_NAME));
 
+    m_origPalette = qApp->palette();
+
     /* Set sticky places for dockwidgets */
     setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 
-    udp = new MiLightUPDsender(tr("192.168.1.12"), 8899, this);
+    /* Create the UDP sender. */
+    udp = new MiLightUPDsender(tr(DEFAULT_IP), UDP_PORT_DEFAULT, this);
 
     /* Audio Controller */
     audio = new audioController(this);
     connect(audio, SIGNAL(controllerChanged(int)), this, SLOT(connectAudioController(int)));
     addDockWidget(Qt::TopDockWidgetArea, audio);
 
+    /* Preset Controller. */
     presetController = new PresetController(this);
     presetController->setMinimumWidth(230);
     connect(presetController, SIGNAL(createPreset()), this, SLOT(getPreset()));
@@ -27,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(presetController, SIGNAL(setPreset(Preset*)), this, SLOT(setPreset(Preset*)));
     addDockWidget(Qt::TopDockWidgetArea, presetController);
 
+    /* Settings controller. Might want to move this to the menu */
     settings = new settingsWidget(this);
     connect(settings, SIGNAL(udpResends(int)), udp, SLOT(setUdpResends(int)));
     connect(settings, SIGNAL(wirelessResends(int)), udp, SLOT(setWirelessResends(int)));
@@ -36,13 +41,16 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *w = window();
     w->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w->size(), qApp->desktop()->availableGeometry()));
 
+    /* Setup functions. */
     setupActions();
     setupToolBar();
     setupMenuBar();
     setupStatusBar();
 
+    /* Load stores settings */
     loadSettings();
 
+    /* If there is no container, then create one. */
     if(containers.empty()){
         addContainer(tr("Main"), 1);
     }
@@ -69,6 +77,11 @@ void MainWindow::setupActions()
 
     exitAction = new QAction(tr("E&xit"), this);
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+
+    viewBlackAction = new QAction(tr("&Layout black"), this);
+    viewBlackAction->setCheckable(true);
+    viewBlackAction->setChecked(false);
+    connect(viewBlackAction, SIGNAL(triggered(bool)), this, SLOT(setLayoutBlack(bool)));
 
     viewStatusBarAction = new QAction(tr("&Status Bar"), this);
     viewStatusBarAction->setCheckable(true);
@@ -131,6 +144,8 @@ void MainWindow::setupMenuBar()
 
     viewMenu->addSeparator();
 
+    //viewMenu->addAction(viewBlackAction);
+
     viewMenu->addAction(dockAllAction);
 
     /* Help Menu */
@@ -168,6 +183,36 @@ void MainWindow::setupStatusBar()
                              tr(APPLICATION_YEAR)    + tr(" - ") +
                              tr(APPLICATION_URL)
                              , 0);
+}
+
+void MainWindow::setLayoutBlack(bool black){
+    if(black){
+        QPalette darkPalette;
+        darkPalette.setColor(QPalette::Window, QColor(53,53,53));
+        darkPalette.setColor(QPalette::WindowText, Qt::white);
+        darkPalette.setColor(QPalette::Base, QColor(25,25,25));
+        darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
+        darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+        darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+        darkPalette.setColor(QPalette::Text, Qt::white);
+        darkPalette.setColor(QPalette::Button, QColor(53,53,53));
+        darkPalette.setColor(QPalette::ButtonText, Qt::white);
+        darkPalette.setColor(QPalette::BrightText, Qt::red);
+        darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+
+        darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+        darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+
+        qApp->setPalette(darkPalette);
+
+        qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
+        this->repaint();
+    }
+    else{
+        qApp->setPalette(m_origPalette);
+
+    }
+
 }
 
 void MainWindow::loadSettings(QString settingsName)

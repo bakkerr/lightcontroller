@@ -12,6 +12,8 @@
 
 #define DEFAULT_SAVE_NAME         "default"
 
+#define DEFAULT_IP                "192.168.1.14"
+
 #define UDP_PORT_DEFAULT                8899
 #define UDP_RESENDS_DEFAULT                1
 #define WIRELESS_RESENDS_DEFAULT          10

@@ -1,14 +1,17 @@
 #include "audiocontroller.h"
 
+/* Need to move this */
 const int BufferSize = 1000;
 
-
+/*
+ * Audio controller constructor, creates a dockwidget. */
 audioController::audioController(QWidget *parent) :
     QDockWidget(tr("Audio Controller"), parent),
     m_plotX(AUDIO_GRAPH_DISPLAY_SAMPLES),
     m_plotY(AUDIO_GRAPH_DISPLAY_SAMPLES),
     m_plotZ(AUDIO_GRAPH_DISPLAY_SAMPLES)
 {
+    /* Set default. */
     m_samples = AUDIO_SAMPLES_DEFAULT;
     m_beat = NULL;
 
@@ -19,6 +22,7 @@ audioController::audioController(QWidget *parent) :
     QVBoxLayout *l1 = new QVBoxLayout();
 
     QLabel *inputLabel = new QLabel(tr("Audio Input:"), this);
+    inputLabel->setToolTip(tr("Choose the audio input device."));
     QHBoxLayout *l001 = new QHBoxLayout();
 
     m_deviceBox = new QComboBox(this);
@@ -27,6 +31,11 @@ audioController::audioController(QWidget *parent) :
         this->setEnabled(false);
         this->setToolTip(tr("AudioController has been disabled because it could not find a default audio input device. Please add an input device and restart ") + APPLICATION_NAME);
     }
+
+    /*
+     * Create a list of all audio input devices available on the system.
+     * Make sure the default one is on top
+     */
     m_inputDevice = defaultDeviceInfo;
     m_deviceBox->addItem(defaultDeviceInfo.deviceName(), qVariantFromValue(defaultDeviceInfo));
     m_deviceBox->setMaximumWidth(150);
@@ -54,6 +63,7 @@ audioController::audioController(QWidget *parent) :
     m_sampleSlider->setValue(m_samples);
     m_sampleSlider->setMaximumWidth(150);
     m_sampleLabel = new QLabel(tr("Samples:"), this);
+    m_sampleLabel->setToolTip(tr("Set the number of samples to use for the FFT window"));
     m_sampleLabel->setMaximumWidth(100);
     sampleLayout->addWidget(m_sampleLabel);
     sampleLayout->addWidget(m_sampleSlider);
@@ -62,6 +72,7 @@ audioController::audioController(QWidget *parent) :
     QHBoxLayout *fftWindowLayout = new QHBoxLayout();
     m_fftWindowBox = new QComboBox(this);
     m_fftWindowLabel = new QLabel(tr("FFT Window:"), this);
+    m_fftWindowLabel->setToolTip(tr("Set the FFT window to use."));
     m_fftWindowBox->addItem(tr("None"));
     m_fftWindowBox->addItem(tr("Hanning"));
     m_fftWindowBox->addItem(tr("Blackman"));
